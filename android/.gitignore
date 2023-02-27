@@ -12,4 +12,3 @@ key.properties
 **/*.keystore
 **/*.jks
 
-lib/region_data.dart
