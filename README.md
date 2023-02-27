@@ -1,15 +1,30 @@
 # ebrevet_card
 
-A new Flutter project.
+An electronic brevet card for randonneuring.
 
-## Getting Started
+## Introduction
 
-This project is a starting point for a Flutter application.
+This Android/iOS 
+app serves as an automated brevet card that can provide Electronic Proof of Passage
+on a randonneuring brevet, while maintaining some of the "feel" of the traditional paper brevet card process. 
 
-A few resources to get you started if this is your first Flutter project:
+## Features include
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Requires network access once to download event details. Afterward, can be used effectively without continous Cellular service or Internet access
+- Monitors distance to controls and open/close times, and only allows control check in when appropriate
+- Reports control check ins back to the region's web server to allow a real time rider progess page to be generated
+- Can be used by any region with a small amount of server support for downloading event details
+- Pre-ride mode allows for overriding control time/location check in rules, but results are marked as a pre-ride
+
+## Randonneuring Resources:
+
+- [Pennsylvania Randonneurs](https://parando.org)
+- [Randonneurs USA](https://rusa.org)
+
+
+## Developers
+
+This application was developed in the Dart language using the Flutter framework. 
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
