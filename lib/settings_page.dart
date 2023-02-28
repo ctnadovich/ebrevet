@@ -1,3 +1,19 @@
+// Copyright (C) 2023 Chris Nadovich
+// This file is part of eBrevet <https://github.com/ctnadovich/ebrevet>.
+//
+// eBrevet is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// eBrevet is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
+
 import 'package:ebrevet_card/future_events.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -131,7 +147,7 @@ class SettingsPageState extends State<SettingsPage> {
         applicationIcon: Image.asset('assets/images/eBrevet-128.png',width: 64,),
         applicationVersion: '0.1.0',
         applicationLegalese:
-            '(c)2023 Chris Nadovich, code released under GPLv3',
+            '(c)2023 Chris Nadovich. This free application is licensed under GPLv3.',
         children: [
           SizedBox(
             height: 16,

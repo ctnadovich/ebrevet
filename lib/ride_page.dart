@@ -1,3 +1,19 @@
+// Copyright (C) 2023 Chris Nadovich
+// This file is part of eBrevet <https://github.com/ctnadovich/ebrevet>.
+//
+// eBrevet is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// eBrevet is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
+
 import 'dart:async';
 import 'package:ebrevet_card/snackbarglobal.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +25,10 @@ import 'current.dart';
 
 
 // TODO Someplace the organizer and emergency number needs to appear
+
+// TODO First control auto check in? 
+
+// TODO restore timer refresh on ride page -- otherwise won't update with clock
 
 class RidePage extends StatefulWidget {
   @override
