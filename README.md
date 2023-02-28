@@ -29,3 +29,6 @@ This application was developed in the Dart language using the Flutter framework.
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+The code for this project is (C) 2023 Chris Nadovich released for public use under the GPLv3 
+open source license. 

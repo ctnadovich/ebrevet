@@ -1,9 +1,9 @@
 import 'package:ebrevet_card/future_events.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'rider.dart';
 import 'region.dart';
-
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -14,7 +14,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-
   // This should be called when the RUSA ID changes or for any other
   // time when we want to blow away previous rider event records.
 
@@ -57,8 +56,7 @@ class SettingsPageState extends State<SettingsPage> {
                   k: Region.regionMap[k]!['name']!
               },
               selected: Region.defaultRegion,
-              onChange: (value) =>  FutureEvents.clear(),
-
+              onChange: (value) => FutureEvents.clear(),
             ),
           ],
         ),
@@ -132,7 +130,8 @@ class SettingsPageState extends State<SettingsPage> {
         applicationName: 'eBrevetCard',
         applicationIcon: FlutterLogo(),
         applicationVersion: '0.1.0',
-        applicationLegalese: '(c)2023 Chris Nadovich',
+        applicationLegalese:
+            '(c)2023 Chris Nadovich, code released under GPLv3',
         children: [
           SizedBox(
             height: 16,
@@ -140,6 +139,17 @@ class SettingsPageState extends State<SettingsPage> {
           Text(
             'An electronic brevet card application for Electronic Proof of Passage in Randonneuring.',
             textAlign: TextAlign.center,
+          ),
+          InkWell(
+            onTap: () => launchUrl(Uri.parse('https://github.com/ctnadovich/ebrevet')),
+            child: Text(
+              'Documentation and Source Code',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Color.fromRGBO(0, 0, 128, 1),
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline),
+              
+            ),
           ),
         ]);
   }

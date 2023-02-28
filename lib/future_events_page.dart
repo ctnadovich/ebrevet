@@ -231,35 +231,38 @@ class _EventCardState extends State<EventCard> {
                         padding: EdgeInsets.zero,
                       ),
                       onPressed: () async {
-                        if (false == Control.isPrerideMode &&
-                            overallOutcomeInHistory == OverallOutcome.dns) {
-                          final startCode = await openStartBrevetDialog();
-                          final msg =
-                              validateStartCode(startCode, widget.event);
-                          if (null != msg) {
-                            SnackbarGlobal.show(msg);
-                            return;
-                          }
-                        }
-
-                        if (context.mounted &&
-                            Rider.isSet &&
-                            FutureEvents.region != null) {
-                          if (overallOutcomeInHistory !=
-                              OverallOutcome.finish) {
-                            Current.activate(widget.event, Rider.fromSettings(),
-                                FutureEvents.region!,
-                                preRideMode: Control.isPrerideMode);
-                          }
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(
-                                builder: (context) =>
-                                    RidePage(), // will implicitly ride event just activated
-                              ))
-                              .then((_) => setState(() {}));
-                        } else {
+                        if (Rider.isSet == false ||
+                            FutureEvents.region == null) {
                           SnackbarGlobal.show(
                               "Can't RIDE. Is Rider Name, RUSA ID, and Region set?");
+                        } else {
+                          if (false == Control.isPrerideMode &&
+                              overallOutcomeInHistory == OverallOutcome.dns) {
+                            final startCode = await openStartBrevetDialog();
+                            final msg =
+                                validateStartCode(startCode, widget.event);
+                            if (null != msg) {
+                              SnackbarGlobal.show(msg);
+                              return;
+                            }
+                          }
+
+                          if (context.mounted) {
+                            if (overallOutcomeInHistory !=
+                                OverallOutcome.finish) {
+                              Current.activate(widget.event,
+                                  Rider.fromSettings(), FutureEvents.region!,
+                                  preRideMode: Control.isPrerideMode);
+                            }
+                            Navigator.of(context)
+                                .push(MaterialPageRoute(
+                                  builder: (context) =>
+                                      RidePage(), // will implicitly ride event just activated
+                                ))
+                                .then((_) => setState(() {}));
+                          } else {
+                            print("Not mounted!?");
+                          }
                         }
                       },
                       child: Text('RIDE'),
