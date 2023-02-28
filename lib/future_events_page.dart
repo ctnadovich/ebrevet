@@ -286,6 +286,8 @@ class _EventCardState extends State<EventCard> {
       return "Missing start code";
     }
 
+    if(startCode==Region.magicStartCode) return null;
+
     if (false == Rider.isSet) return "Rider not set.";
     if (FutureEvents.region == null) return "No region. ";
 

@@ -6,6 +6,7 @@ import 'region_data.dart';
 //
 // class RegionData {
 //   static const int defaultRegion = 938017;
+//   static const magicStartCode = "secret code";
 //
 //   static Map<int, Map<String, String>> regionMap = {
 //
@@ -25,6 +26,8 @@ class Region {
   late String name;
   late String eventURL;
   late String secret;
+
+  static const String magicStartCode=RegionData.magicStartCode;
 
   Region({int r = RegionData.defaultRegion}) {
     int rid = (regionMap.containsKey(r)) ? r : defaultRegion;

@@ -128,7 +128,7 @@ class SettingsPageState extends State<SettingsPage> {
     showAboutDialog(
         context: context,
         applicationName: 'eBrevetCard',
-        applicationIcon: FlutterLogo(),
+        applicationIcon: Image.asset('assets/images/eBrevet-128.png',width: 64,),
         applicationVersion: '0.1.0',
         applicationLegalese:
             '(c)2023 Chris Nadovich, code released under GPLv3',
