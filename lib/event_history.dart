@@ -18,6 +18,7 @@ import 'package:ebrevet_card/files.dart';
 
 import 'event.dart';
 import 'outcome.dart';
+import 'control.dart';
 // import 'current.dart';
 
 // PastEvents are events with outcomes
@@ -25,32 +26,44 @@ import 'outcome.dart';
 // a past event in the EventHistory map
 
 class PastEvent {
+  String riderID;
   Event _event;
   EventOutcomes outcomes;
+  bool isPreride;
 
-  PastEvent(this._event, this.outcomes);
+  PastEvent(this._event, this.riderID, this.outcomes, this.isPreride);
 
   static Map<String, dynamic> toJson(PastEvent pe) => {
         'event': pe._event.toMap,
         'outcomes': pe.outcomes.toMap,
+        'preride': pe.isPreride,
+        'rider_id': pe.riderID,
       };
 
   factory PastEvent.fromJsonMap(Map<String, dynamic> jsonMap) {
     var eventMap = jsonMap['event'];
     var outcomeMap = jsonMap['outcomes'];
+    var isPreride = jsonMap['preride'];
+    var riderID = jsonMap['rider_id'];
     var e = Event.fromMap(eventMap);
     var o = EventOutcomes.fromMap(outcomeMap);
-    return PastEvent(e, o);
+    return PastEvent(e, riderID, o, isPreride);
   }
 
+  // TODO Why didn't I see correct elapsed time computed on my preride
+
+  DateTime? get startDateTimeActual => (isPreride)
+      ? outcomes.getControlCheckInTime(_event.startControlKey)
+      : _event.startDateTime;
+
+  DateTime? get finishDateTimeActual =>
+      outcomes.getControlCheckInTime(_event.finishControlKey);
+
   Duration? get elapsedDuration {
-    DateTime? startDateTime = (wasPreRide)
-        ? outcomes.getControlCheckInTime(_event.startControlKey)
-        : _event.startDateTime;
-    DateTime? finishDateTime =
-        outcomes.getControlCheckInTime(_event.finishControlKey);
-    if (startDateTime == null || finishDateTime == null) return null;
-    return finishDateTime.difference(startDateTime);
+    var s = startDateTimeActual;
+    var f = finishDateTimeActual;
+    if ((s ?? f) == null) return null;
+    return f!.difference(s!);
   }
 
   String get elapsedTimeString {
@@ -58,23 +71,35 @@ class PastEvent {
     return "${elapsedDuration!.inHours}H ${elapsedDuration!.inMinutes % 60}M";
   }
 
+  bool isOpenControl(int controlKey) {
+    // can start preride any time
+    if (isPreride && controlKey == _event.startControlKey) return true;
+
+    // no controls are open till the first one is checked
+    if (startDateTimeActual == null) return false;
+
+    Control control = _event.controls[controlKey];
+
+    var openDur = control.openDuration(_event.startDateTime);
+    var closeDur = control.closeDuration(_event.startDateTime);
+    var openActual = startDateTimeActual!.add(openDur);
+    var closeActual = startDateTimeActual!.add(closeDur);
+
+    var now = DateTime.now();
+
+    return (openActual.isBefore(now) && closeActual.isAfter(now));
+  }
+
+  bool isAvailable(int controlKey) =>
+      isOpenControl(controlKey) && _event.controls[controlKey].cLoc.isNearControl;
+
   Event get event {
     return _event;
   }
 
-  bool get wasPreRide => outcomes.wasPreRide;
-
   set overallOutcome(OverallOutcome o) {
     outcomes.overallOutcome = o;
   }
-
-  // set outcomes(EventOutcomes outcomes) {
-  //   _outcomes = outcomes;
-  // }
-
-  // EventOutcomes get outcomes {
-  //   return _outcomes;
-  // }
 
   String get overallOutcomeDescription {
     return outcomes.overallOutcome.description ??
@@ -82,16 +107,33 @@ class PastEvent {
   }
 }
 
-
 class EventHistory {
-
   static Map<String, PastEvent> _pastEventMap = {}; // Key is EventID string
 
   static const pastEventsFileName = 'past_events.json';
 
-  // static clear() {
-  //   _pastEventMap = {};  
-  // }
+  static PastEvent addActivate(Event e, String r, bool isPreride) {
+    var pe = lookupPastEvent(e.eventID);
+    if (pe != null) {
+      pe.outcomes.overallOutcome = OverallOutcome.active;
+    } else {
+      pe = _add(e, r,
+          overallOutcome: OverallOutcome.active, isPreride: isPreride);
+      // need to save EventHistory now
+    }
+
+    save();
+
+    // It seems excessive to save the whole event history
+    // every activation, but this certainly does the job.
+    // The only time an event can change state is when
+    // activated or at a control checkin.
+
+    // once an event is "activated" it gets copied to past events map and becomes immutable -- only the outcome can change
+    // so conceivably the preriders could have a different "event" saved than the day-of riders
+
+    return pe;
+  }
 
   static Map<String, PastEvent> fromJsonMap(Map<String, dynamic> jsonMap) {
     var m = jsonMap
@@ -171,18 +213,16 @@ class EventHistory {
 
   // When using this, don't forget to call EventHistory.save() afterwards
 
-  static PastEvent add(Event e,
-      {OverallOutcome? overallOutcome, bool? preRideMode}) {
+  static PastEvent _add(Event e, String r,
+      {OverallOutcome? overallOutcome, bool? isPreride}) {
     // }, Map<int, DateTime>? checkInTimeMap}) {
     if (_pastEventMap.containsKey(e.eventID)) {
-      throw Exception(
+      throw StateError(
           "Existing event ID ${e.eventID} in _pastEventMap. Can't add again.");
     } else {
-      var o = EventOutcomes(
-          oo: overallOutcome, preRideMode: preRideMode);
-      // if (overallOutcome != null) o.overallOutcome = overallOutcome;
-      // if (checkInTimeMap != null) o.checkInTimeMap = checkInTimeMap;
-      var pe = PastEvent(e, o);
+      var o =
+          EventOutcomes(overallOutcome: overallOutcome, isPreride: isPreride);
+      var pe = PastEvent(e, r, o, isPreride ?? false);
       _pastEventMap[e.eventID] = pe;
 
       return pe;

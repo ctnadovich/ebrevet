@@ -16,19 +16,18 @@
 
 import 'dart:async';
 import 'package:ebrevet_card/snackbarglobal.dart';
+// import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:flutter/material.dart';
 
 import 'control.dart';
 import 'time_till.dart';
 import 'location.dart';
 import 'current.dart';
+import 'app_settings.dart';
 
+// TODO IT's unclear _which_ event (future or history) apprears in future or ride pages
 
-// TODO Someplace the organizer and emergency number needs to appear
-
-// TODO First control auto check in? 
-
-// TODO restore timer refresh on ride page -- otherwise won't update with clock
+// TODO First control auto check in?
 
 class RidePage extends StatefulWidget {
   @override
@@ -40,6 +39,8 @@ class _RidePageState extends State<RidePage> {
   final int tickPeriod = 10;
   int tTick = 0;
 
+  final isPreride = Current.activatedEvent?.isPreride ?? false;
+
   @override
   void initState() {
     super.initState();
@@ -49,19 +50,17 @@ class _RidePageState extends State<RidePage> {
 // Maybe move this timer to its own class and use it to schedule events?
 // Or maybe we want location updates to be rider initiated and don't need this timer?
 
-    // var tickDuration = Duration(seconds: tickPeriod);
+    var tickDuration = Duration(seconds: tickPeriod);
 
-    // double setPeriodSeconds = Settings.getValue<double>(
-    //     'key-location_poll-period',
-    //     defaultValue: 30)!;
-    // int periodTicks = setPeriodSeconds.floor() ~/ tickPeriod;
+    double setPeriodSeconds = AppSettings.locationPollPeriod;
+    int periodTicks = setPeriodSeconds.floor() ~/ tickPeriod;
 
-    // timer = Timer.periodic(tickDuration, (Timer t) {
-    //   if (0 == tTick % periodTicks) {
-    //     RiderLocation.updateLocation();
-    //   }
-    //   tTick++;
-    // });
+    timer = Timer.periodic(tickDuration, (Timer t) {
+      if (0 == tTick % periodTicks) {
+        RiderLocation.updateLocation();
+      }
+      tTick++;
+    });
   }
 
   @override
@@ -72,7 +71,6 @@ class _RidePageState extends State<RidePage> {
 
   @override
   Widget build(BuildContext context) {
-    
     var controlList = (Current.isActivated) ? Current.event!.controls : [];
     var eventText =
         (Current.isActivated) ? Current.event!.nameDist : 'No event';
@@ -94,8 +92,9 @@ class _RidePageState extends State<RidePage> {
               builder: (context, value, child) {
                 return ListView(
                   children: <Widget>[
+                        Text((isPreride)?'Preride':'Brevet'),
                         Text(
-                            'Rider: ${Current.rider?.firstLastRUSA ?? 'Unknown'}'),
+                            'Rider RUSA#: ${Current.activatedEvent?.riderID ?? 'Unknown'}'),
                         Text(
                             'At ${RiderLocation.lastLocationUpdateString} ${RiderLocation.lastLocationUpdateTimeZoneName} '
                             'location was ${RiderLocation.latLongString}'),
@@ -157,7 +156,7 @@ class _ControlCardState extends State<ControlCard> {
   }
 
   Text showControlStatus(Control c) {
-    if (c.isOpen) {
+    if (Current.activatedEvent!.isOpenControl(c.index)) {
       return Text.rich(TextSpan(
         children: [
           TextSpan(
@@ -205,6 +204,11 @@ class _ControlCardState extends State<ControlCard> {
       return Text(
           'Direction: ${cLoc.crowCompassHeadingString} ${cLoc.crowDistMiString} mi away');
     }
+  }
+
+  Text showExactDistance(ControlLocation cLoc) {
+    return Text(
+        'Direction: ${cLoc.crowCompassHeadingString} ${cLoc.crowDistMetersString} meters away');
   }
 
   Widget showControlName(Control control) {
@@ -263,7 +267,7 @@ class _ControlCardState extends State<ControlCard> {
           Text(checkInTime.toLocal().toString().substring(11, 19)),
         ],
       );
-    } else if (c.isAvailable) {
+    } else if (c.index==0 || Current.activatedEvent!.isAvailable(c.index)) {
       return ElevatedButton(
         onPressed: () {
           openCheckInDialog();
@@ -275,15 +279,50 @@ class _ControlCardState extends State<ControlCard> {
     }
   }
 
+  // TODO Preride time calculation relative to start time
+
+  // TODO Automatic pre ride mode -- should be impossible to pre-ride day of
+
+  // TODO distance override should not be part of pre ride mode
+
+  // TODO Upload now button
+
+  // TODO Confirmation of upload for each control
+
+  // TODO note region in past/future events (multi region)
+
+  // TODO developer options separate and restricted. 
+
+  // TODO Posting result and elapsed time to roster
+
   // TODO Enter comment,  "take photo", or answer the control question
 
-  // TODO What about distance to control and time relative to open/close? 
+  // TODO What about un-checkin and erase history
 
   Future openCheckInDialog() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Check In to Control'),  // TODO Name of control? 
-          content: Text(widget.control.name),
+          title: const Text('Check In to Control'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.control.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              showControlStatus(widget.control),
+              showExactDistance(widget.control.cLoc),
+              if (widget.control.cLoc.isNearControl)
+                Text(
+                  'AT THIS CONTROL',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
+          ),
           actions: [
             TextButton(
                 onPressed: () {

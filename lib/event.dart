@@ -17,6 +17,7 @@
 import 'snackbarglobal.dart';
 import 'control.dart';
 import 'time_till.dart';
+import 'region.dart';
 
 
 // The Event object documents an event details
@@ -32,6 +33,8 @@ class Event {
   late String distance; // Official distance in KM
   late String startCity;
   late String startState;
+   String organizerName="Not Set";
+   String organizerPhone='Not Set';
   late int cueVersion;
   late String
       eventID; // This must be unique worldwide (could be contstructed "$regionID-$regionEventID")
@@ -51,6 +54,8 @@ class Event {
     'start_city':startCity,
     'start_state':startState,
     'cue_version':cueVersion,
+    'organizer_name':organizerName,
+    'organizer_phone':organizerPhone,
     'event_id':eventID,
     'club_acp_code':regionID,
     'controls':[for (var cntrl in controls) cntrl.toMap],
@@ -67,6 +72,8 @@ class Event {
       distance = json['distance'];
       startCity = json['start_city'];
       startState = json['start_state'];
+      organizerName = json['organizer_name'] ?? "?";
+      organizerPhone= json['organizer_phone'] ?? "?";
       cueVersion = (json['cue_version'] is int) ? json['cue_version'] : int.tryParse(json['cue_version'])!;
       eventID = json['event_id'];
       regionID = (json['club_acp_code'] is int) ? json['club_acp_code'] : int.tryParse(json['club_acp_code'])!;
@@ -104,7 +111,7 @@ class Event {
     return sdtl.toString().substring(0, 16);
   }
 
-  get status {
+  get statusText {
     DateTime now = DateTime.now();
     if (startDateTime.isAfter(now)) {
       // Event in future
@@ -134,4 +141,29 @@ class Event {
   int get startControlKey {
     return controls.first.index;
   }
+
+  Region get region => Region(regionID: regionID);
+  String get eventURL => region.eventURL;
+  String get secret => region.secret;
+
+  // Time window +/- from the official start time that 
+  // starts will be allowed. In minutes. 
+
+  static const startableTimeWindowMinutes = 60;
+  static const prerideTimeWindowDays = 15;
+
+  bool get isStartable {
+    var now=DateTime.now();
+    var difference = startDateTime.difference(now);
+    return (difference.inMinutes.abs() < startableTimeWindowMinutes);
+  }
+
+  bool get isPreridable {
+    var now = DateTime.now();
+    var difference = startDateTime.difference(now);
+    return difference.inMinutes>startableTimeWindowMinutes && difference.inDays<=prerideTimeWindowDays;
+  }
+
+  
+ 
 }

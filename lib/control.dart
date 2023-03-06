@@ -14,17 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+// import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'snackbarglobal.dart';
 import 'location.dart';
+import 'current.dart';
 
 // Where is this control in the scheme of thngs
-enum SIF {
-  start,
-  intermediate,
-  finish,
-  unknown
-} 
+enum SIF { start, intermediate, finish, unknown }
 
 class Control {
   late double distMi;
@@ -35,23 +31,25 @@ class Control {
   late String address;
   late DateTime open;
   late DateTime close;
+
   late int index;
   SIF sif = SIF.unknown;
   bool valid = false;
 
-  Map<String, dynamic> get toMap =>
-  {
-  'dist_mi': distMi,
-  'long': long,
-  'lat': lat,
-  'name': name,
-  'style': style,
-  'address': address,
-  'open': open.toUtc().toIso8601String(),
-  'close': close.toUtc().toIso8601String(),
-  'index': index,
-  'sif': sif==SIF.start?'start':(sif==SIF.finish?'finish':'intermediate'),
-  };
+  Map<String, dynamic> get toMap => {
+        'dist_mi': distMi,
+        'long': long,
+        'lat': lat,
+        'name': name,
+        'style': style,
+        'address': address,
+        'open': open.toUtc().toIso8601String(),
+        'close': close.toUtc().toIso8601String(),
+        'index': index,
+        'sif': sif == SIF.start
+            ? 'start'
+            : (sif == SIF.finish ? 'finish' : 'intermediate'),
+      };
 
   Control.fromMap(this.index, Map<String, dynamic> m) {
     try {
@@ -85,23 +83,27 @@ class Control {
     }
   }
 
-  bool get isOpen {
-    var now = DateTime.now();
-    return (open.isBefore(now) && close.isAfter(now));
-  }
-
   get cLoc => ControlLocation(this);
 
-  static  bool get isPrerideMode =>
-      Settings.getValue<bool>('key-preride-mode', defaultValue: false)!;
+  Duration openDuration(DateTime s) => open.difference(s);
+  Duration closeDuration(DateTime s) => close.difference(s);
 
-  
-  get isAvailable => isPrerideMode ||
-        isOpen && cLoc.isNearControl; 
+  String? closeDurationString(DateTime start){ 
+    var d = close.difference(start);
+    var a = d.inDays;
+    var h = d.inHours;
+    var m = d.inMinutes;
+    var s = "$m min";
+    if (h>0) s = "$h hrs, $s";
+    if (a>0) s = "$a days, $s";
+    return s;
+  }
 
-  get openTimeString  => open.toLocal().toString().substring(0,16) + open.toLocal().timeZoneName;
-  get closeTimeString  => close.toLocal().toString().substring(0,16) + close.toLocal().timeZoneName;
-
+  get openTimeString =>
+      open.toLocal().toString().substring(0, 16) + open.toLocal().timeZoneName;
+  get closeTimeString =>
+      close.toLocal().toString().substring(0, 16) +
+      close.toLocal().timeZoneName;
 
   
 }

@@ -16,10 +16,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 
 import 'snackbarglobal.dart';
 import 'control.dart';
+import 'exception.dart';
+import 'app_settings.dart';
 
 class RiderLocation {
   static Position? riderLocation;
@@ -28,17 +29,18 @@ class RiderLocation {
   static bool gpsServiceEnabled = false;
 
   static void updateLocation() async {  // TODO automatic periodic report to remote server?  
+                                        // of location not just when checiking in
                                         // Perhaps as settings option with different period
     try {
       var gpsServiceEnabled = await Geolocator.isLocationServiceEnabled();
       if (gpsServiceEnabled == false) {
-        throw Exception('GPS Service Not Enabled.');
+        throw GPSException('GPS Service Not Enabled.');
       } else {
         var permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied) {
           permission = await Geolocator.requestPermission();
           if (permission == LocationPermission.denied) {
-            throw Exception('GPS permission refused.');
+            throw GPSException('GPS permission refused.');
           }
         }
         riderLocation = await Geolocator.getCurrentPosition(
@@ -135,14 +137,18 @@ class ControlLocation {
 
   String get crowDistMiString =>
       (crowDistMiles == null) ? '?' : crowDistMiles!.toStringAsFixed(1);
+
+  String get crowDistMetersString =>
+      (crowDistMiles == null) ? '?' : crowDistMeters!.toStringAsFixed(1);
+      
   String get crowCompassHeadingString =>
       (crowBearing == null) ? '?' : angleToCompassHeading(crowBearing);
 
-  bool get isNearControl =>
-      (crowDistMeters != null && crowDistMeters! < controlAutoCheckInDistance);
-
-  double get controlAutoCheckInDistance =>
-      Settings.getValue<double>('key-control-distance-threshold',
-          defaultValue: 500)!;
+  bool get isNearControl {
+    if (crowDistMeters == null) return false;
+    var d =  AppSettings.controlAutoCheckInDistance;
+    var closeEnough = crowDistMeters! < d;
+    return closeEnough;
+  }
 
 }

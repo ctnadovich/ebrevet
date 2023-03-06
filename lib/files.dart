@@ -65,7 +65,7 @@ class FileStorage {
       var jsonData = jsonEncode(contents,
           toEncodable: (Object? value) => (value is PastEvent)
               ? PastEvent.toJson(value)
-              : throw Exception('In FileStorage.writeJSON() Cannot convert to JSON: $value'
+              : throw FormatException('In FileStorage.writeJSON() Cannot convert to JSON: $value'
               ));
 
       await file.writeAsString(jsonData);

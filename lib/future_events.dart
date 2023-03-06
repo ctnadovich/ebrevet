@@ -24,6 +24,8 @@ import 'rider.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'files.dart';
+import 'exception.dart';
+
 // import 'current.dart';
 
 class FutureEvents {
@@ -45,10 +47,17 @@ class FutureEvents {
   }
 
   static Future<int> refreshEventsFromDisk(Region rgn) async {
+    Map<String, dynamic> eventMapFromFile;
     try {
-      print("** Refreshing events from DISK for ${rgn.name}");
+      print("** Refreshing events from DISK for ${rgn.clubName}");
 
-      var eventMapFromFile = await storedEvents.readJSON();
+      try {
+        eventMapFromFile = await storedEvents.readJSON();
+      } catch (e) {
+        throw NoPreviousDataException(
+            'Cound not read ${storedEvents.fileName} file.');
+      }
+
       var lrs = '';
       if (eventMapFromFile.isNotEmpty) {
         rebuildEventList(eventMapFromFile, rgn);
@@ -65,13 +74,12 @@ class FutureEvents {
             "Successfully restored ${events.length} events from disk. Last Refreshed = $lrs");
         return refreshCount.value;
       } else {
-        throw Exception("Future events file read was empty.");
-        // TODO Maybe need custom exception classes?
+        throw NoPreviousDataException("Future events file read was empty.");
       }
     } catch (error) {
       events.clear();
       // TODO Do somethnig better than just printing this, if possible.
-      print("Couldn't refresh events from FILE: $error");
+      print("Couldn't refresh future events from FILE: $error");
       return 0;
     }
   }
@@ -92,16 +100,15 @@ class FutureEvents {
 
       // Then try to fetch from the server in background with callback to process
       var eventMapFromServer = await fetchFutureEventsFromServer(rgn);
-        if (null == eventMapFromServer) return false;
-        rebuildEventList(eventMapFromServer, rgn);
-        var now = DateTime.now();
-        eventMapFromServer['lastRefreshed'] = now.toUtc().toIso8601String();
-        var writeStatus = await storedEvents.writeJSON(
-        eventMapFromServer); // Save what we just downloaded to disk
-        lastRefreshed = now;
-        refreshCount.value++;
-        print("Refresh complete. Write status: $writeStatus");
-
+      if (null == eventMapFromServer) return false;
+      rebuildEventList(eventMapFromServer, rgn);
+      var now = DateTime.now();
+      eventMapFromServer['lastRefreshed'] = now.toUtc().toIso8601String();
+      var writeStatus = await storedEvents.writeJSON(
+          eventMapFromServer); // Save what we just downloaded to disk
+      lastRefreshed = now;
+      refreshCount.value++;
+      print("Refresh complete. Write status: $writeStatus");
     } catch (error) {
       // events.clear();
       SnackbarGlobal.show(error.toString());
@@ -119,7 +126,7 @@ class FutureEvents {
     for (var e in el) {
       var eventToAdd = Event.fromMap(e);
       if (eventToAdd.valid == false) {
-        throw Exception('Invalid event data found.');
+        throw FormatException('Invalid event data found.');
       }
       events.add(eventToAdd);
     }
@@ -129,7 +136,7 @@ class FutureEvents {
     // rider = r;
     region = g;
     var n = events.length;
-    print("Event List rebuilt with $n events in ${region!.name}.");
+    print("Event List rebuilt with $n events in ${region!.clubName}.");
   }
 
   static Future<Map<String, dynamic>?> fetchFutureEventsFromServer(
@@ -142,35 +149,39 @@ class FutureEvents {
     Map<String, dynamic> decodedResponse;
     http.Response? response;
 
-    try {
-      response = await http.get(Uri.parse(url)).timeout(Duration(seconds: 15));
-    } catch (e) {
-      throw Exception('Failed to fetch data for events. No Internet? $e');
-    }  // TODO perhaps handle the timeout exception differently than no internet
+    const getTimeoutSeconds = 15;
 
-    if (response.statusCode == 200) {
+    try {
+      response = await http
+          .get(Uri.parse(url))
+          .timeout(Duration(seconds: getTimeoutSeconds));
+    } on TimeoutException {
+      throw ServerException(
+          'No response from server ($getTimeoutSeconds sec timeout).');
+    } catch (e) {
+      throw NoInternetException('Network error: $e');
+    }
+
+    if (response.statusCode != 200) {
+      throw ServerException(
+          'Error response from $url (Status Code: ${response.statusCode})');
+    } else {
       decodedResponse = jsonDecode(response.body);
 
       if (decodedResponse is List && decodedResponse.isEmpty) {
-        throw Exception('No Data for region ${rgn.name}.');
+        throw ServerException('Empty reponse from $url');
       }
 
       if (false == decodedResponse.containsKey('event_list')) {
-        throw Exception(
-            'Failed to load future events from $futureEventsURL (Missing field in response).');
+        throw ServerException('No event_list key in response from $url');
       }
 
       if (true == decodedResponse.containsKey('event_errors') &&
           decodedResponse['event_errors'].isNotEmpty) {
-        throw Exception('Errors found in response from $futureEventsURL');
+        throw ServerException('Server side errors found in response from $url');
       }
 
       return decodedResponse;
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception(
-          'Failed to load future events for Region ${rgn.name} from $url (Status Code: ${response.statusCode})');
     }
   }
 

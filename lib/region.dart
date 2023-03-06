@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+// import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'package:ebrevet_card/app_settings.dart';
+
 import 'region_data.dart';
 
 // RegionData is stored separately to protect secrets
@@ -27,7 +29,8 @@ import 'region_data.dart';
 //   static Map<int, Map<String, String>> regionMap = {
 //
 //     YourACPClubCodeAsIntegerHere: {
-//       'name': 'Your Region Name',
+//       'clubName': 'Your Club Name',
+//       'regionName': 'Your Region Name',
 //       'event_url': 'your url for fetching event JSON goes here',
 //       'secret': 'your secret goes here',
 //     },
@@ -39,29 +42,29 @@ import 'region_data.dart';
 
 class Region {
   late int regionID;
-  late String name;
+  late String clubName;
+  late String regionName;
   late String eventURL;
   late String secret;
 
   static const String magicStartCode=RegionData.magicStartCode;
 
-  Region({int r = RegionData.defaultRegion}) {
-    int rid = (regionMap.containsKey(r)) ? r : defaultRegion;
-    name = regionMap[rid]!['name']!;
+  Region({int regionID = RegionData.defaultRegion}) {
+    int rid = (regionMap.containsKey(regionID)) ? regionID : defaultRegion;
+    clubName = regionMap[rid]!['clubName']!;
+    regionName = regionMap[rid]!['regionName']!;
     eventURL = regionMap[rid]!['event_url']!;
     secret = regionMap[rid]!['secret']!;
     regionID = rid;
   }
 
-  static get isSet {
-    var rgnKey = Settings.getValue<int>('key-region');
-    return (rgnKey == null || rgnKey<1) ? false : true;
-  }
+  // static get isSet {
+  //   var rgnKey = AppSettings.regionID;  
+  //   return (rgnKey<1) ? false : true;
+  // }
 
   Region.fromSettings()
-      : this(
-            r: Settings.getValue<int>('key-region') ??
-                RegionData.defaultRegion);
+      : this(regionID: AppSettings.regionID);
 
   static get regionMap => RegionData.regionMap;
   static get defaultRegion => RegionData.defaultRegion;

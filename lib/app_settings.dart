@@ -20,6 +20,29 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'rider.dart';
 import 'region.dart';
+import 'region_data.dart';
+
+class AppSettings {
+  // TODO PreRideMode can't be a setting!
+  // static bool get isPrerideMode =>
+  //     Settings.getValue<bool>('key-preride-mode', defaultValue: false)!;
+
+  static double get controlAutoCheckInDistance {
+      var d = 500.0;
+      // var d =Settings.getValue<double>('key-control-proximity',
+      //    defaultValue: 500)!;
+      return d;
+  }
+
+static double get locationPollPeriod {
+      var d =Settings.getValue<double>('key-location-poll-period',
+          defaultValue: 500)!;
+      return d;
+  }
+
+  static int get regionID => Settings.getValue<int>('key-region',
+      defaultValue: RegionData.defaultRegion)!;
+}
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -77,24 +100,31 @@ class SettingsPageState extends State<SettingsPage> {
           ],
         ),
         ExpandableSettingsTile(
-          title: 'App Options',
+          title: 'Advanced Options',
           children: <Widget>[
-            SwitchSettingsTile(
-              leading: const Icon(Icons.fast_forward),
-              title: 'Pre-ride Mode',
-              settingKey: 'key-preride-mode',
+            // SwitchSettingsTile(
+            //   leading: const Icon(Icons.fast_forward),
+            //   title: 'Pre-ride Mode',
+            //   subtitle:
+            //       'Overrides control open/close times and proximity limit. Will be noted in results.',
+            //   settingKey: 'key-preride-mode',
+            // ),
+            RadioSettingsTile<int>(
+              leading: const Icon(Icons.social_distance),
+              title: 'Control Distance Threshold',
+              subtitle: 'Distance from control that allows check-in',
+              settingKey: 'key-control-proximity',
+              values: <int, String>{
+                100: '100 m',
+                500: '500 m',
+                2500: '2.5 km',
+                12500: '12.5 km',
+                9999999: 'Infinite',
+              },
+              selected: 500,
             ),
             SliderSettingsTile(
-              settingKey: 'key-control-distance-threshold',
-              title: 'Control Distance Threshold (meters)',
-              defaultValue: 500,
-              min: 0,
-              max: 1000,
-              step: 25,
-              leading: const Icon(Icons.radar),
-            ),
-            SliderSettingsTile(
-              settingKey: 'key-location_poll-period',
+              settingKey: 'key-location-poll-period',
               title: 'Period of Location Poll (seconds)',
               defaultValue: 60,
               min: 10,
@@ -144,8 +174,13 @@ class SettingsPageState extends State<SettingsPage> {
     showAboutDialog(
         context: context,
         applicationName: 'eBrevetCard',
-        applicationIcon: Image.asset('assets/images/eBrevet-128.png',width: 64,),
-        applicationVersion: '0.1.0',
+        applicationIcon: Image.asset(
+          'assets/images/eBrevet-128.png',
+          width: 64,
+        ),
+        applicationVersion:
+            '0.1.0', // TODO this should pull from wherever this is set in the build
+        // TODO version should also be included in the report to server
         applicationLegalese:
             '(c)2023 Chris Nadovich. This free application is licensed under GPLv3.',
         children: [
@@ -157,14 +192,15 @@ class SettingsPageState extends State<SettingsPage> {
             textAlign: TextAlign.center,
           ),
           InkWell(
-            onTap: () => launchUrl(Uri.parse('https://github.com/ctnadovich/ebrevet')),
+            onTap: () =>
+                launchUrl(Uri.parse('https://github.com/ctnadovich/ebrevet')),
             child: Text(
               'Documentation and Source Code',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Color.fromRGBO(0, 0, 128, 1),
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.underline),
-              
+              style: TextStyle(
+                  color: Color.fromRGBO(0, 0, 128, 1),
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline),
             ),
           ),
         ]);

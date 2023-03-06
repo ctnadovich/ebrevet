@@ -51,7 +51,6 @@ class _PastEventsPageState extends State<PastEventsPage> {
                 // SizedBox(height: 2),
 
                 Text('Past events for: ${Rider.fromSettings().firstLastRUSA}'),
-                Text('In region: ${Region.fromSettings().name}'),
 
                 for(var pe in EventHistory.pastEventList) PastEventCard(pe.event),
 
@@ -79,6 +78,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
     final String overallOutcomeDescriptionInHistory =
         overallOutcomeInHistory.description;
+    final clubName = Region(regionID: event.regionID).clubName;
 
 
     return Card(
@@ -91,6 +91,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(clubName),
                 Text('${event.startCity}, ${event.startState}'),
                 Text('${event.dateTime}'),
               ],

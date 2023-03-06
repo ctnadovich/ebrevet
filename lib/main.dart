@@ -15,7 +15,7 @@
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:ebrevet_card/event_history.dart';
-import 'package:ebrevet_card/settings_page.dart';
+import 'package:ebrevet_card/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 

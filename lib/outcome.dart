@@ -1,4 +1,3 @@
-
 // Copyright (C) 2023 Chris Nadovich
 // This file is part of eBrevet <https://github.com/ctnadovich/ebrevet>.
 //
@@ -38,33 +37,40 @@ enum OverallOutcome {
 // The plural (outcomeS versus outcome) refers to the multiple outcomes within a single event -- overall and control times
 
 class EventOutcomes {
-  OverallOutcome _overallOutcome = OverallOutcome.dns;
-  Map<int, DateTime> _checkInTimeMap = {}; // control number -> check in time
-  late final bool _preRideMode;
+  late OverallOutcome _overallOutcome;
+  late Map<int, DateTime> _checkInTimeMap; // control number -> check in time
+ 
+// TODO write to this someplace
+  DateTime? lastUpload;
 
-  EventOutcomes({OverallOutcome? oo, Map<int, DateTime>? checkInTimeMap, bool? preRideMode}){
-    _checkInTimeMap=checkInTimeMap ?? {};
-    _overallOutcome=oo ?? OverallOutcome.dns;
-    _preRideMode = preRideMode??false;
+  EventOutcomes(
+      {OverallOutcome? overallOutcome,
+      Map<int, DateTime>? checkInTimeMap,
+      bool? isPreride}) {
+    _checkInTimeMap = checkInTimeMap ?? {};
+    _overallOutcome = overallOutcome ?? OverallOutcome.dns;
   }
 
-  Map<String, dynamic> get toMap =>
-  {
-    'overall_outcome': _overallOutcome.name,
-    'pre_ride': _preRideMode,
-    'check_in_times': _checkInTimeMap.map((key, value) => MapEntry(key.toString(), value.toUtc().toIso8601String())),
-  };
 
-  EventOutcomes.fromMap(Map<String,dynamic>jsonMap){
-    _overallOutcome=OverallOutcome.values.byName(jsonMap['overall_outcome']);
-    _preRideMode=jsonMap['pre_ride'] ?? false;
-    Map <String, dynamic> checkInJsonMap=jsonMap['check_in_times'];
-    _checkInTimeMap.clear();  // not needed as default constructor will make this empty anyway
-    for (var k in checkInJsonMap.keys){
+  Map<String, dynamic> get toMap => {
+        'overall_outcome': _overallOutcome.name,
+        'last_upload': lastUpload?.toUtc().toIso8601String(),
+        'check_in_times': _checkInTimeMap.map((key, value) =>
+            MapEntry(key.toString(), value.toUtc().toIso8601String())),
+      };
+
+  factory EventOutcomes.fromMap(Map<String, dynamic> jsonMap) {
+    var eo=EventOutcomes();
+    eo._overallOutcome = OverallOutcome.values.byName(jsonMap['overall_outcome']);
+    Map<String, dynamic> checkInJsonMap = jsonMap['check_in_times'];
+    eo._checkInTimeMap
+        .clear(); // not needed as default constructor will make this empty anyway
+    for (var k in checkInJsonMap.keys) {
       int kInt = int.parse(k);
       DateTime vDateTime = DateTime.parse(checkInJsonMap[k]);
-      _checkInTimeMap[kInt]=vDateTime;
+      eo._checkInTimeMap[kInt] = vDateTime;
     }
+    return eo;
     // =checkInJsonMap.map((key, value) => MapEntry(int.parse(key), DateTime.parse(value)));
   }
 
@@ -74,7 +80,7 @@ class EventOutcomes {
     _checkInTimeMap[controlKey] = t;
   }
 
-  DateTime? getControlCheckInTime(int controlKey){
+  DateTime? getControlCheckInTime(int controlKey) {
     return _checkInTimeMap[controlKey];
   }
 
@@ -85,11 +91,9 @@ class EventOutcomes {
   // When using this setter, don't forget to call EventHistory.save() afterwards
 
   set overallOutcome(OverallOutcome oo) {
-    print ("Overall outcome set to ${oo.name.toUpperCase()}");
+    print("Overall outcome set to ${oo.name.toUpperCase()}");
     _overallOutcome = oo;
   }
-
-bool get wasPreRide {return _preRideMode;}
 
   get description {
     return _overallOutcome.description;

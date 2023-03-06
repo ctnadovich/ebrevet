@@ -20,10 +20,10 @@ import 'future_events.dart';
 import 'event.dart';
 import 'outcome.dart';
 import 'ride_page.dart';
-// import 'settings_page.dart';
+// import 'app_settings.dart';
 import 'rider.dart';
 import 'region.dart';
-import 'control.dart';
+// import 'control.dart';
 import 'event_history.dart';
 import 'current.dart';
 import 'signature.dart';
@@ -113,18 +113,10 @@ class _EventsPageState extends State<EventsPage> {
                       label: Text('Refresh Events from Server'),
                     ),
                     Text(
-                        'Future events in region: ${Region.fromSettings().name}'),
+                        'Future events in region: ${Region.fromSettings().clubName}'),
                     Text('Last refreshed: ${FutureEvents.lastRefreshedStr}'),
                     Text('Rider: ${Rider.fromSettings().firstLastRUSA}'),
-                  ] +
-                  <Widget>[
-                    for (var i = 0; i < events.length; i++)
-                      EventCard(events[i],
-                          startable: (i == 0 || Control.isPrerideMode))
-
-                    // Because the events are chronological the startable event is
-                    // always first in the list.  In pre-ride mode, ANY event
-                    // is startable
+                    ...events.map((e) => EventCard(e)),
                   ],
             ),
           ),
@@ -148,11 +140,8 @@ class _EventsPageState extends State<EventsPage> {
 
 class EventCard extends StatefulWidget {
   final Event event;
-  final bool startable;
-  // final Key eventKey;
 
-  const EventCard(this.event,
-      {this.startable = false}); // , this.eventKey) : super(key: eventKey);
+  const EventCard(this.event); 
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -177,6 +166,8 @@ class _EventCardState extends State<EventCard> {
   @override
   Widget build(BuildContext context) {
     final eventID = widget.event.eventID;
+    final regionID = widget.event.regionID;
+    final regionName = Region(regionID: regionID).clubName;
     final pe = EventHistory.lookupPastEvent(eventID);
     // var eventInHistory = pe?.event;
     final OverallOutcome overallOutcomeInHistory =
@@ -194,8 +185,10 @@ class _EventCardState extends State<EventCard> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(regionName),
                 Text('${widget.event.startCity}, ${widget.event.startState}'),
-                Text('${widget.event.dateTime} (${widget.event.status})'),
+                Text('${widget.event.dateTime} (${widget.event.statusText})'),
+                Text('Organizer: ${widget.event.organizerName} (${widget.event.organizerPhone})'),
                 Text('Latest Cue Ver: ${widget.event.cueVersionString}'),
               ],
             ),
@@ -241,51 +234,9 @@ class _EventCardState extends State<EventCard> {
               //   ),
               // ),
               Spacer(),
-              (widget.startable)
-                  ? TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                      ),
-                      onPressed: () async {
-                        if (Rider.isSet == false ||
-                            FutureEvents.region == null) {
-                          SnackbarGlobal.show(
-                              "Can't RIDE. Is Rider Name, RUSA ID, and Region set?");
-                        } else {
-                          if (false == Control.isPrerideMode &&
-                              overallOutcomeInHistory == OverallOutcome.dns) {
-                            final startCode = await openStartBrevetDialog();
-                            final msg =
-                                validateStartCode(startCode, widget.event);
-                            if (null != msg) {
-                              SnackbarGlobal.show(msg);
-                              return;
-                            }
-                          }
-
-                          if (context.mounted) {
-                            if (overallOutcomeInHistory !=
-                                OverallOutcome.finish) {
-                              Current.activate(widget.event,
-                                  Rider.fromSettings(), FutureEvents.region!,
-                                  preRideMode: Control.isPrerideMode);
-                            }
-                            Navigator.of(context)
-                                .push(MaterialPageRoute(
-                                  builder: (context) =>
-                                      RidePage(), // will implicitly ride event just activated
-                                ))
-                                .then((_) => setState(() {}));
-                          } else {
-                            print("Not mounted!?");
-                          }
-                        }
-                      },
-                      child: Text('RIDE'),
-                    )
-                  : SizedBox(
-                      width: 1,
-                    ),
+              (widget.event.isStartable || widget.event.isPreridable)
+                  ? rideButton(context)
+                  : SizedBox.shrink(),
               const SizedBox(width: 8),
             ],
           ),
@@ -295,6 +246,56 @@ class _EventCardState extends State<EventCard> {
         ],
       ),
     );
+  }
+
+  TextButton rideButton(BuildContext context) {
+
+    final isPreride = widget.event.isPreridable;  
+    final eventID = widget.event.eventID;
+    final pe = EventHistory.lookupPastEvent(eventID);
+    final OverallOutcome overallOutcomeInHistory =
+        pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
+
+    return TextButton(
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                    ),
+                    onPressed: () async {
+                      if (Rider.isSet == false ||
+                          FutureEvents.region == null) {
+                        SnackbarGlobal.show(
+                            "Can't RIDE. Is Rider Name, RUSA ID, and Region set?");
+                      } else {
+                        if (overallOutcomeInHistory == OverallOutcome.dns) {
+                          final startCode = await openStartBrevetDialog();
+                          final msg =
+                              validateStartCode(startCode, widget.event);
+                          if (null != msg) {
+                            SnackbarGlobal.show(msg);
+                            return;
+                          }
+                        }
+
+                        if (context.mounted) {
+                          if (overallOutcomeInHistory !=
+                              OverallOutcome.finish) {
+                            Current.activate(widget.event,
+                                Rider.fromSettings().rusaID, 
+                                isPreride: isPreride);
+                          }
+                          Navigator.of(context)
+                              .push(MaterialPageRoute(
+                                builder: (context) =>
+                                    RidePage(), // will implicitly ride event just activated
+                              ))
+                              .then((_) => setState(() {}));
+                        } else {
+                          print("Not mounted!?");
+                        }
+                      }
+                    },
+                    child: Text(isPreride?'PRERIDE':'RIDE'),
+                  );
   }
 
   String? validateStartCode(String? startCode, Event event) {
@@ -307,11 +308,10 @@ class _EventCardState extends State<EventCard> {
     if (false == Rider.isSet) return "Rider not set.";
     if (FutureEvents.region == null) return "No region. ";
 
-    var rider = Rider.fromSettings();
+    var rider = Rider.fromSettings().rusaID;
 
     var signature = Signature(
-        rider: rider,
-        region: FutureEvents.region!,
+        riderID: rider,
         event: event,
         codeLength: 4);
 
