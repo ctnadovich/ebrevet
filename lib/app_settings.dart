@@ -122,7 +122,7 @@ class SettingsPageState extends State<SettingsPage> {
                   k: Region.regionMap[k]!['clubName']!
               },
               selected: Region.defaultRegion,
-              onChange: (value) => FutureEvents.clear(),
+              onChange: (value) {FutureEvents.clear();},
             ),
           ],
         ),

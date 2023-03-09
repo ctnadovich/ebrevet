@@ -143,7 +143,9 @@ class _HomePageState extends State<HomePage> {
                           Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) =>
                                 SettingsPage(), // will implicitly ride event just activated
-                          )),
+                          )).then((value) => setState(
+                                () {},
+                              )),
                       child: Text(
                         'Settings',
                         style: style,
