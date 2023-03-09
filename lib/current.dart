@@ -16,6 +16,7 @@
 
 // import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -28,24 +29,20 @@ import 'control.dart';
 import 'location.dart';
 import 'event_history.dart';
 import 'signature.dart';
-// import 'app_settings.dart';
+import 'app_settings.dart';
 
 // Class for doing stuff with the the current context of event/rider/region
 // The Event class has a static "current" that holds one of these during the ride
 
 class Current {
-  static PastEvent? activatedEvent; 
+  static PastEvent? activatedEvent;
 
   // The event we are riding NOW, stored in EventHistory
-  // static Rider? rider; // the rider riding this event
-  // static Region? region; // the region we are in
 
-// We shouldn't have to worry about activating an event downloaded by a different rider in a different region
-// because settings will delete events if the rider changes and the eventID is globally unique
-
-  static void activate(Event e, String riderID, {bool isPreride=false}) {
+  static void activate(Event e, String riderID, {bool isPreride = false}) {
     activatedEvent = EventHistory.addActivate(e, riderID, isPreride);
-    print("Activated ${activatedEvent!.event.nameDist}${isPreride?' PRERIDE':''}");
+    print(
+        "Activated ${activatedEvent!.event.nameDist}${isPreride ? ' PRERIDE' : ''}");
   }
 
   static Event? get event {
@@ -56,7 +53,6 @@ class Current {
     return activatedEvent?.outcomes;
   }
 
- 
   // static void clear() {
   //   rider = null;
   //   region = null;
@@ -97,10 +93,10 @@ class Current {
     return true;
   }
 
-  static void controlCheckIn(Control control) {
-
+  static void controlCheckIn({required Control control, String? comment}) {
     assert(activatedEvent != null); // Trying to check into an unavailable event
-    assert(activatedEvent!.isAvailable(control.index)); // Trying to check into an unavailable control
+    assert(activatedEvent!.isAvailable(
+        control.index)); // Trying to check into an unavailable control
     var eventID = activatedEvent!.event.eventID;
     assert(null != EventHistory.lookupPastEvent(eventID));
     // Trying to check into a never activated event
@@ -124,27 +120,45 @@ class Current {
     // The only time an event can change state is when
     // activated or at a control checkin.
 
-    assert(controlCheckInTime(control) != null);  // should have just set this
+    assert(controlCheckInTime(control) != null); // should have just set this
 
-    Map<String, dynamic> report = constructReport(controlIndex: control.index);
+    constructReportAndSend(control: control, comment: comment);
+  }
 
-
-// TODO needs to indicate if successful so we can set lastUpload
+  static void constructReportAndSend({Control? control, String? comment}) {
+    Map<String, dynamic> report =
+        constructReport(controlIndex: control?.index, comment: comment);
 
     sendReportToServer(report)
-        .then((response) { 
-          print("POST Status: ${response.statusCode}; Body: ${response.body}");
-
-          // TODO do we need to test response.statusCode before we record lastUpload
-          activatedEvent!.outcomes.lastUpload = DateTime.now().toUtc();
-
-          // return response;
-            })
+        .then((response) => recordReportResponse(response))
         .catchError((e) {
-            print("Checked in on app, but not on Internet. "
-                "No worries. Will try to send report later. RIDE ON!");
-          }
-        );
+      SnackbarGlobal.show("No Internet. "
+          "No worries. Try upload later. RIDE ON!");
+    });
+  }
+
+  static ValueNotifier<DateTime?> lastSuccessfulServerUpload =
+      ValueNotifier(null);
+
+  static void recordReportResponse(http.Response response) {
+    if (response.statusCode == 200) {
+      try {
+        var r = jsonDecode(response.body);
+        if (r.containsKey('status') && r['status'] == 'OK') {
+          var now = DateTime.now().toUtc();
+          activatedEvent!.outcomes.lastUpload = now;
+          lastSuccessfulServerUpload.value = now;
+
+          print('Check in successfully reported to server.');
+        }
+      } catch (e) {
+        print("Couldn't decode server response to report.");
+      }
+    } else {
+      print("Error response from server when sending report.");
+    }
+
+    print("POST Status: ${response.statusCode}; Body: ${response.body}");
   }
 
   static Map<String, dynamic> constructReport(
@@ -152,7 +166,7 @@ class Current {
       String? comment // any text comment
       }) {
     // Never call this without activated event
-    assert( null != activatedEvent);
+    assert(null != activatedEvent);
 
     Map<String, dynamic> report = {};
 
@@ -162,7 +176,10 @@ class Current {
     if (comment != null) report['comment'] = comment;
     report['outcome'] = outcomes!;
 
-    if (activatedEvent!.isPreride) report['preride'] = "YES";
+    report['app_version']=AppSettings.version;
+    report['proximity_radius']=AppSettings.controlAutoCheckInDistance;
+    report['open_override']=AppSettings.openTimeOverride?"YES":"NO";
+    report['preride']= (activatedEvent!.isPreride)?"YES":"NO";
 
     report['rider_location'] = RiderLocation.latLongFullString;
     report['last_loc_update'] = RiderLocation.lastLocationUpdateUTCString;

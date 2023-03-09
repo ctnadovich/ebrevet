@@ -18,26 +18,49 @@ import 'package:ebrevet_card/future_events.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
 import 'rider.dart';
 import 'region.dart';
 import 'region_data.dart';
 
 class AppSettings {
-  // TODO PreRideMode can't be a setting!
   // static bool get isPrerideMode =>
   //     Settings.getValue<bool>('key-preride-mode', defaultValue: false)!;
 
+
+static String? appName;
+static String? packageName;
+static String? version;
+static String? buildNumber;
+
+static Future <void> initializePackageInfo() async {
+PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+ appName = packageInfo.appName;
+ packageName = packageInfo.packageName;
+ version = packageInfo.version;
+ buildNumber = packageInfo.buildNumber;
+
+}
+
+
+
   static double get controlAutoCheckInDistance {
-      var d = 500.0;
-      // var d =Settings.getValue<double>('key-control-proximity',
-      //    defaultValue: 500)!;
-      return d;
+    // var d = 500.0;
+    var d =Settings.getValue<int>('key-control-proximity-thresh',
+       defaultValue: 500)!;
+    return d.toDouble();
   }
 
-static double get locationPollPeriod {
-      var d =Settings.getValue<double>('key-location-poll-period',
-          defaultValue: 500)!;
-      return d;
+  static bool get openTimeOverride{
+    return Settings.getValue('key-open-time-override', defaultValue: false)!;
+  }
+
+  static double get locationPollPeriod {
+    var d = Settings.getValue<double>('key-location-poll-period',
+        defaultValue: 500)!;
+    return d;
   }
 
   static int get regionID => Settings.getValue<int>('key-region',
@@ -69,18 +92,18 @@ class SettingsPageState extends State<SettingsPage> {
         ExpandableSettingsTile(
           title: 'Rider Profile',
           children: <Widget>[
-            TextInputSettingsTile(
-              settingKey: 'key-first-name',
-              title: 'First Name',
-              initialValue: '',
-              validator: textFieldValidator,
-            ),
-            TextInputSettingsTile(
-              settingKey: 'key-last-name',
-              title: 'Last Name',
-              initialValue: '',
-              validator: textFieldValidator,
-            ),
+            // TextInputSettingsTile(
+            //   settingKey: 'key-first-name',
+            //   title: 'First Name',
+            //   initialValue: '',
+            //   validator: textFieldValidator,
+            // ),
+            // TextInputSettingsTile(
+            //   settingKey: 'key-last-name',
+            //   title: 'Last Name',
+            //   initialValue: '',
+            //   validator: textFieldValidator,
+            // ),
             TextInputSettingsTile(
               settingKey: 'key-rusa-id',
               title: 'RUSA ID Number',
@@ -88,11 +111,11 @@ class SettingsPageState extends State<SettingsPage> {
               validator: rusaFieldValidator,
             ),
             DropDownSettingsTile<int>(
-              title: 'Events Region',
+              title: 'Events Club',
               settingKey: 'key-region',
               values: <int, String>{
                 for (var k in Region.regionMap.keys)
-                  k: Region.regionMap[k]!['name']!
+                  k: Region.regionMap[k]!['clubName']!
               },
               selected: Region.defaultRegion,
               onChange: (value) => FutureEvents.clear(),
@@ -102,18 +125,11 @@ class SettingsPageState extends State<SettingsPage> {
         ExpandableSettingsTile(
           title: 'Advanced Options',
           children: <Widget>[
-            // SwitchSettingsTile(
-            //   leading: const Icon(Icons.fast_forward),
-            //   title: 'Pre-ride Mode',
-            //   subtitle:
-            //       'Overrides control open/close times and proximity limit. Will be noted in results.',
-            //   settingKey: 'key-preride-mode',
-            // ),
             RadioSettingsTile<int>(
               leading: const Icon(Icons.social_distance),
               title: 'Control Distance Threshold',
               subtitle: 'Distance from control that allows check-in',
-              settingKey: 'key-control-proximity',
+              settingKey: 'key-control-proximity-thresh',
               values: <int, String>{
                 100: '100 m',
                 500: '500 m',
@@ -123,6 +139,12 @@ class SettingsPageState extends State<SettingsPage> {
               },
               selected: 500,
             ),
+            SwitchSettingsTile(
+              title: "Open Time Override", 
+              settingKey: "key-open-time-override",
+              subtitle: "Ignore control open/close time.",
+                            leading: const Icon(Icons.free_cancellation),
+              ),
             SliderSettingsTile(
               settingKey: 'key-location-poll-period',
               title: 'Period of Location Poll (seconds)',
@@ -179,8 +201,7 @@ class SettingsPageState extends State<SettingsPage> {
           width: 64,
         ),
         applicationVersion:
-            '0.1.0', // TODO this should pull from wherever this is set in the build
-        // TODO version should also be included in the report to server
+            "v${AppSettings.version ?? '?'}", 
         applicationLegalese:
             '(c)2023 Chris Nadovich. This free application is licensed under GPLv3.',
         children: [

@@ -39,19 +39,19 @@ class Rider {
   Rider(this.firstName, this.lastName, this.rusaID);
 
   static get isSet {
-    var fn = Settings.getValue<String>('key-first-name');
-    var ln = Settings.getValue<String>('key-last-name');
+    // var fn = Settings.getValue<String>('key-first-name');
+    // var ln = Settings.getValue<String>('key-last-name');
     var id = Settings.getValue<String>('key-rusa-id');
 
-    return (fn == null ||
-            fn.isEmpty ||
-            ln == null ||
-            ln.isEmpty ||
-            id == null ||
-            id.isEmpty ||
-            !isValidRusaID(id))
-        ? false
-        : true;
+    // return (fn == null ||
+    //         fn.isEmpty ||
+    //         ln == null ||
+    //         ln.isEmpty ||
+    //         id == null ||
+    //         id.isEmpty ||
+    return       isValidRusaID(id);
+    //    ? false
+    //    : true;
   }
 
   Rider.fromSettings()

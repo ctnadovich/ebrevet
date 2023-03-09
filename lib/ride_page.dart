@@ -25,10 +25,6 @@ import 'location.dart';
 import 'current.dart';
 import 'app_settings.dart';
 
-// TODO IT's unclear _which_ event (future or history) apprears in future or ride pages
-
-// TODO First control auto check in?
-
 class RidePage extends StatefulWidget {
   @override
   State<RidePage> createState() => _RidePageState();
@@ -92,15 +88,28 @@ class _RidePageState extends State<RidePage> {
               builder: (context, value, child) {
                 return ListView(
                   children: <Widget>[
-                        Text((isPreride)?'Preride':'Brevet'),
+                        Text(
+                          (isPreride)
+                              ? 'Volunteer Preride'
+                              : 'Scheduled Brevet',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         Text(
                             'Rider RUSA#: ${Current.activatedEvent?.riderID ?? 'Unknown'}'),
                         Text(
                             'At ${RiderLocation.lastLocationUpdateString} ${RiderLocation.lastLocationUpdateTimeZoneName} '
                             'location was ${RiderLocation.latLongString}'),
-                        ElevatedButton(
-                            onPressed: () => RiderLocation.updateLocation(),
-                            child: Text("GPS Refresh Current Location")),
+                        Row(
+                          children: [
+                            ElevatedButton(
+                                onPressed: () => RiderLocation.updateLocation(),
+                                child: Text("GPS Refresh")),
+                            Spacer(),
+                            ElevatedButton(
+                                onPressed: () => Current.constructReportAndSend(),
+                                child: Text("Upload results")),
+                          ],
+                        ),
                       ] +
                       [for (var c in controlList) ControlCard(c)],
                 );
@@ -121,89 +130,100 @@ class ControlCard extends StatefulWidget {
 class _ControlCardState extends State<ControlCard> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            leading: Icon((widget.control.sif == SIF.intermediate)
-                ? Icons.checklist
-                : ((widget.control.sif == SIF.start)
-                    ? Icons.play_arrow
-                    : Icons.stop)),
-            title: showControlName(widget.control),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                showDistance(widget.control.cLoc),
-                showControlStatus(widget.control),
+    return ValueListenableBuilder(
+        valueListenable: Current.lastSuccessfulServerUpload,
+        builder: (context, lastUpload, child) {
+          return Card(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: Icon((widget.control.sif == SIF.intermediate)
+                      ? Icons.checklist
+                      : ((widget.control.sif == SIF.start)
+                          ? Icons.play_arrow
+                          : Icons.stop)),
+                  title: showControlName(widget.control),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      showDistance(widget.control.cLoc),
+                      showControlStatus(widget.control),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    checkInButton(widget.control, lastUpload),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                )
               ],
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              checkInButton(widget.control),
-              const SizedBox(width: 8),
-            ],
-          ),
-          SizedBox(
-            height: 5,
-          )
-        ],
-      ),
-    );
+          );
+        });
   }
 
   Text showControlStatus(Control c) {
-    if (Current.activatedEvent!.isOpenControl(c.index)) {
-      return Text.rich(TextSpan(
-        children: [
-          TextSpan(
-            text: 'OPEN NOW! ',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          TextSpan(
-            text: controlStatus(c),
-          ),
-        ],
-      ));
-    } else {
-      return Text(controlStatus(c));
-    }
+    // if (Current.activatedEvent!.isOpenControl(c.index)) {
+    //   return Text.rich(TextSpan(
+    //     children: [
+    //       TextSpan(
+    //         text: 'OPEN NOW! ',
+    //         style: TextStyle(fontWeight: FontWeight.bold),
+    //       ),
+    //       TextSpan(
+    //         text: controlStatus(c),
+    //       ),
+    //     ],
+    //   ));
+    // } else {
+    return Text(controlStatus(c));
+    //   }
   }
+
+  // TODO the phrasing here needs work, esp the Undefined open/close that occurs before
+  // the first preride control check in
 
   String controlStatus(Control c) {
     DateTime now = DateTime.now();
-    if (c.open.isAfter(now)) {
+    int controlKey = c.index;
+    var open = Current.activatedEvent!.openActual(controlKey);
+    var close = Current.activatedEvent!.closeActual(controlKey);
+    if ((open ?? close) == null) return ""; // Pre ride undefined open/close
+    if (open!.isAfter(now)) {
       // Open in future
-      var tt = TimeTill(c.open);
-      var ot = c.open.toLocal().toString().substring(11, 16);
+      var tt = TimeTill(open);
+      var ot = open.toLocal().toString().substring(11, 16);
       return "Opens $ot (in ${tt.interval} ${tt.unit})";
-    } else if (c.close.isBefore(now)) {
+    } else if (close!.isBefore(now)) {
       // Closed in past
-      var tt = TimeTill(c.close);
-      var ct = c.close.toLocal().toString().substring(11, 16);
+      var tt = TimeTill(close);
+      var ct = close.toLocal().toString().substring(11, 16);
       return "Closed $ct (${tt.interval} ${tt.unit} ago)";
     } else {
-      var tt = TimeTill(c.close);
+      var tt = TimeTill(close);
       //var ct = c.close.toLocal().toString().substring(11, 16);
       return "Closes in ${tt.interval} ${tt.unit}";
     }
   }
 
   Text showDistance(ControlLocation cLoc) {
-    if (cLoc.isNearControl) {
-      return Text(
-        'AT THIS CONTROL',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
-      );
-    } else {
-      return Text(
-          'Direction: ${cLoc.crowCompassHeadingString} ${cLoc.crowDistMiString} mi away');
-    }
+    // if (cLoc.isNearControl) {
+    //   return Text(
+    //     'AT THIS CONTROL',
+    //     style: TextStyle(
+    //       fontWeight: FontWeight.bold,
+    //     ),
+    //   );
+    // } else {
+    return Text(
+        'Direction: ${cLoc.crowCompassHeadingString} ${cLoc.crowDistMiString} mi away');
+    //  }
   }
 
   Text showExactDistance(ControlLocation cLoc) {
@@ -243,8 +263,10 @@ class _ControlCardState extends State<ControlCard> {
               Text(
                   "Location: ${widget.control.lat} N;  ${widget.control.long}E"),
               showControlStatus(widget.control),
-              Text('Open Time: ${widget.control.openTimeString}'),
-              Text('Close Time: ${widget.control.closeTimeString}'),
+              Text(
+                  'Open Time: ${Current.activatedEvent!.openActualString(widget.control.index)}'),
+              Text(
+                  'Close Time: ${Current.activatedEvent!.closeActualString(widget.control.index)}'),
             ],
           ),
           actions: [
@@ -257,47 +279,66 @@ class _ControlCardState extends State<ControlCard> {
         ),
       );
 
-  Widget checkInButton(Control c) {
+  Widget checkInButton(Control c, DateTime? lastUpload) {
     var checkInTime = Current.controlCheckInTime(c);
+    // var lastUpload = Current.activatedEvent?.outcomes.lastUpload;
 
     if (checkInTime != null) {
+      var checkInIcon = (lastUpload != null && lastUpload.isAfter(checkInTime))
+          ? Icon(Icons.check_circle, color: Colors.green)
+          : Icon(Icons.pending_sharp, color: Colors.red);
       return Column(
         children: [
-          Icon(Icons.check),
+          checkInIcon,
           Text(checkInTime.toLocal().toString().substring(11, 19)),
         ],
       );
-    } else if (c.index==0 || Current.activatedEvent!.isAvailable(c.index)) {
+    } else if (false == Current.activatedEvent!.isAvailable(c.index)) {
+      var open = Current.activatedEvent!.isOpenControl(c.index);
+      var near = Current.activatedEvent!.isNear(c.index);
+
+
+      return Text.rich(TextSpan(style: TextStyle(fontSize: 12), children: [
+        if (open)
+          TextSpan(
+            text: 'Open now',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        if (!open)
+          TextSpan(
+            text: 'Not open',
+          ),
+        TextSpan(text: ' - '),
+        if (near)
+          TextSpan(
+            text: 'At control',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        if (!near)
+          TextSpan(
+            text: 'Not near',
+          ),
+      ]));
+    } else {
       return ElevatedButton(
         onPressed: () {
           openCheckInDialog();
         },
         child: Text('CHECK IN'),
       );
-    } else {
-      return const SizedBox.shrink();
     }
+    // else {
+    //   return const SizedBox.shrink();
+    // }
   }
 
-  // TODO Preride time calculation relative to start time
-
-  // TODO Automatic pre ride mode -- should be impossible to pre-ride day of
-
-  // TODO distance override should not be part of pre ride mode
-
-  // TODO Upload now button
-
-  // TODO Confirmation of upload for each control
-
-  // TODO note region in past/future events (multi region)
-
-  // TODO developer options separate and restricted. 
+  // TODO developer options separate and restricted. Noted in report.
 
   // TODO Posting result and elapsed time to roster
 
   // TODO Enter comment,  "take photo", or answer the control question
 
-  // TODO What about un-checkin and erase history
+  // TODO Convert print statements to exceptions -- in app notifications
 
   Future openCheckInDialog() => showDialog(
         context: context,
@@ -336,7 +377,7 @@ class _ControlCardState extends State<ControlCard> {
   void submitCheckInDialog() {
     setState(() {
       if (Current.event != null) {
-        Current.controlCheckIn(widget.control);
+        Current.controlCheckIn(control: widget.control, comment: 'No Comment');
       } else {
         SnackbarGlobal.show('No current event to check into.');
       }

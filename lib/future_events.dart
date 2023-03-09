@@ -85,16 +85,6 @@ class FutureEvents {
   }
 
   static Future<bool> refreshEventsFromServer(Rider rdr, Region rgn) async {
-    // The first event in the "future events" list needs to be available sufficiently after start time
-    // or the event ends.  We don't want it to "disappear" before we are done with it should
-    // a user refresh events from the server. Certainly riders need
-    // to be able to see events after they are done. And restarting the app should not lose
-    // the last events download.
-
-    // TODO Need belt and suspenders here -- the SQL should only send future events,
-    // But this code still should prune past events that accidentally
-    // appear in the future_events download
-
     try {
       print("Refreshing events from SERVER for ${rdr.firstLastRUSA}");
 
@@ -119,6 +109,18 @@ class FutureEvents {
     return true;
   }
 
+  // The first event in the "future events" list needs to be available sufficiently after start time
+  // or the event ends.  We don't want it to "disappear" before we are done with it should
+  // a user refresh events from the server. Certainly riders need
+  // to be able to see events after they are done. And restarting the app should not lose
+  // the last events download.
+
+  // Need belt and suspenders here -- the SQL should only send future events,
+  // But this code still should prune past events that accidentally
+  // appear in the future_events download
+
+  static const futureEventGraceTime = 12; // hours
+
   static void rebuildEventList(Map eventMap, Region g) {
     List el = eventMap['event_list'];
     print("rebuildEventList() from ${el.length} events in Map");
@@ -128,7 +130,11 @@ class FutureEvents {
       if (eventToAdd.valid == false) {
         throw FormatException('Invalid event data found.');
       }
-      events.add(eventToAdd);
+
+      var now = DateTime.now();
+      var eventReallyEnds =
+          eventToAdd.endDateTime.add(Duration(hours: futureEventGraceTime));
+      if (eventReallyEnds.isAfter(now)) events.add(eventToAdd);
     }
     events.sort((a, b) => a.startDateTime.isBefore(b.startDateTime)
         ? -1

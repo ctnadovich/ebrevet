@@ -36,8 +36,10 @@ Future<void> initSettings() async {
   await Settings.init(
     cacheProvider: SharePreferenceCache(),
   );
-  FutureEvents.refreshEventsFromDisk(Region.fromSettings())
-      .then((_) => EventHistory.load());
+  await AppSettings.initializePackageInfo();
+  await FutureEvents.refreshEventsFromDisk(Region.fromSettings());
+      // .then((_) => 
+      EventHistory.load();
 }
 
 class MyApp extends StatelessWidget {

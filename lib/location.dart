@@ -17,7 +17,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'snackbarglobal.dart';
 import 'control.dart';
 import 'exception.dart';
 import 'app_settings.dart';
@@ -51,7 +50,7 @@ class RiderLocation {
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
       }
     } catch (e) {
-      SnackbarGlobal.show(e.toString());
+      // SnackbarGlobal.show(e.toString());
       print('GPS Error: ${e.toString()}');
     }
   }

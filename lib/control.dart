@@ -17,7 +17,6 @@
 // import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'snackbarglobal.dart';
 import 'location.dart';
-import 'current.dart';
 
 // Where is this control in the scheme of thngs
 enum SIF { start, intermediate, finish, unknown }

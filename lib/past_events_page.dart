@@ -22,7 +22,6 @@ import 'region.dart';
 import 'event.dart';
 import 'outcome.dart';
 
-
 class PastEventsPage extends StatefulWidget {
   @override
   State<PastEventsPage> createState() => _PastEventsPageState();
@@ -40,7 +39,6 @@ class _PastEventsPageState extends State<PastEventsPage> {
             //style: TextStyle(fontSize: 14),
           ),
         ),
-        
         body: Container(
           color: Theme.of(context).colorScheme.primaryContainer,
           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
@@ -52,9 +50,8 @@ class _PastEventsPageState extends State<PastEventsPage> {
 
                 Text('Past events for: ${Rider.fromSettings().firstLastRUSA}'),
 
-                for(var pe in EventHistory.pastEventList) PastEventCard(pe.event),
-
-
+                for (var pe in EventHistory.pastEventList)
+                  PastEventCard(pe.event),
               ],
             ),
           ),
@@ -62,24 +59,26 @@ class _PastEventsPageState extends State<PastEventsPage> {
   }
 }
 
-  class PastEventCard extends StatelessWidget {
+class PastEventCard extends StatefulWidget {
   final Event event;
 
-  const PastEventCard(this.event); 
+  const PastEventCard(this.event);
 
-  
+  @override
+  State<PastEventCard> createState() => _PastEventCardState();
+}
+
+class _PastEventCardState extends State<PastEventCard> {
   @override
   Widget build(BuildContext context) {
-
-    final eventID = event.eventID;
+    final eventID = widget.event.eventID;
     final pe = EventHistory.lookupPastEvent(eventID);
     // var eventInHistory = pe?.event;
     final OverallOutcome overallOutcomeInHistory =
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
     final String overallOutcomeDescriptionInHistory =
         overallOutcomeInHistory.description;
-    final clubName = Region(regionID: event.regionID).clubName;
-
+    final clubName = Region(regionID: widget.event.regionID).clubName;
 
     return Card(
       child: Column(
@@ -87,18 +86,16 @@ class _PastEventsPageState extends State<PastEventsPage> {
         children: <Widget>[
           ListTile(
             leading: Icon(Icons.pedal_bike),
-            title: Text(event.nameDist),
+            title: Text(widget.event.nameDist),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(clubName),
-                Text('${event.startCity}, ${event.startState}'),
-                Text('${event.dateTime}'),
+                Text('${widget.event.startCity}, ${widget.event.startState}'),
+                Text('${widget.event.dateTime}'),
               ],
             ),
           ),
-          
-
           Row(
             children: [
               SizedBox(
@@ -116,6 +113,12 @@ class _PastEventsPageState extends State<PastEventsPage> {
               overallOutcomeInHistory == OverallOutcome.finish
                   ? Text(" ${EventHistory.getElapsedTimeString(eventID)}")
                   : SizedBox.shrink(),
+              Spacer(),
+              viewButton(context),
+              SizedBox(
+                width: 4,
+              ),
+              deleteButton(context, eventID),
             ],
           ),
           SizedBox(
@@ -126,6 +129,119 @@ class _PastEventsPageState extends State<PastEventsPage> {
     );
   }
 
+  Widget deleteButton(BuildContext context, String eventID) {
+    final pe = EventHistory.lookupPastEvent(eventID);
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+      ),
+      onPressed: () async {
+        setState(() {
+          EventHistory.deletePastEvent(pe!);  // TODO setState doesn't work
+        });
+      },
+      child: (pe?.outcomes.overallOutcome == OverallOutcome.dns)
+          ? SizedBox.shrink()
+          : Text("DELETE"),
+    );
+  }
+
+  Widget viewButton(BuildContext context) {
+    final eventID = widget.event.eventID;
+    final pe = EventHistory.lookupPastEvent(eventID);
+    final OverallOutcome overallOutcomeInHistory =
+        pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
+
+    if (overallOutcomeInHistory != OverallOutcome.finish) {
+      return SizedBox.shrink();
+    }
+
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+      ),
+      onPressed: () async {
+        if (context.mounted) {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ViewPage(pe!),
+          ));
+        } else {
+          print("Not mounted!?");
+        }
+      },
+      child: Text("VIEW"),
+    );
+  }
+}
+
+class ViewPage extends StatelessWidget {
+  final PastEvent pastEvent;
+
+  const ViewPage(this.pastEvent);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(
+            pastEvent.event.nameDist,
+            //style: TextStyle(fontSize: 14),
+          ),
+        ),
+        body: Container(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+          child: Center(
+            child: ListView(
+              // mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // SizedBox(height: 2),
+                Text(
+                  (pastEvent.isPreride)
+                      ? 'Volunteer Preride'
+                      : 'Scheduled Brevet',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text('Overall result: ${pastEvent.overallOutcomeDescription}'),
+                Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
+
+                for (var checkIn in pastEvent.outcomes.checkInTimeList)
+                  checkInCard(checkIn),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  // TODO Pretty this up and add more analytics
 
 
+  Widget checkInCard(List<String> checkIn) {
+    var controlIndex = int.parse(checkIn[0]);
+    var citString = DateTime.parse(checkIn[1]).toLocal().toIso8601String();
+    var ciDate = citString.substring(0, 10);
+    var ciTime = citString.substring(11, 16);
+    var event = pastEvent.event;
+    var control = event.controls[controlIndex];
+    var courseMile = control.distMi;
+    var controlName = control.name;
+    return Card(
+      child: ListTile(
+        leading: Icon(controlIndex == event.startControlKey
+            ? Icons.play_arrow
+            : (controlIndex == event.finishControlKey
+                ? Icons.stop
+                : Icons.pedal_bike)),
+        title: Text(controlName),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(control.address),
+            Text(
+                'Control ${controlIndex + 1} ($courseMile mi): $ciDate @ $ciTime'),
+          ],
+        ),
+      ),
+    );
+  }
 }

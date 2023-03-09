@@ -19,6 +19,7 @@ import 'package:ebrevet_card/files.dart';
 import 'event.dart';
 import 'outcome.dart';
 import 'control.dart';
+import 'app_settings.dart';
 // import 'current.dart';
 
 // PastEvents are events with outcomes
@@ -50,7 +51,27 @@ class PastEvent {
     return PastEvent(e, riderID, o, isPreride);
   }
 
-  // TODO Why didn't I see correct elapsed time computed on my preride
+  bool get isFinalOutcomeFullyUploaded {
+    var lastUpload = outcomes.lastUpload;
+    var finishTime = outcomes.getControlCheckInTime(event.finishControlKey);
+    return finishTime!=null && lastUpload!=null && lastUpload.isAfter(finishTime);
+  }
+
+  int? get lastCheckInControlKey {
+    int k;
+    for (k=event.startControlKey; k<=event.finishControlKey; k++){
+      if(outcomes.getControlCheckInTime(k)==null){break;}
+    }
+    return  k==event.startControlKey?null:k-1;
+  }
+
+  bool get isCurrentOutcomeFullyUploaded {
+    var lastUpload = outcomes.lastUpload;
+    var k = lastCheckInControlKey;
+    if (k==null) return true;
+    var finishTime = outcomes.getControlCheckInTime(k);
+    return finishTime!=null && lastUpload!=null && lastUpload.isAfter(finishTime);
+  }
 
   DateTime? get startDateTimeActual => (isPreride)
       ? outcomes.getControlCheckInTime(_event.startControlKey)
@@ -71,6 +92,23 @@ class PastEvent {
     return "${elapsedDuration!.inHours}H ${elapsedDuration!.inMinutes % 60}M";
   }
 
+  DateTime? openActual(int controlKey) {
+    Control control = _event.controls[controlKey];
+    var openDur = control.openDuration(_event.startDateTime);
+    return startDateTimeActual?.add(openDur);
+  }
+
+  DateTime? closeActual(int controlKey) {
+    Control control = _event.controls[controlKey];
+    var closeDur = control.closeDuration(_event.startDateTime);
+    return startDateTimeActual?.add(closeDur);
+  }
+
+  String openActualString(int controlKey) =>
+      openActual(controlKey)?.toLocal().toString().substring(0, 16) ?? '';
+  String closeActualString(int controlKey) =>
+      closeActual(controlKey)?.toLocal().toString().substring(0, 16) ?? '';
+
   bool isOpenControl(int controlKey) {
     // can start preride any time
     if (isPreride && controlKey == _event.startControlKey) return true;
@@ -90,8 +128,10 @@ class PastEvent {
     return (openActual.isBefore(now) && closeActual.isAfter(now));
   }
 
+  bool isNear(int controlKey) => _event.controls[controlKey].cLoc.isNearControl;
+
   bool isAvailable(int controlKey) =>
-      isOpenControl(controlKey) && _event.controls[controlKey].cLoc.isNearControl;
+      (AppSettings.openTimeOverride  || isOpenControl(controlKey)) && isNear(controlKey);
 
   Event get event {
     return _event;
@@ -226,6 +266,13 @@ class EventHistory {
       _pastEventMap[e.eventID] = pe;
 
       return pe;
+    }
+  }
+
+  static deletePastEvent(PastEvent pe){
+    if (_pastEventMap.containsKey(pe._event.eventID)){
+      _pastEventMap.remove(pe._event.eventID);
+      save();
     }
   }
 }

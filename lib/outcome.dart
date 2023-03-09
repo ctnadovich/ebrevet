@@ -40,7 +40,6 @@ class EventOutcomes {
   late OverallOutcome _overallOutcome;
   late Map<int, DateTime> _checkInTimeMap; // control number -> check in time
  
-// TODO write to this someplace
   DateTime? lastUpload;
 
   EventOutcomes(
@@ -101,7 +100,7 @@ class EventOutcomes {
 
   get outcomeName => _overallOutcome.name;
 
-  get checkInTimeList {
+  List<List<String>> get checkInTimeList {
     List<List<String>> citl = [];
     var keyList = _checkInTimeMap.keys.toList();
     keyList.sort();

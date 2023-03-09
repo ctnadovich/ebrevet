@@ -150,7 +150,7 @@ class Event {
   // starts will be allowed. In minutes. 
 
   static const startableTimeWindowMinutes = 60;
-  static const prerideTimeWindowDays = 15;
+  static const prerideTimeWindowDays = 30;
 
   bool get isStartable {
     var now=DateTime.now();

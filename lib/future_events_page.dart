@@ -20,10 +20,8 @@ import 'future_events.dart';
 import 'event.dart';
 import 'outcome.dart';
 import 'ride_page.dart';
-// import 'app_settings.dart';
 import 'rider.dart';
 import 'region.dart';
-// import 'control.dart';
 import 'event_history.dart';
 import 'current.dart';
 import 'signature.dart';
@@ -96,28 +94,28 @@ class _EventsPageState extends State<EventsPage> {
             child: ListView(
               // mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                    // SizedBox(height: 2),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        SnackbarGlobal.show('Refreshing Future Events...');
-                        setState(() {
-                          fetchingFromServerNow = true;
-                        });
-                        FutureEvents.refreshEventsFromServer(
-                                Rider.fromSettings(), Region.fromSettings())
-                            // Future.delayed(const Duration(seconds: 5))
-                            .then((value) =>
-                                setState(() => fetchingFromServerNow = false));
-                      },
-                      icon: Icon(Icons.refresh),
-                      label: Text('Refresh Events from Server'),
-                    ),
-                    Text(
-                        'Future events in region: ${Region.fromSettings().clubName}'),
-                    Text('Last refreshed: ${FutureEvents.lastRefreshedStr}'),
-                    Text('Rider: ${Rider.fromSettings().firstLastRUSA}'),
-                    ...events.map((e) => EventCard(e)),
-                  ],
+                // SizedBox(height: 2),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    SnackbarGlobal.show('Refreshing Future Events...');
+                    setState(() {
+                      fetchingFromServerNow = true;
+                    });
+                    FutureEvents.refreshEventsFromServer(
+                            Rider.fromSettings(), Region.fromSettings())
+                        // Future.delayed(const Duration(seconds: 5))
+                        .then((value) =>
+                            setState(() => fetchingFromServerNow = false));
+                  },
+                  icon: Icon(Icons.refresh),
+                  label: Text('Refresh Events from Server'),
+                ),
+                Text(
+                    'Future events for: ${Region.fromSettings().clubName}'),
+                Text('Last refreshed: ${FutureEvents.lastRefreshedStr}'),
+                Text('Rider: ${Rider.fromSettings().firstLastRUSA}'),
+                ...events.map((e) => EventCard(e)), // All the Event Cards
+              ],
             ),
           ),
         ),
@@ -141,7 +139,7 @@ class _EventsPageState extends State<EventsPage> {
 class EventCard extends StatefulWidget {
   final Event event;
 
-  const EventCard(this.event); 
+  const EventCard(this.event);
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -174,6 +172,11 @@ class _EventCardState extends State<EventCard> {
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
     final String overallOutcomeDescriptionInHistory =
         overallOutcomeInHistory.description;
+    final bool isOutcomeFullyUploaded =
+        pe?.isCurrentOutcomeFullyUploaded ?? false;
+
+    final isStartable = widget.event.isStartable;
+    final isPreridable = widget.event.isPreridable;
 
     return Card(
       child: Column(
@@ -188,7 +191,8 @@ class _EventCardState extends State<EventCard> {
                 Text(regionName),
                 Text('${widget.event.startCity}, ${widget.event.startState}'),
                 Text('${widget.event.dateTime} (${widget.event.statusText})'),
-                Text('Organizer: ${widget.event.organizerName} (${widget.event.organizerPhone})'),
+                Text(
+                    'Organizer: ${widget.event.organizerName} (${widget.event.organizerPhone})'),
                 Text('Latest Cue Ver: ${widget.event.cueVersionString}'),
               ],
             ),
@@ -200,44 +204,52 @@ class _EventCardState extends State<EventCard> {
           //       padding: EdgeInsets.fromLTRB(16, 16, 0, 8),
           //       child:
 
-          Row(
+          Column(
             children: [
-              SizedBox(
-                width: 16,
+              Row(
+                children: [
+                  SizedBox(
+                    width: 16,
+                  ),
+                  Text(
+                    overallOutcomeDescriptionInHistory,
+                    style: overallOutcomeInHistory == OverallOutcome.active
+                        ? TextStyle(
+                            fontWeight: FontWeight.bold,
+                            // decoration: TextDecoration.underline,
+                          )
+                        : null,
+                  ),
+                  overallOutcomeInHistory == OverallOutcome.finish
+                      ? Text(" ${EventHistory.getElapsedTimeString(eventID)}")
+                      : SizedBox.shrink(),
+                  overallOutcomeInHistory == OverallOutcome.active
+                      ? IconButton(
+                          onPressed: () {
+                            setState(() {
+                              pe!.overallOutcome = OverallOutcome.dnf;
+                              // pe can't be null because overallOutcomeInHistory wasn't unknown
+                            });
+                            EventHistory.save();
+                          },
+                          icon: const Icon(Icons.cancel),
+                          tooltip: 'Abandon the event',
+                        )
+                      : SizedBox.shrink(),
+                  //     ],
+                  //   ),
+                  // ),
+                  Spacer(),
+                  (isStartable || isPreridable)
+                      ? rideButton(context)
+                      : SizedBox.shrink(),
+                  const SizedBox(width: 8),
+                ],
               ),
-              Text(
-                overallOutcomeDescriptionInHistory,
-                style: overallOutcomeInHistory == OverallOutcome.active
-                    ? TextStyle(
-                        fontWeight: FontWeight.bold,
-                        // decoration: TextDecoration.underline,
-                      )
-                    : null,
-              ),
-              overallOutcomeInHistory == OverallOutcome.finish
-                  ? Text(" ${EventHistory.getElapsedTimeString(eventID)}")
-                  : SizedBox.shrink(),
-              overallOutcomeInHistory == OverallOutcome.active
-                  ? IconButton(
-                      onPressed: () {
-                        setState(() {
-                          pe!.overallOutcome = OverallOutcome.dnf;
-                          // pe can't be null because overallOutcomeInHistory wasn't unknown
-                        });
-                        EventHistory.save();
-                      },
-                      icon: const Icon(Icons.cancel),
-                      tooltip: 'Abandon the event',
-                    )
-                  : SizedBox.shrink(),
-              //     ],
-              //   ),
-              // ),
-              Spacer(),
-              (widget.event.isStartable || widget.event.isPreridable)
-                  ? rideButton(context)
-                  : SizedBox.shrink(),
-              const SizedBox(width: 8),
+              (overallOutcomeInHistory == OverallOutcome.dns)
+                  ? SizedBox.shrink()
+                  : Text(" ${isOutcomeFullyUploaded ? '' : 'Not Fully '}Uploaded",
+                  style: TextStyle(fontWeight: isOutcomeFullyUploaded?FontWeight.normal:FontWeight.bold),),
             ],
           ),
           SizedBox(
@@ -249,53 +261,49 @@ class _EventCardState extends State<EventCard> {
   }
 
   TextButton rideButton(BuildContext context) {
-
-    final isPreride = widget.event.isPreridable;  
+    final isPreride = widget.event.isPreridable;
     final eventID = widget.event.eventID;
     final pe = EventHistory.lookupPastEvent(eventID);
     final OverallOutcome overallOutcomeInHistory =
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
 
     return TextButton(
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                    ),
-                    onPressed: () async {
-                      if (Rider.isSet == false ||
-                          FutureEvents.region == null) {
-                        SnackbarGlobal.show(
-                            "Can't RIDE. Is Rider Name, RUSA ID, and Region set?");
-                      } else {
-                        if (overallOutcomeInHistory == OverallOutcome.dns) {
-                          final startCode = await openStartBrevetDialog();
-                          final msg =
-                              validateStartCode(startCode, widget.event);
-                          if (null != msg) {
-                            SnackbarGlobal.show(msg);
-                            return;
-                          }
-                        }
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+      ),
+      onPressed: () async {
+        if (Rider.isSet == false) {
+          SnackbarGlobal.show("Can't RIDE. Is RUSA ID set?");
+        } else {
+          if (overallOutcomeInHistory == OverallOutcome.dns) {
+            final startCode = await openStartBrevetDialog();
+            final msg = validateStartCode(startCode, widget.event);
+            if (null != msg) {
+              SnackbarGlobal.show(msg);
+              return;
+            }
+          }
 
-                        if (context.mounted) {
-                          if (overallOutcomeInHistory !=
-                              OverallOutcome.finish) {
-                            Current.activate(widget.event,
-                                Rider.fromSettings().rusaID, 
-                                isPreride: isPreride);
-                          }
-                          Navigator.of(context)
-                              .push(MaterialPageRoute(
-                                builder: (context) =>
-                                    RidePage(), // will implicitly ride event just activated
-                              ))
-                              .then((_) => setState(() {}));
-                        } else {
-                          print("Not mounted!?");
-                        }
-                      }
-                    },
-                    child: Text(isPreride?'PRERIDE':'RIDE'),
-                  );
+          if (context.mounted) {
+            if (overallOutcomeInHistory != OverallOutcome.finish) {
+              Current.activate(widget.event, Rider.fromSettings().rusaID,
+                  isPreride: isPreride);
+            }
+            Navigator.of(context)
+                .push(MaterialPageRoute(
+                  builder: (context) =>
+                      RidePage(), // will implicitly ride event just activated
+                ))
+                .then((_) => setState(() {}));
+          } else {
+            print("Not mounted!?");
+          }
+        }
+      },
+      child: Text(overallOutcomeInHistory == OverallOutcome.finish
+          ? "VIEW"
+          : (isPreride ? 'PRERIDE' : 'RIDE')),
+    );
   }
 
   String? validateStartCode(String? startCode, Event event) {
@@ -303,17 +311,14 @@ class _EventCardState extends State<EventCard> {
       return "Missing start code";
     }
 
-    if(startCode==Region.magicStartCode) return null;
+    if (startCode == Region.magicStartCode) return null;
 
     if (false == Rider.isSet) return "Rider not set.";
     if (FutureEvents.region == null) return "No region. ";
 
     var rider = Rider.fromSettings().rusaID;
 
-    var signature = Signature(
-        riderID: rider,
-        event: event,
-        codeLength: 4);
+    var signature = Signature(riderID: rider, event: event, codeLength: 4);
 
     var validCode = signature.text.toUpperCase();
 
