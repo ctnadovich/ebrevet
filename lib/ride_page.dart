@@ -296,22 +296,24 @@ class _ControlCardState extends State<ControlCard> {
     } else if (false == Current.activatedEvent!.isAvailable(c.index)) {
       var open = Current.activatedEvent!.isOpenControl(c.index);
       var near = Current.activatedEvent!.isNear(c.index);
+      var openTimeOverride = AppSettings.openTimeOverride;
+      var proximityRadiusInfinite = AppSettings.proximityRadius==AppSettings.infiniteDistance.toDouble();
 
 
       return Text.rich(TextSpan(style: TextStyle(fontSize: 12), children: [
-        if (open)
+        if (open || openTimeOverride)
           TextSpan(
-            text: 'Open now',
+            text: 'Open now${openTimeOverride?"*":""}',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-        if (!open)
+        if (!open && !openTimeOverride)
           TextSpan(
             text: 'Not open',
           ),
         TextSpan(text: ' - '),
         if (near)
           TextSpan(
-            text: 'At control',
+            text: 'At control${proximityRadiusInfinite?"*":""}',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         if (!near)

@@ -44,17 +44,21 @@ PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
 }
 
+  static const int infiniteDistance=9999999;
+  static const int startableTimeWindowMinutes = 60;
+  static const int prerideTimeWindowDays = 15;
 
-
-  static double get controlAutoCheckInDistance {
-    // var d = 500.0;
+  static double get proximityRadius {
     var d =Settings.getValue<int>('key-control-proximity-thresh',
        defaultValue: 500)!;
     return d.toDouble();
   }
-
   static bool get openTimeOverride{
     return Settings.getValue('key-open-time-override', defaultValue: false)!;
+  }
+
+  static bool get prerideDateWindowOverride{
+    return Settings.getValue('key-preride-date-window-override', defaultValue: false)!;
   }
 
   static double get locationPollPeriod {
@@ -127,7 +131,7 @@ class SettingsPageState extends State<SettingsPage> {
           children: <Widget>[
             RadioSettingsTile<int>(
               leading: const Icon(Icons.social_distance),
-              title: 'Control Distance Threshold',
+              title: 'Control Proximity Radius',
               subtitle: 'Distance from control that allows check-in',
               settingKey: 'key-control-proximity-thresh',
               values: <int, String>{
@@ -135,7 +139,7 @@ class SettingsPageState extends State<SettingsPage> {
                 500: '500 m',
                 2500: '2.5 km',
                 12500: '12.5 km',
-                9999999: 'Infinite',
+                AppSettings.infiniteDistance: 'Infinite',
               },
               selected: 500,
             ),
@@ -145,9 +149,16 @@ class SettingsPageState extends State<SettingsPage> {
               subtitle: "Ignore control open/close time.",
                             leading: const Icon(Icons.free_cancellation),
               ),
+           SwitchSettingsTile(
+              title: "Preride Date Window Override", 
+              settingKey: "key-preride-date-window-override",
+              subtitle: "Preride any time.",
+                            leading: const Icon(Icons.free_cancellation),
+              ),
             SliderSettingsTile(
               settingKey: 'key-location-poll-period',
               title: 'Period of Location Poll (seconds)',
+              subtitle: "How often the GPS location is updated.",
               defaultValue: 60,
               min: 10,
               max: 120,

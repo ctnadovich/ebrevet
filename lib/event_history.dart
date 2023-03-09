@@ -20,7 +20,7 @@ import 'event.dart';
 import 'outcome.dart';
 import 'control.dart';
 import 'app_settings.dart';
-// import 'current.dart';
+import 'current.dart';
 
 // PastEvents are events with outcomes
 // when a plain Event is "activated" it becomes
@@ -271,6 +271,7 @@ class EventHistory {
 
   static deletePastEvent(PastEvent pe){
     if (_pastEventMap.containsKey(pe._event.eventID)){
+      if(Current.activatedEvent?._event.eventID==pe._event.eventID) Current.deactivate();
       _pastEventMap.remove(pe._event.eventID);
       save();
     }

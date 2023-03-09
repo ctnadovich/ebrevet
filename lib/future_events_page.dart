@@ -231,6 +231,7 @@ class _EventCardState extends State<EventCard> {
                               // pe can't be null because overallOutcomeInHistory wasn't unknown
                             });
                             EventHistory.save();
+                            Current.deactivate();
                           },
                           icon: const Icon(Icons.cancel),
                           tooltip: 'Abandon the event',

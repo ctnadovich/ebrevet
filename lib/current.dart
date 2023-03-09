@@ -45,6 +45,8 @@ class Current {
         "Activated ${activatedEvent!.event.nameDist}${isPreride ? ' PRERIDE' : ''}");
   }
 
+  static void deactivate() => activatedEvent=null;
+
   static Event? get event {
     return activatedEvent?.event;
   }
@@ -53,15 +55,6 @@ class Current {
     return activatedEvent?.outcomes;
   }
 
-  // static void clear() {
-  //   rider = null;
-  //   region = null;
-  //   activatedEvent = null;
-  // }
-
-  // static void deactivate() {
-  //   clear();
-  // }
 
   static bool get isActivated {
     return activatedEvent != null;
@@ -106,11 +99,13 @@ class Current {
     if (isAllChecked) {
       if (isAllCheckedInOrder()) {
         activatedEvent!.outcomes.overallOutcome = OverallOutcome.finish;
+        // Current.deactivate();
         SnackbarGlobal.show(
             'Congratulations! You have finished the ${activatedEvent!.event.nameDist}. Your '
             'elapsed time: ${activatedEvent!.elapsedTimeString}');
       } else {
         activatedEvent!.outcomes.overallOutcome = OverallOutcome.dnq;
+        // Current.deactivate();
         SnackbarGlobal.show('Controls checked in wrong order. Disqualified!');
       }
     }
@@ -177,7 +172,7 @@ class Current {
     report['outcome'] = outcomes!;
 
     report['app_version']=AppSettings.version;
-    report['proximity_radius']=AppSettings.controlAutoCheckInDistance;
+    report['proximity_radius']=AppSettings.proximityRadius;
     report['open_override']=AppSettings.openTimeOverride?"YES":"NO";
     report['preride']= (activatedEvent!.isPreride)?"YES":"NO";
 

@@ -18,7 +18,7 @@ import 'snackbarglobal.dart';
 import 'control.dart';
 import 'time_till.dart';
 import 'region.dart';
-
+import 'app_settings.dart';
 
 // The Event object documents an event details
 // with no reference to who is riding the event
@@ -33,34 +33,32 @@ class Event {
   late String distance; // Official distance in KM
   late String startCity;
   late String startState;
-   String organizerName="Not Set";
-   String organizerPhone='Not Set';
+  String organizerName = "Not Set";
+  String organizerPhone = 'Not Set';
   late int cueVersion;
   late String
       eventID; // This must be unique worldwide (could be contstructed "$regionID-$regionEventID")
 
-// For now, eventID is a String, but... 
+// For now, eventID is a String, but...
 // Maybe the eventID needs to be wrapped in a class
 
   late int regionID; // Numeric ACP Club Code
   final List<Control> controls = [];
 
-  Map<String, dynamic> get toMap =>
-  {
-    'name':name,
-    'start_datetime_utc':startDateTime.toUtc().toIso8601String(),
-    'end_datetime_utc':endDateTime.toUtc().toIso8601String(),
-    'distance':distance,
-    'start_city':startCity,
-    'start_state':startState,
-    'cue_version':cueVersion,
-    'organizer_name':organizerName,
-    'organizer_phone':organizerPhone,
-    'event_id':eventID,
-    'club_acp_code':regionID,
-    'controls':[for (var cntrl in controls) cntrl.toMap],
-  };
-
+  Map<String, dynamic> get toMap => {
+        'name': name,
+        'start_datetime_utc': startDateTime.toUtc().toIso8601String(),
+        'end_datetime_utc': endDateTime.toUtc().toIso8601String(),
+        'distance': distance,
+        'start_city': startCity,
+        'start_state': startState,
+        'cue_version': cueVersion,
+        'organizer_name': organizerName,
+        'organizer_phone': organizerPhone,
+        'event_id': eventID,
+        'club_acp_code': regionID,
+        'controls': [for (var cntrl in controls) cntrl.toMap],
+      };
 
   Event.fromMap(Map<String, dynamic> json) {
     try {
@@ -73,12 +71,17 @@ class Event {
       startCity = json['start_city'];
       startState = json['start_state'];
       organizerName = json['organizer_name'] ?? "?";
-      organizerPhone= json['organizer_phone'] ?? "?";
-      cueVersion = (json['cue_version'] is int) ? json['cue_version'] : int.tryParse(json['cue_version'])!;
+      organizerPhone = json['organizer_phone'] ?? "?";
+      cueVersion = (json['cue_version'] is int)
+          ? json['cue_version']
+          : int.tryParse(json['cue_version'])!;
       eventID = json['event_id'];
-      regionID = (json['club_acp_code'] is int) ? json['club_acp_code'] : int.tryParse(json['club_acp_code'])!;
+      regionID = (json['club_acp_code'] is int)
+          ? json['club_acp_code']
+          : int.tryParse(json['club_acp_code'])!;
       List<dynamic> controlsListMap = json['controls'];
-      print('Event.fromMap() restored $name from JSON. Found ${controlsListMap.length} controls.');
+      print(
+          'Event.fromMap() restored $name from JSON. Found ${controlsListMap.length} controls.');
       controls.clear();
       for (var i = 0; i < controlsListMap.length; i++) {
         var controlMap = controlsListMap[i];
@@ -146,24 +149,20 @@ class Event {
   String get eventURL => region.eventURL;
   String get secret => region.secret;
 
-  // Time window +/- from the official start time that 
-  // starts will be allowed. In minutes. 
-
-  static const startableTimeWindowMinutes = 60;
-  static const prerideTimeWindowDays = 30;
+  // Time window +/- from the official start time that
+  // starts will be allowed. In minutes.
 
   bool get isStartable {
-    var now=DateTime.now();
+    var now = DateTime.now();
     var difference = startDateTime.difference(now);
-    return (difference.inMinutes.abs() < startableTimeWindowMinutes);
+    return (difference.inMinutes.abs() <
+        AppSettings.startableTimeWindowMinutes);
   }
 
   bool get isPreridable {
     var now = DateTime.now();
     var difference = startDateTime.difference(now);
-    return difference.inMinutes>startableTimeWindowMinutes && difference.inDays<=prerideTimeWindowDays;
+    return difference.inMinutes > AppSettings.startableTimeWindowMinutes &&
+        (AppSettings.prerideDateWindowOverride || difference.inDays <= AppSettings.prerideTimeWindowDays);
   }
-
-  
- 
 }

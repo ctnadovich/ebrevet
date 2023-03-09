@@ -51,34 +51,24 @@ class _PastEventsPageState extends State<PastEventsPage> {
                 Text('Past events for: ${Rider.fromSettings().firstLastRUSA}'),
 
                 for (var pe in EventHistory.pastEventList)
-                  PastEventCard(pe.event),
+                  pastEventCard(context, pe.event),
               ],
             ),
           ),
         ));
   }
-}
 
-class PastEventCard extends StatefulWidget {
-  final Event event;
 
-  const PastEventCard(this.event);
+Widget pastEventCard(BuildContext context, Event event) {
 
-  @override
-  State<PastEventCard> createState() => _PastEventCardState();
-}
-
-class _PastEventCardState extends State<PastEventCard> {
-  @override
-  Widget build(BuildContext context) {
-    final eventID = widget.event.eventID;
+    final eventID = event.eventID;
     final pe = EventHistory.lookupPastEvent(eventID);
     // var eventInHistory = pe?.event;
     final OverallOutcome overallOutcomeInHistory =
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
     final String overallOutcomeDescriptionInHistory =
         overallOutcomeInHistory.description;
-    final clubName = Region(regionID: widget.event.regionID).clubName;
+    final clubName = Region(regionID: event.regionID).clubName;
 
     return Card(
       child: Column(
@@ -86,13 +76,13 @@ class _PastEventCardState extends State<PastEventCard> {
         children: <Widget>[
           ListTile(
             leading: Icon(Icons.pedal_bike),
-            title: Text(widget.event.nameDist),
+            title: Text(event.nameDist),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(clubName),
-                Text('${widget.event.startCity}, ${widget.event.startState}'),
-                Text('${widget.event.dateTime}'),
+                Text('${event.startCity}, ${event.startState}'),
+                Text('${event.dateTime}'),
               ],
             ),
           ),
@@ -114,11 +104,14 @@ class _PastEventCardState extends State<PastEventCard> {
                   ? Text(" ${EventHistory.getElapsedTimeString(eventID)}")
                   : SizedBox.shrink(),
               Spacer(),
-              viewButton(context),
+              viewButton(context, eventID),
               SizedBox(
                 width: 4,
               ),
               deleteButton(context, eventID),
+              SizedBox(
+                width: 4,
+              ),
             ],
           ),
           SizedBox(
@@ -136,9 +129,7 @@ class _PastEventCardState extends State<PastEventCard> {
         padding: EdgeInsets.zero,
       ),
       onPressed: () async {
-        setState(() {
-          EventHistory.deletePastEvent(pe!);  // TODO setState doesn't work
-        });
+        confirmDeleteDialog(context, pe!);
       },
       child: (pe?.outcomes.overallOutcome == OverallOutcome.dns)
           ? SizedBox.shrink()
@@ -146,8 +137,37 @@ class _PastEventCardState extends State<PastEventCard> {
     );
   }
 
-  Widget viewButton(BuildContext context) {
-    final eventID = widget.event.eventID;
+void confirmDeleteDialog(BuildContext context, PastEvent pe) {
+    showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+              return AlertDialog(
+      title: const Text('Please Confirm'),
+      content:  Text('Delete the ${pe.event.nameDist}?'),
+      actions: [
+        // The "Yes" button
+        TextButton(
+            onPressed: () {
+              // Remove the box
+              setState(() {
+                EventHistory.deletePastEvent(pe);
+              });
+
+              // Close the dialog
+              Navigator.of(context).pop();
+            },
+            child: const Text('Yes')),
+        TextButton(
+            onPressed: () {
+              // Close the dialog
+              Navigator.of(context).pop();
+            },
+            child: const Text('No'))
+      ],
+    );
+  });}
+
+  Widget viewButton(BuildContext context, String eventID) {
     final pe = EventHistory.lookupPastEvent(eventID);
     final OverallOutcome overallOutcomeInHistory =
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
@@ -173,6 +193,7 @@ class _PastEventCardState extends State<PastEventCard> {
     );
   }
 }
+
 
 class ViewPage extends StatelessWidget {
   final PastEvent pastEvent;
@@ -214,7 +235,6 @@ class ViewPage extends StatelessWidget {
   }
 
   // TODO Pretty this up and add more analytics
-
 
   Widget checkInCard(List<String> checkIn) {
     var controlIndex = int.parse(checkIn[0]);
