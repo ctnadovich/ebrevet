@@ -236,6 +236,8 @@ class ViewPage extends StatelessWidget {
 
   // TODO Pretty this up and add more analytics
 
+  // TODO should show download state and possibly offer download button
+
   Widget checkInCard(List<String> checkIn) {
     var controlIndex = int.parse(checkIn[0]);
     var citString = DateTime.parse(checkIn[1]).toLocal().toIso8601String();

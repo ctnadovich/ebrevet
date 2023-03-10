@@ -24,6 +24,11 @@ import 'rider.dart';
 import 'region.dart';
 import 'region_data.dart';
 
+// TODO Day/night switch
+// TODO One shot RUSA number setting
+// TODO magic start code set in settings
+// TODO Access control for Advanced settings
+
 class AppSettings {
   // static bool get isPrerideMode =>
   //     Settings.getValue<bool>('key-preride-mode', defaultValue: false)!;
