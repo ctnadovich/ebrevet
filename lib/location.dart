@@ -27,7 +27,7 @@ class RiderLocation {
 
   static bool gpsServiceEnabled = false;
 
-  static void updateLocation() async {  // TODO automatic periodic report to remote server?  
+  static void updateLocation() async {  // Consider automatic periodic report to remote server?  
                                         // of location not just when checiking in
                                         // Perhaps as settings option with different period
     try {

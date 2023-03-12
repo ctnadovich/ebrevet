@@ -24,46 +24,52 @@ import 'rider.dart';
 import 'region.dart';
 import 'region_data.dart';
 
-// TODO Day/night switch
-// TODO One shot RUSA number setting
-// TODO magic start code set in settings
 // TODO Access control for Advanced settings
+// TODO Settings included in report
 
 class AppSettings {
   // static bool get isPrerideMode =>
   //     Settings.getValue<bool>('key-preride-mode', defaultValue: false)!;
 
+  static String? appName;
+  static String? packageName;
+  static String? version;
+  static String? buildNumber;
 
-static String? appName;
-static String? packageName;
-static String? version;
-static String? buildNumber;
+  static Future<void> initializePackageInfo() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
-static Future <void> initializePackageInfo() async {
-PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    appName = packageInfo.appName;
+    packageName = packageInfo.packageName;
+    version = packageInfo.version;
+    buildNumber = packageInfo.buildNumber;
+  }
 
- appName = packageInfo.appName;
- packageName = packageInfo.packageName;
- version = packageInfo.version;
- buildNumber = packageInfo.buildNumber;
-
-}
-
-  static const int infiniteDistance=9999999;
+  static const int infiniteDistance = 9999999;
   static const int startableTimeWindowMinutes = 60;
   static const int prerideTimeWindowDays = 15;
+  static const int httpGetTimeoutSeconds = 15;
+
+  // static const magicStartCode = "XYZZY";
+
+  static String get magicStartCode {
+    return Settings.getValue<String>('key-magic-start-code',
+        defaultValue: 'XYZZY')!;
+  }
 
   static double get proximityRadius {
-    var d =Settings.getValue<int>('key-control-proximity-thresh',
-       defaultValue: 500)!;
+    var d = Settings.getValue<int>('key-control-proximity-thresh',
+        defaultValue: 500)!;
     return d.toDouble();
   }
-  static bool get openTimeOverride{
+
+  static bool get openTimeOverride {
     return Settings.getValue('key-open-time-override', defaultValue: false)!;
   }
 
-  static bool get prerideDateWindowOverride{
-    return Settings.getValue('key-preride-date-window-override', defaultValue: false)!;
+  static bool get prerideDateWindowOverride {
+    return Settings.getValue('key-preride-date-window-override',
+        defaultValue: false)!;
   }
 
   static double get locationPollPeriod {
@@ -74,6 +80,32 @@ PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
   static int get regionID => Settings.getValue<int>('key-region',
       defaultValue: RegionData.defaultRegion)!;
+
+  static String get rusaID =>
+      Settings.getValue<String>('key-rusa-id', defaultValue: '')!;
+
+  static bool get isRusaIDSet => rusaID.isNotEmpty;
+
+  static set rusaID(String r) => Settings.setValue('key-rusa-id', r);
+
+  static String? urlFieldValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter something';
+    }
+    if (false == Uri.parse(value).host.isNotEmpty) {
+      return 'Invalid URL';
+    } else {
+      return null;
+    }
+  }
+
+  static String? rusaFieldValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your RUSA ID';
+    }
+    if (false == Rider.isValidRusaID(value)) return 'Invalid RUSA ID';
+    return null;
+  }
 }
 
 class SettingsPage extends StatefulWidget {
@@ -98,42 +130,54 @@ class SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return SettingsScreen(
       children: [
-        ExpandableSettingsTile(
-          title: 'Rider Profile',
-          children: <Widget>[
-            // TextInputSettingsTile(
-            //   settingKey: 'key-first-name',
-            //   title: 'First Name',
-            //   initialValue: '',
-            //   validator: textFieldValidator,
-            // ),
-            // TextInputSettingsTile(
-            //   settingKey: 'key-last-name',
-            //   title: 'Last Name',
-            //   initialValue: '',
-            //   validator: textFieldValidator,
-            // ),
-            TextInputSettingsTile(
-              settingKey: 'key-rusa-id',
-              title: 'RUSA ID Number',
-              initialValue: '',
-              validator: rusaFieldValidator,
-            ),
-            DropDownSettingsTile<int>(
-              title: 'Events Club',
-              settingKey: 'key-region',
-              values: <int, String>{
-                for (var k in Region.regionMap.keys)
-                  k: Region.regionMap[k]!['clubName']!
-              },
-              selected: Region.defaultRegion,
-              onChange: (value) {FutureEvents.clear();},
-            ),
-          ],
+        // ExpandableSettingsTile(
+        //   title: 'Rider Profile',
+        //   children: <Widget>[
+        // TextInputSettingsTile(
+        //   settingKey: 'key-first-name',
+        //   title: 'First Name',
+        //   initialValue: '',
+        //   validator: textFieldValidator,
+        // ),
+        // TextInputSettingsTile(
+        //   settingKey: 'key-last-name',
+        //   title: 'Last Name',
+        //   initialValue: '',
+        //   validator: textFieldValidator,
+        // ),
+        TextInputSettingsTile(
+          settingKey: 'key-rusa-id',
+          title: 'RUSA ID Number',
+          initialValue: '',
+          // validator: AppSettings.rusaFieldValidator,
+        ),
+        DropDownSettingsTile<int>(
+          title: 'Events Club',
+          settingKey: 'key-region',
+          values: <int, String>{
+            for (var k in Region.regionMap.keys)
+              k: Region.regionMap[k]!['clubName']!
+          },
+          selected: Region.defaultRegion,
+          onChange: (value) {
+            FutureEvents.clear();
+          },
+        ),
+        //   ],
+        // ),
+        SizedBox(
+          height: 25,
         ),
         ExpandableSettingsTile(
           title: 'Advanced Options',
           children: <Widget>[
+            TextInputSettingsTile(
+              settingKey: 'key-magic-start_code',
+              title: 'Magic Start Code',
+              // subtitle: 'Cheat code for starting any event',
+              initialValue: 'XYZZY',
+              validator: textFieldValidator,
+            ),
             RadioSettingsTile<int>(
               leading: const Icon(Icons.social_distance),
               title: 'Control Proximity Radius',
@@ -149,17 +193,17 @@ class SettingsPageState extends State<SettingsPage> {
               selected: 500,
             ),
             SwitchSettingsTile(
-              title: "Open Time Override", 
+              title: "Open Time Override",
               settingKey: "key-open-time-override",
               subtitle: "Ignore control open/close time.",
-                            leading: const Icon(Icons.free_cancellation),
-              ),
-           SwitchSettingsTile(
-              title: "Preride Date Window Override", 
+              leading: const Icon(Icons.free_cancellation),
+            ),
+            SwitchSettingsTile(
+              title: "Preride Date Window Override",
               settingKey: "key-preride-date-window-override",
               subtitle: "Preride any time.",
-                            leading: const Icon(Icons.free_cancellation),
-              ),
+              leading: const Icon(Icons.free_cancellation),
+            ),
             SliderSettingsTile(
               settingKey: 'key-location-poll-period',
               title: 'Period of Location Poll (seconds)',
@@ -189,25 +233,6 @@ class SettingsPageState extends State<SettingsPage> {
     return null;
   }
 
-  String? urlFieldValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter something';
-    }
-    if (false == Uri.parse(value).host.isNotEmpty) {
-      return 'Invalid URL';
-    } else {
-      return null;
-    }
-  }
-
-  String? rusaFieldValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your RUSA ID';
-    }
-    if (false == Rider.isValidRusaID(value)) return 'Invalid RUSA ID';
-    return null;
-  }
-
   void _showAboutDialog() {
     showAboutDialog(
         context: context,
@@ -216,8 +241,7 @@ class SettingsPageState extends State<SettingsPage> {
           'assets/images/eBrevet-128.png',
           width: 64,
         ),
-        applicationVersion:
-            "v${AppSettings.version ?? '?'}", 
+        applicationVersion: "v${AppSettings.version ?? '?'}",
         applicationLegalese:
             '(c)2023 Chris Nadovich. This free application is licensed under GPLv3.',
         children: [

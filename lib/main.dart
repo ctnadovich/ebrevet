@@ -27,6 +27,8 @@ import 'ride_page.dart';
 import 'future_events.dart';
 import 'region.dart';
 import 'current.dart';
+import 'rider.dart';
+import 'day_night.dart';
 
 void main() {
   initSettings().then((_) {
@@ -36,33 +38,41 @@ void main() {
 }
 
 Future<void> initSettings() async {
+  print('Init settings start...');
   await Settings.init(
     cacheProvider: SharePreferenceCache(),
   );
   await AppSettings.initializePackageInfo();
   await FutureEvents.refreshEventsFromDisk(Region.fromSettings());
   // .then((_) =>
-  EventHistory.load();
+  await EventHistory.load();
+  print('...Init settings end');
 }
 
 class MyApp extends StatelessWidget {
+
   MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      scaffoldMessengerKey: SnackbarGlobal.key,
-      title: 'eBrevet Card',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      home: HomePage(),
-    );
+    return ValueListenableBuilder(
+        valueListenable: DayNight.themeNotifier,
+        builder: (context, ThemeMode currentMode, child) {
+          return MaterialApp(
+            scaffoldMessengerKey: SnackbarGlobal.key,
+            title: 'eBrevet Card',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              useMaterial3: true,
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            ),
+            darkTheme: ThemeData.dark(),
+            themeMode: currentMode,
+            home: HomePage(),
+          );
+        });
   }
 }
-
 
 class HomePage extends StatefulWidget {
   @override
@@ -70,102 +80,194 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late TextEditingController controller;
+  // bool rusaError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'eBrevet Card',
+          //style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          IconButton(
+              icon: Icon(DayNight.themeNotifier.value == ThemeMode.light
+                  ? Icons.dark_mode
+                  : Icons.light_mode),
+              onPressed: () {
+                DayNight.themeNotifier.value =
+                    DayNight.themeNotifier.value == ThemeMode.light
+                        ? ThemeMode.dark
+                        : ThemeMode.light;
+              })
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.of(context)
+            .push(MaterialPageRoute(
+              builder: (context) =>
+                  SettingsPage(), // will implicitly ride event just activated
+            ))
+            .then((value) => setState(
+                  () {},
+                )),
+        child: Icon(Icons.settings),
+      ),
+      body: (AppSettings.isRusaIDSet)
+          ? mainMenu(context)
+          : requiredSettings(), //  rusaIDField(),
+    );
+  }
+
+  Column requiredSettings() {
+    return Column(children: [
+      Text('Enter your RUSA number and select a Club/Region:'),
+      SizedBox(
+        height: 10,
+      ),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextFormField(
+          decoration: InputDecoration(hintText: 'Enter your RUSA ID'),
+          autofocus: true,
+          controller: controller,
+          validator: (value) => AppSettings.rusaFieldValidator(value),
+          onChanged: (_) => submitRusaID(),
+        ),
+      ),
+      DropDownSettingsTile<int>(
+          title: 'Events Club',
+          settingKey: 'key-region',
+          selected: Region.defaultRegion,
+          values: <int, String>{
+            for (var k in Region.regionMap.keys)
+              k: Region.regionMap[k]!['clubName']!
+          }),
+      SizedBox(
+        height: 15,
+      ),
+      ElevatedButton(onPressed: () => setState(() {}), child: Text('Continue')),
+    ]);
+  }
+
+  void submitRusaID() {
+    var rusaIDString = controller.text.trim();
+    if (Rider.isValidRusaID(rusaIDString)) {
+      AppSettings.rusaID = rusaIDString;
+      // controller.clear();
+    }
+  }
+
+  Container mainMenu(BuildContext context) {
     var style = TextStyle(
       fontSize: 20,
     );
 
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'eBrevet Card',
-            //style: TextStyle(fontSize: 14),
+    return Container(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: Center(
+        child: IntrinsicWidth(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Spacer(flex: 4),
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(
+                        builder: (context) =>
+                            EventsPage(), // will implicitly ride event just activated
+                      ))
+                      .then((value) => setState(
+                            () {},
+                          )),
+                  child: Text(
+                    'Future Events',
+                    style: style,
+                  )),
+              Spacer(flex: 1),
+              ElevatedButton(
+                  onPressed: (Current.isActivated ||
+                          Current.outcomes?.overallOutcome ==
+                              OverallOutcome.active)
+                      ? () => Navigator.of(context)
+                          .push(MaterialPageRoute(
+                            builder: (context) =>
+                                RidePage(), // will implicitly ride event just activated
+                          ))
+                          .then((value) => setState(
+                                () {},
+                              ))
+                      : null,
+                  child: Text(
+                    'Current Event',
+                    style: style,
+                  )),
+              Spacer(flex: 1),
+              ElevatedButton(
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute(
+                        builder: (context) =>
+                            PastEventsPage(), // will implicitly ride event just activated
+                      ))
+                      .then((value) => setState(
+                            () {},
+                          )),
+                  child: Text(
+                    'Past Events',
+                    style: style,
+                  )),
+              Spacer(flex: 1),
+              // ElevatedButton(
+              //     onPressed: () => Navigator.of(context)
+              //         .push(MaterialPageRoute(
+              //           builder: (context) =>
+              //               SettingsPage(), // will implicitly ride event just activated
+              //         ))
+              //         .then((value) => setState(
+              //               () {},
+              //             )),
+              //     child: Text(
+              //       'Settings',
+              //       style: style,
+              //     )),
+              Spacer(flex: 4),
+            ],
           ),
         ),
-        body: Container(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          child: Center(
-            child: IntrinsicWidth(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Spacer(flex: 4),
-                  ElevatedButton(
-                      onPressed: () => Navigator.of(context)
-                          .push(MaterialPageRoute(
-                            builder: (context) =>
-                                EventsPage(), // will implicitly ride event just activated
-                          ))
-                          .then((value) => setState(
-                                () {},
-                              )),
-                      child: Text(
-                        'Future Events',
-                        style: style,
-                      )),
-                  Spacer(flex: 1),
-                  ElevatedButton(
-                      onPressed: (Current.isActivated ||
-                              Current.outcomes?.overallOutcome ==
-                                  OverallOutcome.active)
-                          ? () => Navigator.of(context)
-                              .push(MaterialPageRoute(
-                                builder: (context) =>
-                                    RidePage(), // will implicitly ride event just activated
-                              ))
-                              .then((value) => setState(
-                                    () {},
-                                  ))
-                          : null,
-                      child: Text(
-                        'Current Event',
-                        style: style,
-                      )),
-                  Spacer(flex: 1),
-                  ElevatedButton(
-                      onPressed: () => Navigator.of(context)
-                          .push(MaterialPageRoute(
-                            builder: (context) =>
-                                PastEventsPage(), // will implicitly ride event just activated
-                          ))
-                          .then((value) => setState(
-                                () {},
-                              )),
-                      child: Text(
-                        'Past Events',
-                        style: style,
-                      )),
-                  Spacer(flex: 1),
-                  ElevatedButton(
-                      onPressed: () =>
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                SettingsPage(), // will implicitly ride event just activated
-                          )).then((value) => setState(
-                                () {},
-                              )),
-                      child: Text(
-                        'Settings',
-                        style: style,
-                      )),
-                  // Spacer(flex: 1),
-                  // ElevatedButton(
-                  //     onPressed: () =>
-                  //         Navigator.of(context).push(MaterialPageRoute(
-                  //           builder: (context) =>
-                  //               TestPage(), // will implicitly ride event just activated
-                  //         )),
-                  //     child: Text(
-                  //       'Test',
-                  //       style: style,
-                  //     )),
-                  Spacer(flex: 4),
-                ],
-              ),
-            ),
-          ),
-        ));
+      ),
+    );
   }
+
+  Future openRusaIDDialog() => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Enter RUSA ID'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () {
+                  // submitRusaIDDialog();
+                },
+                child: const Text('Submit'))
+          ],
+        ),
+      );
 }

@@ -47,8 +47,6 @@ class Region {
   late String eventURL;
   late String secret;
 
-  static const String magicStartCode=RegionData.magicStartCode;
-
   Region({int regionID = RegionData.defaultRegion}) {
     int rid = (regionMap.containsKey(regionID)) ? regionID : defaultRegion;
     clubName = regionMap[rid]!['clubName']!;

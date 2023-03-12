@@ -25,35 +25,8 @@ import 'region.dart';
 import 'event_history.dart';
 import 'current.dart';
 import 'signature.dart';
-
-class TestPage extends StatefulWidget {
-  @override
-  State<TestPage> createState() => _TestPageState();
-}
-
-class _TestPageState extends State<TestPage> {
-  bool busy = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return (busy)
-        ? CircularProgressIndicator()  // TODO consider making this linear
-        : ElevatedButton(
-            onPressed: () {
-              setState(() {
-                busy = true;
-              });
-              Future.delayed(const Duration(seconds: 5))
-                  .then((value) => setState(
-                        () {
-                          busy = false;
-                        },
-                      ));
-            },
-            child: Text('PRESS ME'),
-          );
-  }
-}
+import 'app_settings.dart';
+import 'day_night.dart';
 
 class EventsPage extends StatefulWidget {
   @override
@@ -82,6 +55,18 @@ class _EventsPageState extends State<EventsPage> {
           'Future Events',
           //style: TextStyle(fontSize: 14),
         ),
+        actions: [
+          IconButton(
+              icon: Icon(DayNight.themeNotifier.value == ThemeMode.light
+                  ? Icons.dark_mode
+                  : Icons.light_mode),
+              onPressed: () {
+                DayNight.themeNotifier.value =
+                    DayNight.themeNotifier.value == ThemeMode.light
+                        ? ThemeMode.dark
+                        : ThemeMode.light;
+              })
+        ],
       ),
       // body: ValueListenableBuilder(
       //     valueListenable: FutureEvents.refreshCount,
@@ -110,10 +95,9 @@ class _EventsPageState extends State<EventsPage> {
                   icon: Icon(Icons.refresh),
                   label: Text('Refresh Events from Server'),
                 ),
-                Text(
-                    'Future events for: ${Region.fromSettings().clubName}'),
+                Text('Future events for: ${Region.fromSettings().clubName}'),
                 Text('Last refreshed: ${FutureEvents.lastRefreshedStr}'),
-                Text('Rider: ${Rider.fromSettings().firstLastRUSA}'),
+                Text('Rider: RUSA #${AppSettings.rusaID}'),
                 ...events.map((e) => EventCard(e)), // All the Event Cards
               ],
             ),
@@ -128,13 +112,23 @@ class _EventsPageState extends State<EventsPage> {
             ),
           ),
         if (fetchingFromServerNow)
-          const Center(
-            child: CircularProgressIndicator(),
+          Center(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.0, end: 1),
+              duration:
+                  const Duration(seconds: AppSettings.httpGetTimeoutSeconds),
+              builder: (context, value, _) => CircularProgressIndicator(
+                value: value,
+              ),
+            ),
+
+            //CircularProgressIndicator(),
           ),
       ]),
     );
   }
 }
+
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -249,8 +243,13 @@ class _EventCardState extends State<EventCard> {
               ),
               (overallOutcomeInHistory == OverallOutcome.dns)
                   ? SizedBox.shrink()
-                  : Text(" ${isOutcomeFullyUploaded ? '' : 'Not Fully '}Uploaded",
-                  style: TextStyle(fontWeight: isOutcomeFullyUploaded?FontWeight.normal:FontWeight.bold),),
+                  : Text(
+                      " ${isOutcomeFullyUploaded ? '' : 'Not Fully '}Uploaded",
+                      style: TextStyle(
+                          fontWeight: isOutcomeFullyUploaded
+                              ? FontWeight.normal
+                              : FontWeight.bold),
+                    ),
             ],
           ),
           SizedBox(
@@ -273,7 +272,7 @@ class _EventCardState extends State<EventCard> {
         padding: EdgeInsets.zero,
       ),
       onPressed: () async {
-        if (Rider.isSet == false) {
+        if (AppSettings.isRusaIDSet == false) {
           SnackbarGlobal.show("Can't RIDE. Is RUSA ID set?");
         } else {
           if (overallOutcomeInHistory == OverallOutcome.dns) {
@@ -312,9 +311,9 @@ class _EventCardState extends State<EventCard> {
       return "Missing start code";
     }
 
-    if (startCode == Region.magicStartCode) return null;
+    if (startCode == AppSettings.magicStartCode) return null;
 
-    if (false == Rider.isSet) return "Rider not set.";
+    if (false == AppSettings.isRusaIDSet) return "Rider not set.";
     if (FutureEvents.region == null) return "No region. ";
 
     var rider = Rider.fromSettings().rusaID;

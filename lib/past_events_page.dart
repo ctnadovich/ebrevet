@@ -17,10 +17,11 @@
 import 'package:ebrevet_card/event_history.dart';
 import 'package:flutter/material.dart';
 
-import 'rider.dart';
+import 'app_settings.dart';
 import 'region.dart';
 import 'event.dart';
 import 'outcome.dart';
+import 'day_night.dart';
 
 class PastEventsPage extends StatefulWidget {
   @override
@@ -38,6 +39,18 @@ class _PastEventsPageState extends State<PastEventsPage> {
             'Past Events',
             //style: TextStyle(fontSize: 14),
           ),
+                  actions: [
+          IconButton(
+              icon: Icon(DayNight.themeNotifier.value == ThemeMode.light
+                  ? Icons.dark_mode
+                  : Icons.light_mode),
+              onPressed: () {
+                DayNight.themeNotifier.value =
+                    DayNight.themeNotifier.value == ThemeMode.light
+                        ? ThemeMode.dark
+                        : ThemeMode.light;
+              })
+        ],
         ),
         body: Container(
           color: Theme.of(context).colorScheme.primaryContainer,
@@ -48,7 +61,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
               children: [
                 // SizedBox(height: 2),
 
-                Text('Past events for: ${Rider.fromSettings().firstLastRUSA}'),
+                Text('Past events for: ${AppSettings.rusaID}'),
 
                 for (var pe in EventHistory.pastEventList)
                   pastEventCard(context, pe.event),

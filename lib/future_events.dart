@@ -25,6 +25,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'files.dart';
 import 'exception.dart';
+import 'app_settings.dart';
 
 // import 'current.dart';
 
@@ -86,7 +87,7 @@ class FutureEvents {
 
   static Future<bool> refreshEventsFromServer(Rider rdr, Region rgn) async {
     try {
-      print("Refreshing events from SERVER for ${rdr.firstLastRUSA}");
+      print("Refreshing events from SERVER for ${rdr.rusaID}");
 
       // Then try to fetch from the server in background with callback to process
       var eventMapFromServer = await fetchFutureEventsFromServer(rgn);
@@ -155,15 +156,14 @@ class FutureEvents {
     Map<String, dynamic> decodedResponse;
     http.Response? response;
 
-    const getTimeoutSeconds = 15;
 
     try {
       response = await http
           .get(Uri.parse(url))
-          .timeout(Duration(seconds: getTimeoutSeconds));
+          .timeout(Duration(seconds: AppSettings.httpGetTimeoutSeconds));
     } on TimeoutException {
       throw ServerException(
-          'No response from server ($getTimeoutSeconds sec timeout).');
+          'No response from server (${AppSettings.httpGetTimeoutSeconds} sec timeout).');
     } catch (e) {
       throw NoInternetException('Network error: $e');
     }

@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+// import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'app_settings.dart';
+
+// TODO Is the Rider object needed any more? 
 
 class Rider {
   static const int maxRUSAID = 99999;
@@ -31,17 +34,17 @@ class Rider {
     return true;
   }
 
-  final String firstName;
-  final String lastName;
+  // final String firstName;
+  // final String lastName;
   final String rusaID; // Should this be int? Or, like event ID, does it need to
   // be string for extensibility?
 
-  Rider(this.firstName, this.lastName, this.rusaID);
+  Rider(this.rusaID);
 
-  static get isSet {
+  /* static get isSet {
     // var fn = Settings.getValue<String>('key-first-name');
     // var ln = Settings.getValue<String>('key-last-name');
-    var id = Settings.getValue<String>('key-rusa-id');
+    var id = AppSettings.rusaID;
 
     // return (fn == null ||
     //         fn.isEmpty ||
@@ -52,20 +55,18 @@ class Rider {
     return       isValidRusaID(id);
     //    ? false
     //    : true;
-  }
+  } */
 
   Rider.fromSettings()
       : this(
-          Settings.getValue<String>('key-first-name', defaultValue: 'Unknown')!,
-          Settings.getValue<String>('key-last-name', defaultValue: '')!,
-          Settings.getValue<String>('key-rusa-id', defaultValue: 'Not Set')!,
+          AppSettings.rusaID,
         );
 
-  String get firstLast {
-    return "$firstName $lastName";
-  }
+  // String get firstLast {
+  //   return "$firstName $lastName";
+  // }
 
-  String get firstLastRUSA {
-    return "$firstName $lastName (RUSA# $rusaID)";
-  }
+  // String get firstLastRUSA {
+  //   return "$firstName $lastName (RUSA# $rusaID)";
+  // }
 }

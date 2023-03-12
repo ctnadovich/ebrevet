@@ -24,6 +24,7 @@ import 'time_till.dart';
 import 'location.dart';
 import 'current.dart';
 import 'app_settings.dart';
+import 'day_night.dart';
 
 class RidePage extends StatefulWidget {
   @override
@@ -78,6 +79,18 @@ class _RidePageState extends State<RidePage> {
             Text('$eventText'),
           ],
         ),
+        actions: [
+          IconButton(
+              icon: Icon(DayNight.themeNotifier.value == ThemeMode.light
+                  ? Icons.dark_mode
+                  : Icons.light_mode),
+              onPressed: () {
+                DayNight.themeNotifier.value =
+                    DayNight.themeNotifier.value == ThemeMode.light
+                        ? ThemeMode.dark
+                        : ThemeMode.light;
+              })
+        ],
       ),
       body: Container(
         color: Theme.of(context).colorScheme.primaryContainer,
@@ -106,7 +119,8 @@ class _RidePageState extends State<RidePage> {
                                 child: Text("GPS Refresh")),
                             Spacer(),
                             ElevatedButton(
-                                onPressed: () => Current.constructReportAndSend(),
+                                onPressed: () =>
+                                    Current.constructReportAndSend(),
                                 child: Text("Upload results")),
                           ],
                         ),
@@ -297,13 +311,13 @@ class _ControlCardState extends State<ControlCard> {
       var open = Current.activatedEvent!.isOpenControl(c.index);
       var near = Current.activatedEvent!.isNear(c.index);
       var openTimeOverride = AppSettings.openTimeOverride;
-      var proximityRadiusInfinite = AppSettings.proximityRadius==AppSettings.infiniteDistance.toDouble();
-
+      var proximityRadiusInfinite = AppSettings.proximityRadius ==
+          AppSettings.infiniteDistance.toDouble();
 
       return Text.rich(TextSpan(style: TextStyle(fontSize: 12), children: [
         if (open || openTimeOverride)
           TextSpan(
-            text: 'Open now${openTimeOverride?"*":""}',
+            text: 'Open now${openTimeOverride ? "*" : ""}',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         if (!open && !openTimeOverride)
@@ -313,7 +327,7 @@ class _ControlCardState extends State<ControlCard> {
         TextSpan(text: ' - '),
         if (near)
           TextSpan(
-            text: 'At control${proximityRadiusInfinite?"*":""}',
+            text: 'At control${proximityRadiusInfinite ? "*" : ""}',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         if (!near)
@@ -333,8 +347,6 @@ class _ControlCardState extends State<ControlCard> {
     //   return const SizedBox.shrink();
     // }
   }
-
-  // TODO developer options separate and restricted. Noted in report.
 
   // TODO Posting result and elapsed time to roster
 
