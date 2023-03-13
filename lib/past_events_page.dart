@@ -16,6 +16,7 @@
 
 import 'package:ebrevet_card/event_history.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'app_settings.dart';
 import 'region.dart';
@@ -32,6 +33,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
   @override
   Widget build(BuildContext context) {
     // var events = FutureEvents.events;
+    var dayNight = context.watch<DayNight>();
 
     return Scaffold(
         appBar: AppBar(
@@ -39,18 +41,14 @@ class _PastEventsPageState extends State<PastEventsPage> {
             'Past Events',
             //style: TextStyle(fontSize: 14),
           ),
-                  actions: [
+       actions: [
           IconButton(
-              icon: Icon(DayNight.themeNotifier.value == ThemeMode.light
-                  ? Icons.dark_mode
-                  : Icons.light_mode),
+              icon: dayNight.icon,
               onPressed: () {
-                DayNight.themeNotifier.value =
-                    DayNight.themeNotifier.value == ThemeMode.light
-                        ? ThemeMode.dark
-                        : ThemeMode.light;
+                dayNight.toggleMode();
               })
         ],
+
         ),
         body: Container(
           color: Theme.of(context).colorScheme.primaryContainer,

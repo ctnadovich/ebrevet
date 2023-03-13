@@ -14,18 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
+// import 'package:ebrevet_card/day_night.dart';
 import 'package:ebrevet_card/future_events.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
 
-import 'rider.dart';
 import 'region.dart';
 import 'region_data.dart';
+import 'day_night.dart';
 
 // TODO Access control for Advanced settings
-// TODO Settings included in report
 
 class AppSettings {
   // static bool get isPrerideMode =>
@@ -49,6 +50,18 @@ class AppSettings {
   static const int startableTimeWindowMinutes = 60;
   static const int prerideTimeWindowDays = 15;
   static const int httpGetTimeoutSeconds = 15;
+  static const int maxRUSAID = 99999;
+
+  static Color get themeColor {
+    var colorString =
+        Settings.getValue('key-theme-color', defaultValue: '#0000FF00')!;
+    var colorColor = hexToColor(colorString);
+    return colorColor;
+  }
+
+  static Color hexToColor(String code) {
+    return Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
+  }
 
   // static const magicStartCode = "XYZZY";
 
@@ -86,7 +99,7 @@ class AppSettings {
 
   static bool get isRusaIDSet => rusaID.isNotEmpty;
 
-  static set rusaID(String r) => Settings.setValue('key-rusa-id', r);
+  static setRusaID(String r) async => await Settings.setValue('key-rusa-id', r);
 
   static String? urlFieldValidator(String? value) {
     if (value == null || value.isEmpty) {
@@ -103,10 +116,21 @@ class AppSettings {
     if (value == null || value.isEmpty) {
       return 'Please enter your RUSA ID';
     }
-    if (false == Rider.isValidRusaID(value)) return 'Invalid RUSA ID';
+    if (false == isValidRusaID(value)) return 'Invalid RUSA ID';
     return null;
   }
+
+  static bool isValidRusaID(String? value) {
+    if (value == null) return false;
+    final rusaid = num.tryParse(value);
+    if (rusaid == null || rusaid is! int || rusaid < 1 || rusaid > maxRUSAID) {
+      return false;
+    }
+    return true;
+  }
 }
+
+// SETTINGS PAGE
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -128,101 +152,131 @@ class SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SettingsScreen(
-      children: [
-        // ExpandableSettingsTile(
-        //   title: 'Rider Profile',
-        //   children: <Widget>[
-        // TextInputSettingsTile(
-        //   settingKey: 'key-first-name',
-        //   title: 'First Name',
-        //   initialValue: '',
-        //   validator: textFieldValidator,
-        // ),
-        // TextInputSettingsTile(
-        //   settingKey: 'key-last-name',
-        //   title: 'Last Name',
-        //   initialValue: '',
-        //   validator: textFieldValidator,
-        // ),
-        TextInputSettingsTile(
-          settingKey: 'key-rusa-id',
-          title: 'RUSA ID Number',
-          initialValue: '',
-          // validator: AppSettings.rusaFieldValidator,
+    var dayNight = context.watch<DayNight>();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Past Events',
+          //style: TextStyle(fontSize: 14),
         ),
-        DropDownSettingsTile<int>(
-          title: 'Events Club',
-          settingKey: 'key-region',
-          values: <int, String>{
-            for (var k in Region.regionMap.keys)
-              k: Region.regionMap[k]!['clubName']!
-          },
-          selected: Region.defaultRegion,
-          onChange: (value) {
-            FutureEvents.clear();
-          },
+        actions: [
+          IconButton(
+              icon: dayNight.icon,
+              onPressed: () {
+                dayNight.toggleMode();
+              })
+        ],
+      ),
+      body: Container(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        child: Center(
+          child: ListView(
+            children: [
+              // ExpandableSettingsTile(
+              //   title: 'Rider Profile',
+              //   children: <Widget>[
+              // TextInputSettingsTile(
+              //   settingKey: 'key-first-name',
+              //   title: 'First Name',
+              //   initialValue: '',
+              //   validator: textFieldValidator,
+              // ),
+              // TextInputSettingsTile(
+              //   settingKey: 'key-last-name',
+              //   title: 'Last Name',
+              //   initialValue: '',
+              //   validator: textFieldValidator,
+              // ),
+              TextInputSettingsTile(
+                settingKey: 'key-rusa-id',
+                title: 'RUSA ID Number',
+                initialValue: '',
+                // validator: AppSettings.rusaFieldValidator,
+              ),
+              DropDownSettingsTile<int>(
+                title: 'Events Club',
+                settingKey: 'key-region',
+                values: <int, String>{
+                  for (var k in Region.regionMap.keys)
+                    k: Region.regionMap[k]!['clubName']!
+                },
+                selected: Region.defaultRegion,
+                onChange: (value) {
+                  FutureEvents.clear();
+                },
+              ),
+              //   ],
+              // ),
+              SizedBox(
+                height: 25,
+              ),
+              ExpandableSettingsTile(
+                title: 'Advanced Options',
+                children: <Widget>[
+                  ColorPickerSettingsTile(
+                    title: 'Theme Color',
+                    settingKey: 'key-theme-color',
+                    onChange: (p0) {
+                      dayNight.color = p0;
+                    },
+                  ),
+                  TextInputSettingsTile(
+                    settingKey: 'key-magic-start_code',
+                    title: 'Magic Start Code',
+                    // subtitle: 'Cheat code for starting any event',
+                    initialValue: 'XYZZY',
+                    validator: textFieldValidator,
+                  ),
+                  RadioSettingsTile<int>(
+                    leading: const Icon(Icons.social_distance),
+                    title: 'Control Proximity Radius',
+                    subtitle: 'Distance from control that allows check-in',
+                    settingKey: 'key-control-proximity-thresh',
+                    values: <int, String>{
+                      100: '100 m',
+                      500: '500 m',
+                      2500: '2.5 km',
+                      12500: '12.5 km',
+                      AppSettings.infiniteDistance: 'Infinite',
+                    },
+                    selected: 500,
+                  ),
+                  SwitchSettingsTile(
+                    title: "Open Time Override",
+                    settingKey: "key-open-time-override",
+                    subtitle: "Ignore control open/close time.",
+                    leading: const Icon(Icons.free_cancellation),
+                  ),
+                  SwitchSettingsTile(
+                    title: "Preride Date Window Override",
+                    settingKey: "key-preride-date-window-override",
+                    subtitle: "Preride any time.",
+                    leading: const Icon(Icons.free_cancellation),
+                  ),
+                  SliderSettingsTile(
+                    settingKey: 'key-location-poll-period',
+                    title: 'Period of Location Poll (seconds)',
+                    subtitle: "How often the GPS location is updated.",
+                    defaultValue: 60,
+                    min: 10,
+                    max: 120,
+                    step: 10,
+                    leading: const Icon(Icons.access_time),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                    onPressed: () => _showAboutDialog(),
+                    child: Text('About this app')),
+              )
+            ],
+          ),
         ),
-        //   ],
-        // ),
-        SizedBox(
-          height: 25,
-        ),
-        ExpandableSettingsTile(
-          title: 'Advanced Options',
-          children: <Widget>[
-            TextInputSettingsTile(
-              settingKey: 'key-magic-start_code',
-              title: 'Magic Start Code',
-              // subtitle: 'Cheat code for starting any event',
-              initialValue: 'XYZZY',
-              validator: textFieldValidator,
-            ),
-            RadioSettingsTile<int>(
-              leading: const Icon(Icons.social_distance),
-              title: 'Control Proximity Radius',
-              subtitle: 'Distance from control that allows check-in',
-              settingKey: 'key-control-proximity-thresh',
-              values: <int, String>{
-                100: '100 m',
-                500: '500 m',
-                2500: '2.5 km',
-                12500: '12.5 km',
-                AppSettings.infiniteDistance: 'Infinite',
-              },
-              selected: 500,
-            ),
-            SwitchSettingsTile(
-              title: "Open Time Override",
-              settingKey: "key-open-time-override",
-              subtitle: "Ignore control open/close time.",
-              leading: const Icon(Icons.free_cancellation),
-            ),
-            SwitchSettingsTile(
-              title: "Preride Date Window Override",
-              settingKey: "key-preride-date-window-override",
-              subtitle: "Preride any time.",
-              leading: const Icon(Icons.free_cancellation),
-            ),
-            SliderSettingsTile(
-              settingKey: 'key-location-poll-period',
-              title: 'Period of Location Poll (seconds)',
-              subtitle: "How often the GPS location is updated.",
-              defaultValue: 60,
-              min: 10,
-              max: 120,
-              step: 10,
-              leading: const Icon(Icons.access_time),
-            ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-              onPressed: () => _showAboutDialog(),
-              child: Text('About this app')),
-        )
-      ],
+      ),
     );
   }
 

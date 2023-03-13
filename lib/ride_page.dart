@@ -18,6 +18,8 @@ import 'dart:async';
 import 'package:ebrevet_card/snackbarglobal.dart';
 // import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 
 import 'control.dart';
 import 'time_till.dart';
@@ -71,6 +73,7 @@ class _RidePageState extends State<RidePage> {
     var controlList = (Current.isActivated) ? Current.event!.controls : [];
     var eventText =
         (Current.isActivated) ? Current.event!.nameDist : 'No event';
+    var dayNight = context.watch<DayNight>();
 
     return Scaffold(
       appBar: AppBar(
@@ -79,16 +82,11 @@ class _RidePageState extends State<RidePage> {
             Text('$eventText'),
           ],
         ),
-        actions: [
+       actions: [
           IconButton(
-              icon: Icon(DayNight.themeNotifier.value == ThemeMode.light
-                  ? Icons.dark_mode
-                  : Icons.light_mode),
+              icon: dayNight.icon,
               onPressed: () {
-                DayNight.themeNotifier.value =
-                    DayNight.themeNotifier.value == ThemeMode.light
-                        ? ThemeMode.dark
-                        : ThemeMode.light;
+                dayNight.toggleMode();
               })
         ],
       ),

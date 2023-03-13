@@ -14,11 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:flutter/material.dart';
+import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+
 import 'package:ebrevet_card/event_history.dart';
 import 'package:ebrevet_card/app_settings.dart';
 import 'package:ebrevet_card/outcome.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'package:provider/provider.dart';
 
 import 'snackbarglobal.dart';
 import 'future_events_page.dart';
@@ -27,7 +29,6 @@ import 'ride_page.dart';
 import 'future_events.dart';
 import 'region.dart';
 import 'current.dart';
-import 'rider.dart';
 import 'day_night.dart';
 
 void main() {
@@ -50,27 +51,48 @@ Future<void> initSettings() async {
 }
 
 class MyApp extends StatelessWidget {
-
   MyApp({super.key});
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return AdaptiveTheme(
+  //     light: ThemeData(
+  //       brightness: Brightness.light,
+  //       // primarySwatch: Colors.red,
+  //       // accentColor: Colors.amber,
+  //     ),
+  //     dark: ThemeData(
+  //       brightness: Brightness.dark,
+  //       // primarySwatch: Colors.red,
+  //       // accentColor: Colors.amber,
+  //     ),
+  //     initial: AdaptiveThemeMode.light,
+  //     builder: (theme, darkTheme) => MaterialApp(
+  //       scaffoldMessengerKey: SnackbarGlobal.key,
+  //       title: 'eBrevet Card',
+  //       debugShowCheckedModeBanner: false,
+  //       theme: theme,
+  //       darkTheme: darkTheme,
+  //       home: HomePage(),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-        valueListenable: DayNight.themeNotifier,
-        builder: (context, ThemeMode currentMode, child) {
+    return ChangeNotifierProvider<DayNight>(
+        create: (_) => DayNight(),
+        child: Consumer<DayNight>(builder: (context, dayNight, child) {
           return MaterialApp(
             scaffoldMessengerKey: SnackbarGlobal.key,
             title: 'eBrevet Card',
             debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-              useMaterial3: true,
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-            ),
-            darkTheme: ThemeData.dark(),
-            themeMode: currentMode,
+            theme: dayNight.dayTheme,
+            darkTheme: dayNight.nightTheme,
+            themeMode: dayNight.mode,
             home: HomePage(),
           );
-        });
+        }));
   }
 }
 
@@ -81,6 +103,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late TextEditingController controller;
+
   // bool rusaError = false;
 
   @override
@@ -97,30 +120,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var dayNight = context.watch<DayNight>();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'eBrevet Card',
-          //style: TextStyle(fontSize: 14),
         ),
         actions: [
           IconButton(
-              icon: Icon(DayNight.themeNotifier.value == ThemeMode.light
-                  ? Icons.dark_mode
-                  : Icons.light_mode),
+              icon: dayNight.icon,
               onPressed: () {
-                DayNight.themeNotifier.value =
-                    DayNight.themeNotifier.value == ThemeMode.light
-                        ? ThemeMode.dark
-                        : ThemeMode.light;
+                dayNight.toggleMode();
               })
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context)
             .push(MaterialPageRoute(
-              builder: (context) =>
-                  SettingsPage(), // will implicitly ride event just activated
+              builder: (context) => SettingsPage(),
             ))
             .then((value) => setState(
                   () {},
@@ -166,8 +184,8 @@ class _HomePageState extends State<HomePage> {
 
   void submitRusaID() {
     var rusaIDString = controller.text.trim();
-    if (Rider.isValidRusaID(rusaIDString)) {
-      AppSettings.rusaID = rusaIDString;
+    if (AppSettings.isValidRusaID(rusaIDString)) {
+      AppSettings.setRusaID(rusaIDString);
       // controller.clear();
     }
   }

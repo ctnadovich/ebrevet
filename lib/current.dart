@@ -156,6 +156,7 @@ class Current {
     print("POST Status: ${response.statusCode}; Body: ${response.body}");
   }
 
+
   static Map<String, dynamic> constructReport(
       {int? controlIndex, // Set if we are checking into a control
       String? comment // any text comment

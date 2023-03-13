@@ -20,7 +20,6 @@ import 'package:http/http.dart' as http;
 import 'snackbarglobal.dart';
 import 'event.dart';
 import 'region.dart';
-import 'rider.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'files.dart';
@@ -85,9 +84,9 @@ class FutureEvents {
     }
   }
 
-  static Future<bool> refreshEventsFromServer(Rider rdr, Region rgn) async {
+  static Future<bool> refreshEventsFromServer(Region rgn) async {
     try {
-      print("Refreshing events from SERVER for ${rdr.rusaID}");
+      print("Refreshing events from SERVER for ${rgn.clubName}");
 
       // Then try to fetch from the server in background with callback to process
       var eventMapFromServer = await fetchFutureEventsFromServer(rgn);

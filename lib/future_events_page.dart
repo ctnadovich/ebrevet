@@ -15,12 +15,13 @@
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'snackbarglobal.dart';
 import 'future_events.dart';
 import 'event.dart';
 import 'outcome.dart';
 import 'ride_page.dart';
-import 'rider.dart';
 import 'region.dart';
 import 'event_history.dart';
 import 'current.dart';
@@ -48,6 +49,7 @@ class _EventsPageState extends State<EventsPage> {
   @override
   Widget build(BuildContext context) {
     var events = FutureEvents.events;
+    var dayNight = context.watch<DayNight>();
 
     return Scaffold(
       appBar: AppBar(
@@ -57,14 +59,9 @@ class _EventsPageState extends State<EventsPage> {
         ),
         actions: [
           IconButton(
-              icon: Icon(DayNight.themeNotifier.value == ThemeMode.light
-                  ? Icons.dark_mode
-                  : Icons.light_mode),
+              icon: dayNight.icon,
               onPressed: () {
-                DayNight.themeNotifier.value =
-                    DayNight.themeNotifier.value == ThemeMode.light
-                        ? ThemeMode.dark
-                        : ThemeMode.light;
+                dayNight.toggleMode();
               })
         ],
       ),
@@ -86,8 +83,7 @@ class _EventsPageState extends State<EventsPage> {
                     setState(() {
                       fetchingFromServerNow = true;
                     });
-                    FutureEvents.refreshEventsFromServer(
-                            Rider.fromSettings(), Region.fromSettings())
+                    FutureEvents.refreshEventsFromServer(Region.fromSettings())
                         // Future.delayed(const Duration(seconds: 5))
                         .then((value) =>
                             setState(() => fetchingFromServerNow = false));
@@ -286,7 +282,7 @@ class _EventCardState extends State<EventCard> {
 
           if (context.mounted) {
             if (overallOutcomeInHistory != OverallOutcome.finish) {
-              Current.activate(widget.event, Rider.fromSettings().rusaID,
+              Current.activate(widget.event, AppSettings.rusaID,
                   isPreride: isPreride);
             }
             Navigator.of(context)
@@ -316,9 +312,9 @@ class _EventCardState extends State<EventCard> {
     if (false == AppSettings.isRusaIDSet) return "Rider not set.";
     if (FutureEvents.region == null) return "No region. ";
 
-    var rider = Rider.fromSettings().rusaID;
+    var rusaID = AppSettings.rusaID;
 
-    var signature = Signature(riderID: rider, event: event, codeLength: 4);
+    var signature = Signature(riderID: rusaID, event: event, codeLength: 4);
 
     var validCode = signature.text.toUpperCase();
 

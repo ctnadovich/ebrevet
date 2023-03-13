@@ -25,6 +25,9 @@ class SnackbarGlobal {
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(
           content: Text(message))
-          ); // TODO Better formatting, adjust timeout. Verify that standalone uses are true user viewable and not developer errors
+          ); 
+          
+          // TODO Better formatting, adjust timeout. 
+          // Verify that standalone uses are true user viewable and not developer errors
   }
 }
