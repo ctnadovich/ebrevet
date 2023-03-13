@@ -59,7 +59,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
               children: [
                 // SizedBox(height: 2),
 
-                Text('Past events for: ${AppSettings.rusaID}'),
+                // Text('Past events for: ${AppSettings.rusaID}'),
 
                 for (var pe in EventHistory.pastEventList)
                   pastEventCard(context, pe.event),

@@ -20,13 +20,13 @@ import 'package:ebrevet_card/snackbarglobal.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 import 'control.dart';
 import 'time_till.dart';
 import 'location.dart';
 import 'current.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
+import 'outcome.dart';
 
 class RidePage extends StatefulWidget {
   @override
@@ -82,7 +82,7 @@ class _RidePageState extends State<RidePage> {
             Text('$eventText'),
           ],
         ),
-       actions: [
+        actions: [
           IconButton(
               icon: dayNight.icon,
               onPressed: () {
@@ -105,11 +105,22 @@ class _RidePageState extends State<RidePage> {
                               : 'Scheduled Brevet',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        Text(
-                            'Rider RUSA#: ${Current.activatedEvent?.riderID ?? 'Unknown'}'),
+                        // (Current.outcomes?.overallOutcome == OverallOutcome.dns)
+                        //     ? SizedBox.shrink()
+                        //     : Text(
+                        //         "${Current.activatedEvent?.checkInFractionString ?? ''} "
+                        //         "(${Current.activatedEvent?.isFullyUploadedString ?? ''})",
+                        //         style: TextStyle(
+                        //             fontWeight: Current.activatedEvent
+                        //                         ?.isCurrentOutcomeFullyUploaded ??
+                        //                     false
+                        //                 ? FontWeight.normal
+                        //                 : FontWeight.bold),
+                        //       ),
                         Text(
                             'At ${RiderLocation.lastLocationUpdateString} ${RiderLocation.lastLocationUpdateTimeZoneName} '
-                            'location was ${RiderLocation.latLongString}'),
+                            'location was ${RiderLocation.latLongString}',
+                            textAlign: TextAlign.center,),
                         Row(
                           children: [
                             ElevatedButton(

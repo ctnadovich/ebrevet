@@ -54,24 +54,51 @@ class PastEvent {
   bool get isFinalOutcomeFullyUploaded {
     var lastUpload = outcomes.lastUpload;
     var finishTime = outcomes.getControlCheckInTime(event.finishControlKey);
-    return finishTime!=null && lastUpload!=null && lastUpload.isAfter(finishTime);
+    return finishTime != null &&
+        lastUpload != null &&
+        lastUpload.isAfter(finishTime);
   }
 
   int? get lastCheckInControlKey {
     int k;
-    for (k=event.startControlKey; k<=event.finishControlKey; k++){
-      if(outcomes.getControlCheckInTime(k)==null){break;}
+    for (k = event.startControlKey; k <= event.finishControlKey; k++) {
+      if (outcomes.getControlCheckInTime(k) == null) {
+        break;
+      }
     }
-    return  k==event.startControlKey?null:k-1;
+    return k == event.startControlKey ? null : k - 1;
   }
+
+  int get numberOfCheckIns {
+    var last = lastCheckInControlKey;
+    if (last == null) {
+      return 0;
+    } else {
+      return 1 + last - event.startControlKey;
+    }
+  }
+
+  int get numberOfControls =>
+      1 + event.finishControlKey - event.startControlKey;
 
   bool get isCurrentOutcomeFullyUploaded {
     var lastUpload = outcomes.lastUpload;
     var k = lastCheckInControlKey;
-    if (k==null) return true;
+    if (k == null) return true;
     var finishTime = outcomes.getControlCheckInTime(k);
-    return finishTime!=null && lastUpload!=null && lastUpload.isAfter(finishTime);
+    return finishTime != null &&
+        lastUpload != null &&
+        lastUpload.isAfter(finishTime);
   }
+
+  String get checkInFractionString {
+    return (outcomes.overallOutcome == OverallOutcome.dns)
+        ? ""
+        : "Checked into $numberOfCheckIns/$numberOfControls controls";
+  }
+
+  String get isFullyUploadedString =>
+      isCurrentOutcomeFullyUploaded ? 'Uploaded' : 'Not Fully Uploaded';
 
   DateTime? get startDateTimeActual => (isPreride)
       ? outcomes.getControlCheckInTime(_event.startControlKey)
@@ -131,7 +158,8 @@ class PastEvent {
   bool isNear(int controlKey) => _event.controls[controlKey].cLoc.isNearControl;
 
   bool isAvailable(int controlKey) =>
-      (AppSettings.openTimeOverride  || isOpenControl(controlKey)) && isNear(controlKey);
+      (AppSettings.openTimeOverride || isOpenControl(controlKey)) &&
+      isNear(controlKey);
 
   Event get event {
     return _event;
@@ -269,9 +297,10 @@ class EventHistory {
     }
   }
 
-  static deletePastEvent(PastEvent pe){
-    if (_pastEventMap.containsKey(pe._event.eventID)){
-      if(Current.activatedEvent?._event.eventID==pe._event.eventID) Current.deactivate();
+  static deletePastEvent(PastEvent pe) {
+    if (_pastEventMap.containsKey(pe._event.eventID)) {
+      if (Current.activatedEvent?._event.eventID == pe._event.eventID)
+        Current.deactivate();
       _pastEventMap.remove(pe._event.eventID);
       save();
     }

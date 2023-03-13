@@ -91,9 +91,9 @@ class _EventsPageState extends State<EventsPage> {
                   icon: Icon(Icons.refresh),
                   label: Text('Refresh Events from Server'),
                 ),
-                Text('Future events for: ${Region.fromSettings().clubName}'),
-                Text('Last refreshed: ${FutureEvents.lastRefreshedStr}'),
-                Text('Rider: RUSA #${AppSettings.rusaID}'),
+                Text('Future events for: ${Region.fromSettings().clubName}', textAlign: TextAlign.center,),
+                Text('Last refreshed: ${FutureEvents.lastRefreshedStr}', textAlign: TextAlign.center,),
+                // Text('Rider: RUSA #${AppSettings.rusaID}'),
                 ...events.map((e) => EventCard(e)), // All the Event Cards
               ],
             ),
@@ -124,7 +124,6 @@ class _EventsPageState extends State<EventsPage> {
     );
   }
 }
-
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -162,6 +161,7 @@ class _EventCardState extends State<EventCard> {
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
     final String overallOutcomeDescriptionInHistory =
         overallOutcomeInHistory.description;
+
     final bool isOutcomeFullyUploaded =
         pe?.isCurrentOutcomeFullyUploaded ?? false;
 
@@ -239,12 +239,17 @@ class _EventCardState extends State<EventCard> {
               ),
               (overallOutcomeInHistory == OverallOutcome.dns)
                   ? SizedBox.shrink()
-                  : Text(
-                      " ${isOutcomeFullyUploaded ? '' : 'Not Fully '}Uploaded",
-                      style: TextStyle(
-                          fontWeight: isOutcomeFullyUploaded
-                              ? FontWeight.normal
-                              : FontWeight.bold),
+                  : Column(
+                      children: [
+                        Text(pe?.checkInFractionString ?? ''),
+                        Text(
+                          pe?.isFullyUploadedString ?? '',
+                          style: TextStyle(
+                              fontWeight: isOutcomeFullyUploaded
+                                  ? FontWeight.normal
+                                  : FontWeight.bold),
+                        ),
+                      ],
                     ),
             ],
           ),
@@ -298,7 +303,9 @@ class _EventCardState extends State<EventCard> {
       },
       child: Text(overallOutcomeInHistory == OverallOutcome.finish
           ? "VIEW"
-          : (isPreride ? 'PRERIDE' : 'RIDE')),
+          : (overallOutcomeInHistory == OverallOutcome.active
+              ? "CONTINUE"
+              : (isPreride ? 'PRERIDE' : 'RIDE'))),
     );
   }
 
