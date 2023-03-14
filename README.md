@@ -69,17 +69,63 @@ After your complete an event, the results will be visible on the "Past Events" p
 
 ## Club/Region Webserver Support
 
-In order to support the eBrevet app for your Club/Region/Organization, you will need to configure your webserver to provide event details on a public URL, and to accept results on
-another URL. 
+In order to support the eBrevet app for your Club/Region/Organization, you will need to configure your webserver to provide event details in JSON format on a public URL, and to accept JSON formatted results on
+another URL. Send these two URLs to the eBrevet author and your URL will be compiled into the next version of eBrevet. 
 
-The event details required include the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are UTC. All locations are RWGPS compatibile Lattitude and Longitude. If your club uses RWGPS cue markup as described in 
-the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, the required information can readily be extracted automatically from the RWGPS data. See the Cue Wizard source code for example methods.
+The event details provided in JSON format by the Club/Region server must contain several requierd fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
 
-Future event details must be provided as a JSON encoded list of events on a URL of the form 
+The JSON record can be produced in a variety of ways, including manually, cutting and pasting it from the RWGPS route and other data. Alternatively, the required information can be extracted automatically from the RWGPS data by means of a computer program. If your club uses RWGPS cue markup as described in 
+the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, automatic control info extraction is facilitated. See the Cue Wizard source code for example methods that are free to copy and use. 
+
+However generated, the future event details must be provided as a JSON encoded list of events on a URL of the form 
 
 ```https://<yourdomain.com/your_base_path>/future_events```
 
 An example of the JSON data that must be returned for future_events is show [in this file](examples/future_events.json).
+
+When riders check into a control, if internet is available the eBrevet app will attempt to POST a JSON checkin record to a different URL of the form 
+
+```https://<yourdomain.com/your_base_path>/post_checkin```
+
+An example of the checkin record is the following
+
+```
+{"event_id":"938017-382","rider_id":"5456","control_index":"0","comment":"No Comment","outcome":{"overall_outcome":"active","check_in_times":[["0","2023-03-14T06:11:51.232885Z"]]},"app_version":"0.1.6","proximity_radius":9999999.0,"open_override":"YES","preride":"YES","rider_location":"37.4226711N, -122.0849872E","last_loc_update":"2023-03-14T06:11:07.902975Z","timestamp":"2023-03-14T06:11:51.235675Z","signature":"C37D730E"}```
+
+If the received checkin record is decoded successfully by the Club/Region server, and
+the signature is valid, the sever should reply with a JSON acknowledgement that includes `"status";"OK"` and minimally
+looks like this 
+
+```
+{"status":"OK","event_id":"938017-382","rider_id":"5456"}
+```
+
+Additionally, the Club/Region server can internally record and display checkins as desired. 
+
+Explanations of the checkin fields are as follows:
+
+- `event_id` A unique string that identifies the event. It must be unique worldwide. Recommended is to use the ACP club code and the club-specific event ID separated by
+a dash. 
+
+- `rider_id` The rider's RUSA ID number
+
+- `control_index` If the rider is currently checking in to a control, this field will appear giving the control number corresponding to the numbering used in the future_events control list for this control. If a rider is not at a control, this field will be absent. 
+
+- `comment` A text comment provided by the rider
+
+- `outcome` A map that contains the `overall_outcome` and a list of `check_in_times`. The `overall_outcome` can be active, dnf, dnq, or finish. The check ins are a list  of pairs, giving the `control_index` and UTC time of the check_in.
+
+- Several other fields are given that add auxiliary information to the checkin that can
+be useful to record/display. These include indications whether the ride is a pre-ride, and whether any "overrides" were used to waive proximity or open/close requiredments. 
+
+- `app_version` The version of the eBrevet app. 
+
+- `timestamp` ISO 8601 current time in UTC
+
+- `signature` the first 8 hex digits of the SHA256 hash of a plaintext string. The plaintext is 
+the timestamp, the event ID, the rider ID, and a club/region secret separated by dashes. The Club/Region webserver should reject checkin records that do not bear a correct signature. This prevents "spoofing" results into the server as well as general exploitation of the URL. 
+
+
 
 ## Randonneuring Resources:
 
