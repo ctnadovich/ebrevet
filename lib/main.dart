@@ -34,13 +34,13 @@ import 'logger.dart';
 
 void main() {
   initSettings().then((_) {
-    Logger.print("** runApp(MyApp)");
+    Logger.logInfo("** runApp(MyApp)");
     runApp(const MyApp());
   });
 }
 
 Future<void> initSettings() async {
-  Logger.print('Init settings start...');
+  Logger.logInfo('Init settings start...');
   await Settings.init(
     cacheProvider: SharePreferenceCache(),
   );
@@ -48,7 +48,7 @@ Future<void> initSettings() async {
   await FutureEvents.refreshEventsFromDisk(Region.fromSettings());
   // .then((_) =>
   await EventHistory.load();
-  Logger.print('...Init settings end');
+  Logger.logInfo('...Init settings end');
 }
 
 class MyApp extends StatelessWidget {

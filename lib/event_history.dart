@@ -213,20 +213,20 @@ class EventHistory {
   static Future<int> load() async {
     var storage = FileStorage(pastEventsFileName);
     try {
-      Logger.print("** Loading event history from DISK");
+      Logger.logInfo("** Loading event history from DISK");
       var pastEventsFromFile =
           await storage.readJSON(); //  as Map <String, PastEvent>;
       if (pastEventsFromFile.isNotEmpty) {
         _pastEventMap = fromJsonMap(pastEventsFromFile);
-        Logger.print(
+        Logger.logInfo(
             "EventHistory.load() restored ${_pastEventMap.length} past activated events.");
         return _pastEventMap.length;
       } else {
-        Logger.print("Empty, missing, or undecodable file: $pastEventsFileName");
+        Logger.logInfo("Empty, missing, or undecodable file: $pastEventsFileName");
         return 0;
       }
     } catch (e) {
-      Logger.print("Couldn't fetch past events from file: $e");
+      Logger.logInfo("Couldn't fetch past events from file: $e");
       return 0;
     }
   }
@@ -236,9 +236,9 @@ class EventHistory {
     try {
       storage.writeJSON(_pastEventMap);
 
-      Logger.print("Saved  ${_pastEventMap.keys.length} events to file.");
+      Logger.logInfo("Saved  ${_pastEventMap.keys.length} events to file.");
     } catch (e) {
-      Logger.print("Couldn't save past events to file.");
+      Logger.logInfo("Couldn't save past events to file.");
     }
   }
 

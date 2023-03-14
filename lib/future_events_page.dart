@@ -29,6 +29,7 @@ import 'signature.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
 import 'logger.dart';
+import 'ticker.dart';
 
 // TODO automatic periodic updating of the events
 
@@ -43,11 +44,24 @@ class _EventsPageState extends State<EventsPage> {
 
   bool fetchingFromServerNow = false;
 
+  Ticker ticker = Ticker();
+
   @override
   void initState() {
-    // This will throw error the first time because Rider isn't set
-    // FutureEvents.refreshEvents(Rider.fromSettings(), Region.fromSettings());
     super.initState();
+
+    ticker.init(
+      period: AppSettings.timeRefreshPeriod,
+      onTick: () {
+        if (mounted) setState(() {});
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    ticker.dispose();
   }
 
   @override
@@ -306,7 +320,7 @@ class _EventCardState extends State<EventCard> {
                 ))
                 .then((_) => setState(() {}));
           } else {
-            Logger.print("Not mounted!?");
+            Logger.logInfo("Not mounted!?");
           }
         }
       },
@@ -339,7 +353,8 @@ class _EventCardState extends State<EventCard> {
     var validCode = signature.text.toUpperCase();
 
     if (validCode != startCode.toUpperCase()) {
-      Logger.print("Invalid Start Code $startCode; Valid code is '$validCode'");
+      Logger.logInfo(
+          "Invalid Start Code $startCode; Valid code is '$validCode'");
       return "Invalid Start Code.";
     }
 

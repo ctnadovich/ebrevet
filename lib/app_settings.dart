@@ -50,7 +50,7 @@ class AppSettings {
   static const int startableTimeWindowMinutes = 60;
   static const int prerideTimeWindowDays = 15;
   static const int httpGetTimeoutSeconds = 15;
-  static const int locationPollPeriod = 60;
+  static const int timeRefreshPeriod = 60;
   static const int maxRUSAID = 99999;
 
   static Color get themeColor {
@@ -175,26 +175,11 @@ class SettingsPageState extends State<SettingsPage> {
         child: Center(
           child: ListView(
             children: [
-              // ExpandableSettingsTile(
-              //   title: 'Rider Profile',
-              //   children: <Widget>[
-              // TextInputSettingsTile(
-              //   settingKey: 'key-first-name',
-              //   title: 'First Name',
-              //   initialValue: '',
-              //   validator: textFieldValidator,
-              // ),
-              // TextInputSettingsTile(
-              //   settingKey: 'key-last-name',
-              //   title: 'Last Name',
-              //   initialValue: '',
-              //   validator: textFieldValidator,
-              // ),
               TextInputSettingsTile(
                 settingKey: 'key-rusa-id',
                 title: 'RUSA ID Number',
                 initialValue: '',
-                // validator: AppSettings.rusaFieldValidator,
+                validator: AppSettings.rusaFieldValidator,
               ),
               DropDownSettingsTile<int>(
                 title: 'Events Club',
@@ -213,61 +198,7 @@ class SettingsPageState extends State<SettingsPage> {
               const SizedBox(
                 height: 25,
               ),
-              ExpandableSettingsTile(
-                title: 'Advanced Options',
-                children: <Widget>[
-                  ColorPickerSettingsTile(
-                    title: 'Theme Color',
-                    settingKey: 'key-theme-color',
-                    onChange: (p0) {
-                      dayNight.color = p0;
-                    },
-                  ),
-                  TextInputSettingsTile(
-                    settingKey: 'key-magic-start_code',
-                    title: 'Magic Start Code',
-                    // subtitle: 'Cheat code for starting any event',
-                    initialValue: 'XYZZY',
-                    validator: textFieldValidator,
-                  ),
-                  RadioSettingsTile<int>(
-                    leading: const Icon(Icons.social_distance),
-                    title: 'Control Proximity Radius',
-                    subtitle: 'Distance from control that allows check-in',
-                    settingKey: 'key-control-proximity-thresh',
-                    values: const <int, String>{
-                      100: '100 m',
-                      500: '500 m',
-                      2500: '2.5 km',
-                      12500: '12.5 km',
-                      AppSettings.infiniteDistance: 'Infinite',
-                    },
-                    selected: 500,
-                  ),
-                  SwitchSettingsTile(
-                    title: "Open Time Override",
-                    settingKey: "key-open-time-override",
-                    subtitle: "Ignore control open/close time.",
-                    leading: const Icon(Icons.free_cancellation),
-                  ),
-                  SwitchSettingsTile(
-                    title: "Preride Date Window Override",
-                    settingKey: "key-preride-date-window-override",
-                    subtitle: "Preride any time.",
-                    leading: const Icon(Icons.free_cancellation),
-                  ),
-                  // SliderSettingsTile(
-                  //   settingKey: 'key-location-poll-period',
-                  //   title: 'Period of Location Poll (seconds)',
-                  //   subtitle: "How often the GPS location is updated.",
-                  //   defaultValue: 60,
-                  //   min: 10,
-                  //   max: 120,
-                  //   step: 10,
-                  //   leading: const Icon(Icons.access_time),
-                  // ),
-                ],
-              ),
+              advancedSettings(dayNight),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
@@ -279,6 +210,64 @@ class SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+
+  ExpandableSettingsTile advancedSettings(DayNight dayNight) {
+    return ExpandableSettingsTile(
+              title: 'Advanced Options',
+              children: <Widget>[
+                ColorPickerSettingsTile(
+                  title: 'Theme Color',
+                  settingKey: 'key-theme-color',
+                  onChange: (p0) {
+                    dayNight.color = p0;
+                  },
+                ),
+                TextInputSettingsTile(
+                  settingKey: 'key-magic-start_code',
+                  title: 'Magic Start Code',
+                  // subtitle: 'Cheat code for starting any event',
+                  initialValue: 'XYZZY',
+                  validator: textFieldValidator,
+                ),
+                RadioSettingsTile<int>(
+                  leading: const Icon(Icons.social_distance),
+                  title: 'Control Proximity Radius',
+                  subtitle: 'Distance from control that allows check-in',
+                  settingKey: 'key-control-proximity-thresh',
+                  values: const <int, String>{
+                    100: '100 m',
+                    500: '500 m',
+                    2500: '2.5 km',
+                    12500: '12.5 km',
+                    AppSettings.infiniteDistance: 'Infinite',
+                  },
+                  selected: 500,
+                ),
+                SwitchSettingsTile(
+                  title: "Open Time Override",
+                  settingKey: "key-open-time-override",
+                  subtitle: "Ignore control open/close time.",
+                  leading: const Icon(Icons.free_cancellation),
+                ),
+                SwitchSettingsTile(
+                  title: "Preride Date Window Override",
+                  settingKey: "key-preride-date-window-override",
+                  subtitle: "Preride any time.",
+                  leading: const Icon(Icons.free_cancellation),
+                ),
+                // SliderSettingsTile(
+                //   settingKey: 'key-location-poll-period',
+                //   title: 'Period of Location Poll (seconds)',
+                //   subtitle: "How often the GPS location is updated.",
+                //   defaultValue: 60,
+                //   min: 10,
+                //   max: 120,
+                //   step: 10,
+                //   leading: const Icon(Icons.access_time),
+                // ),
+              ],
+            );
   }
 
   String? textFieldValidator(String? value) {

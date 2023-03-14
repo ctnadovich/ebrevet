@@ -32,8 +32,11 @@ class LogRecord{
 class Logger {
   static List <LogRecord> log = [];
 
-  static void print(String s){
+  static const int logLength = 100; 
+
+  static void logInfo(String s){
     log.add(LogRecord(Severity.info, s));
-    print(s);
+    if(log.length>logLength) log.removeAt(0);
+    print("${log.length}:$s");
   }
 }

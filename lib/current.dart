@@ -42,7 +42,7 @@ class Current {
 
   static void activate(Event e, String riderID, {bool isPreride = false}) {
     activatedEvent = EventHistory.addActivate(e, riderID, isPreride);
-    Logger.print(
+    Logger.logInfo(
         "Activated ${activatedEvent!.event.nameDist}${isPreride ? ' PRERIDE' : ''}");
   }
 
@@ -145,16 +145,16 @@ class Current {
           activatedEvent!.outcomes.lastUpload = now;
           lastSuccessfulServerUpload.value = now;
 
-          Logger.print('Check in successfully reported to server.');
+          Logger.logInfo('Check in successfully reported to server.');
         }
       } catch (e) {
-        Logger.print("Couldn't decode server response to report.");
+        Logger.logInfo("Couldn't decode server response to report.");
       }
     } else {
-      Logger.print("Error response from server when sending report.");
+      Logger.logInfo("Error response from server when sending report.");
     }
 
-    Logger.print("POST Status: ${response.statusCode}; Body: ${response.body}");
+    Logger.logInfo("POST Status: ${response.statusCode}; Body: ${response.body}");
   }
 
 
@@ -203,7 +203,7 @@ class Current {
             ? EventOutcomes.toJson(value)
             : throw FormatException('Cannot convert to JSON: $value'));
 
-    Logger.print("Sending JSON: $reportJSON");
+    Logger.logInfo("Sending JSON: $reportJSON");
 
     return http.post(
       Uri.parse(url),

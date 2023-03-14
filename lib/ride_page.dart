@@ -26,6 +26,7 @@ import 'location.dart';
 import 'current.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
+import 'ticker.dart';
 
 class RidePage extends StatefulWidget {
   const RidePage({super.key});
@@ -34,38 +35,23 @@ class RidePage extends StatefulWidget {
 }
 
 class _RidePageState extends State<RidePage> {
-  Timer? timer;
-  final int tickPeriod = 10;
-  int tTick = 0;
-
   final isPreride = Current.activatedEvent?.isPreride ?? false;
+  Ticker ticker = Ticker();
 
   @override
   void initState() {
     super.initState();
 
-    RiderLocation.updateLocation();
-
-// Maybe move this timer to its own class and use it to schedule events?
-// Or maybe we want location updates to be rider initiated and don't need this timer?
-
-    var tickDuration = Duration(seconds: tickPeriod);
-
-    int setPeriodSeconds = AppSettings.locationPollPeriod;
-    int periodTicks = setPeriodSeconds.toDouble() ~/ tickPeriod;
-
-    timer = Timer.periodic(tickDuration, (Timer t) {
-      if (0 == tTick % periodTicks) {
-        RiderLocation.updateLocation();
-      }
-      tTick++;
-    });
+    ticker.init(
+      period: AppSettings.timeRefreshPeriod,
+      onTick: RiderLocation.updateLocation,
+    );
   }
 
   @override
   void dispose() {
     super.dispose();
-    timer?.cancel();
+    ticker.dispose();
   }
 
   @override
@@ -324,7 +310,8 @@ class _ControlCardState extends State<ControlCard> {
       var proximityRadiusInfinite = AppSettings.proximityRadius ==
           AppSettings.infiniteDistance.toDouble();
 
-      return Text.rich(TextSpan(style: const TextStyle(fontSize: 12), children: [
+      return Text.rich(
+          TextSpan(style: const TextStyle(fontSize: 12), children: [
         if (open || openTimeOverride)
           TextSpan(
             text: 'Open now${openTimeOverride ? "*" : ""}',
@@ -362,7 +349,7 @@ class _ControlCardState extends State<ControlCard> {
 
   // TODO Enter comment,  "take photo", or answer the control question
 
-  // TODO Convert print statements to exceptions -- in app notifications
+  // TODO Convert some logger statements to exceptions -- in app notifications
 
   Future openCheckInDialog() => showDialog(
         context: context,
@@ -382,7 +369,7 @@ class _ControlCardState extends State<ControlCard> {
               if (widget.control.cLoc.isNearControl)
                 const Text(
                   'AT THIS CONTROL',
-                  style:  TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),

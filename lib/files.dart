@@ -43,7 +43,7 @@ class FileStorage {
       final file = await _localFile;
       await file.delete();
     } catch (e) {
-      Logger.print("In FileStorage.clear() Couldn't delete $fileName.");
+      Logger.logInfo("In FileStorage.clear() Couldn't delete $fileName.");
     }
   }
 
@@ -54,7 +54,7 @@ class FileStorage {
       var decodedResult = jsonDecode(contents) as Map<String, dynamic>;
       return decodedResult;
     } catch (e) {
-      Logger.print("Exception in FileStorage.readJSON: $e");
+      Logger.logInfo("Exception in FileStorage.readJSON: $e");
       return {};
     }
   }
@@ -72,10 +72,10 @@ class FileStorage {
       await file.writeAsString(jsonData);
 
 
-      Logger.print("Wrote to file ${file.path}");
+      Logger.logInfo("Wrote to file ${file.path}");
       return true;
     } catch (e) {
-      Logger.print("Failed write to file: $e");
+      Logger.logInfo("Failed write to file: $e");
       return false;
     }
   }

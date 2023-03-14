@@ -47,12 +47,12 @@ class RiderLocation {
                 desiredAccuracy: LocationAccuracy.high)
             .timeout(const Duration(seconds: 5));
         lastLocationUpdate.value = DateTime.now();
-        Logger.print(
+        Logger.logInfo(
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
       }
     } catch (e) {
       // SnackbarGlobal.show(e.toString());
-      Logger.print('GPS Error: ${e.toString()}');
+      Logger.logInfo('GPS Error: ${e.toString()}');
     }
   }
 

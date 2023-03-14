@@ -196,7 +196,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
             builder: (context) => ViewPage(pe!),
           ));
         } else {
-          Logger.print("Not mounted!?");
+          Logger.logInfo("Not mounted!?");
         }
       },
       child: const Text("VIEW"),

@@ -92,7 +92,7 @@ class EventOutcomes {
   // When using this setter, don't forget to call EventHistory.save() afterwards
 
   set overallOutcome(OverallOutcome oo) {
-    Logger.print("Overall outcome set to ${oo.name.toUpperCase()}");
+    Logger.logInfo("Overall outcome set to ${oo.name.toUpperCase()}");
     _overallOutcome = oo;
   }
 
