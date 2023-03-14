@@ -91,6 +91,10 @@ When riders check into a control, if internet is available the eBrevet app will 
 https://<yourdomain.com/your_base_path>/post_checkin
 ```
 
+The checkin record will include all control checkins that have occured up to the current time, every time. The server should record the first checkin for each control and is free to ignore the rest. 
+
+The checkin will also include an overall outcome determination that will say "finish" when all the controls have been checked, otherwise it will say "active" if the rider is still riding, or "dnf" or "dnq" if the rider has failed to complete the brevet. 
+
 An example of the checkin record is the following
 
 ```
@@ -105,11 +109,11 @@ looks like this
 {"status":"OK","event_id":"938017-382","rider_id":"5456"}
 ```
 
-Additionally, the Club/Region server can internally record and display checkins as desired. 
+Additionally, the Club/Region server can internally record and display checkin information as desired on their website.
 
 Explanations of the checkin fields are as follows:
 
-- `event_id` A unique string that identifies the event. It must be unique worldwide. Recommended is to use the ACP club code and the club-specific event ID separated by
+- `event_id` A unique string that identifies the event. It must be unique worldwide making it impossible for there to ever be two events with the same ID. Recommended is to use the ACP club code and the club-specific unique event ID separated by
 a dash. 
 
 - `rider_id` The rider's RUSA ID number
