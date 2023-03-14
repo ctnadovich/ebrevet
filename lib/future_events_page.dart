@@ -29,6 +29,8 @@ import 'signature.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
 
+// TODO automatic periodic updating of the events
+
 class EventsPage extends StatefulWidget {
   @override
   State<EventsPage> createState() => _EventsPageState();
@@ -308,6 +310,8 @@ class _EventCardState extends State<EventCard> {
               : (isPreride ? 'PRERIDE' : 'RIDE'))),
     );
   }
+
+  // TODO fold cue-version into start code
 
   String? validateStartCode(String? startCode, Event event) {
     if (startCode == null || startCode.isEmpty) {

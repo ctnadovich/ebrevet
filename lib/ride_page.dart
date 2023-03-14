@@ -26,7 +26,6 @@ import 'location.dart';
 import 'current.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
-import 'outcome.dart';
 
 class RidePage extends StatefulWidget {
   @override
@@ -51,8 +50,8 @@ class _RidePageState extends State<RidePage> {
 
     var tickDuration = Duration(seconds: tickPeriod);
 
-    double setPeriodSeconds = AppSettings.locationPollPeriod;
-    int periodTicks = setPeriodSeconds.floor() ~/ tickPeriod;
+    int setPeriodSeconds = AppSettings.locationPollPeriod;
+    int periodTicks = setPeriodSeconds.toDouble() ~/ tickPeriod;
 
     timer = Timer.periodic(tickDuration, (Timer t) {
       if (0 == tTick % periodTicks) {

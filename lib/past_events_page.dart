@@ -18,7 +18,6 @@ import 'package:ebrevet_card/event_history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'app_settings.dart';
 import 'region.dart';
 import 'event.dart';
 import 'outcome.dart';
@@ -244,6 +243,8 @@ class ViewPage extends StatelessWidget {
           ),
         ));
   }
+
+  // TODO Start codes shouldn't have 0's or 1's in them. 
 
   // TODO Pretty this up and add more analytics
 

@@ -50,6 +50,7 @@ class AppSettings {
   static const int startableTimeWindowMinutes = 60;
   static const int prerideTimeWindowDays = 15;
   static const int httpGetTimeoutSeconds = 15;
+  static const int locationPollPeriod = 60;
   static const int maxRUSAID = 99999;
 
   static Color get themeColor {
@@ -85,11 +86,11 @@ class AppSettings {
         defaultValue: false)!;
   }
 
-  static double get locationPollPeriod {
-    var d = Settings.getValue<double>('key-location-poll-period',
-        defaultValue: 500)!;
-    return d;
-  }
+  // static double get locationPollPeriod {
+  //   var d = Settings.getValue<double>('key-location-poll-period',
+  //       defaultValue: 500)!;
+  //   return d;
+  // }
 
   static int get regionID => Settings.getValue<int>('key-region',
       defaultValue: RegionData.defaultRegion)!;
@@ -255,16 +256,16 @@ class SettingsPageState extends State<SettingsPage> {
                     subtitle: "Preride any time.",
                     leading: const Icon(Icons.free_cancellation),
                   ),
-                  SliderSettingsTile(
-                    settingKey: 'key-location-poll-period',
-                    title: 'Period of Location Poll (seconds)',
-                    subtitle: "How often the GPS location is updated.",
-                    defaultValue: 60,
-                    min: 10,
-                    max: 120,
-                    step: 10,
-                    leading: const Icon(Icons.access_time),
-                  ),
+                  // SliderSettingsTile(
+                  //   settingKey: 'key-location-poll-period',
+                  //   title: 'Period of Location Poll (seconds)',
+                  //   subtitle: "How often the GPS location is updated.",
+                  //   defaultValue: 60,
+                  //   min: 10,
+                  //   max: 120,
+                  //   step: 10,
+                  //   leading: const Icon(Icons.access_time),
+                  // ),
                 ],
               ),
               Padding(
