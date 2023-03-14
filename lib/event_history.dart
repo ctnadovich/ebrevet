@@ -21,6 +21,7 @@ import 'outcome.dart';
 import 'control.dart';
 import 'app_settings.dart';
 import 'current.dart';
+import 'logger.dart';
 
 // PastEvents are events with outcomes
 // when a plain Event is "activated" it becomes
@@ -212,20 +213,20 @@ class EventHistory {
   static Future<int> load() async {
     var storage = FileStorage(pastEventsFileName);
     try {
-      print("** Loading event history from DISK");
+      Logger.print("** Loading event history from DISK");
       var pastEventsFromFile =
           await storage.readJSON(); //  as Map <String, PastEvent>;
       if (pastEventsFromFile.isNotEmpty) {
         _pastEventMap = fromJsonMap(pastEventsFromFile);
-        print(
+        Logger.print(
             "EventHistory.load() restored ${_pastEventMap.length} past activated events.");
         return _pastEventMap.length;
       } else {
-        print("Empty, missing, or undecodable file: $pastEventsFileName");
+        Logger.print("Empty, missing, or undecodable file: $pastEventsFileName");
         return 0;
       }
     } catch (e) {
-      print("Couldn't fetch past events from file: $e");
+      Logger.print("Couldn't fetch past events from file: $e");
       return 0;
     }
   }
@@ -235,9 +236,9 @@ class EventHistory {
     try {
       storage.writeJSON(_pastEventMap);
 
-      print("Saved  ${_pastEventMap.keys.length} events to file.");
+      Logger.print("Saved  ${_pastEventMap.keys.length} events to file.");
     } catch (e) {
-      print("Couldn't save past events to file.");
+      Logger.print("Couldn't save past events to file.");
     }
   }
 
@@ -299,8 +300,9 @@ class EventHistory {
 
   static deletePastEvent(PastEvent pe) {
     if (_pastEventMap.containsKey(pe._event.eventID)) {
-      if (Current.activatedEvent?._event.eventID == pe._event.eventID)
+      if (Current.activatedEvent?._event.eventID == pe._event.eventID){
         Current.deactivate();
+      }
       _pastEventMap.remove(pe._event.eventID);
       save();
     }

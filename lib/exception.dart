@@ -42,3 +42,10 @@ class NoInternetException implements Exception {
   @override
   String toString() => "Is your Internet service off? $message";
 }
+
+class ThisCantHappen implements Exception {
+  String message;
+  ThisCantHappen(this.message);
+  @override
+  String toString() => message;
+}

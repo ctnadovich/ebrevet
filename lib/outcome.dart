@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'logger.dart';
+
 enum OverallOutcome {
   dns,
   dnf,
@@ -90,7 +92,7 @@ class EventOutcomes {
   // When using this setter, don't forget to call EventHistory.save() afterwards
 
   set overallOutcome(OverallOutcome oo) {
-    print("Overall outcome set to ${oo.name.toUpperCase()}");
+    Logger.print("Overall outcome set to ${oo.name.toUpperCase()}");
     _overallOutcome = oo;
   }
 

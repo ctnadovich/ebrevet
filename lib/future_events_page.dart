@@ -28,10 +28,12 @@ import 'current.dart';
 import 'signature.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
+import 'logger.dart';
 
 // TODO automatic periodic updating of the events
 
 class EventsPage extends StatefulWidget {
+  const EventsPage({super.key});
   @override
   State<EventsPage> createState() => _EventsPageState();
 }
@@ -55,9 +57,8 @@ class _EventsPageState extends State<EventsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Future Events',
-          //style: TextStyle(fontSize: 14),
         ),
         actions: [
           IconButton(
@@ -90,11 +91,17 @@ class _EventsPageState extends State<EventsPage> {
                         .then((value) =>
                             setState(() => fetchingFromServerNow = false));
                   },
-                  icon: Icon(Icons.refresh),
-                  label: Text('Refresh Events from Server'),
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Refresh Events from Server'),
                 ),
-                Text('Future events for: ${Region.fromSettings().clubName}', textAlign: TextAlign.center,),
-                Text('Last refreshed: ${FutureEvents.lastRefreshedStr}', textAlign: TextAlign.center,),
+                Text(
+                  'Future events for: ${Region.fromSettings().clubName}',
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'Last refreshed: ${FutureEvents.lastRefreshedStr}',
+                  textAlign: TextAlign.center,
+                ),
                 // Text('Rider: RUSA #${AppSettings.rusaID}'),
                 ...events.map((e) => EventCard(e)), // All the Event Cards
               ],
@@ -130,7 +137,7 @@ class _EventsPageState extends State<EventsPage> {
 class EventCard extends StatefulWidget {
   final Event event;
 
-  const EventCard(this.event);
+  const EventCard(this.event, {super.key});
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -175,7 +182,7 @@ class _EventCardState extends State<EventCard> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon(Icons.pedal_bike),
+            leading: const Icon(Icons.pedal_bike),
             title: Text(widget.event.nameDist),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,13 +207,13 @@ class _EventCardState extends State<EventCard> {
             children: [
               Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 16,
                   ),
                   Text(
                     overallOutcomeDescriptionInHistory,
                     style: overallOutcomeInHistory == OverallOutcome.active
-                        ? TextStyle(
+                        ? const TextStyle(
                             fontWeight: FontWeight.bold,
                             // decoration: TextDecoration.underline,
                           )
@@ -214,7 +221,7 @@ class _EventCardState extends State<EventCard> {
                   ),
                   overallOutcomeInHistory == OverallOutcome.finish
                       ? Text(" ${EventHistory.getElapsedTimeString(eventID)}")
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
                   overallOutcomeInHistory == OverallOutcome.active
                       ? IconButton(
                           onPressed: () {
@@ -228,19 +235,19 @@ class _EventCardState extends State<EventCard> {
                           icon: const Icon(Icons.cancel),
                           tooltip: 'Abandon the event',
                         )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
                   //     ],
                   //   ),
                   // ),
-                  Spacer(),
+                  const Spacer(),
                   (isStartable || isPreridable)
                       ? rideButton(context)
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
                   const SizedBox(width: 8),
                 ],
               ),
               (overallOutcomeInHistory == OverallOutcome.dns)
-                  ? SizedBox.shrink()
+                  ? const SizedBox.shrink()
                   : Column(
                       children: [
                         Text(pe?.checkInFractionString ?? ''),
@@ -255,7 +262,7 @@ class _EventCardState extends State<EventCard> {
                     ),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 8,
           ),
         ],
@@ -295,11 +302,11 @@ class _EventCardState extends State<EventCard> {
             Navigator.of(context)
                 .push(MaterialPageRoute(
                   builder: (context) =>
-                      RidePage(), // will implicitly ride event just activated
+                      const RidePage(), // will implicitly ride event just activated
                 ))
                 .then((_) => setState(() {}));
           } else {
-            print("Not mounted!?");
+            Logger.print("Not mounted!?");
           }
         }
       },
@@ -325,12 +332,14 @@ class _EventCardState extends State<EventCard> {
 
     var rusaID = AppSettings.rusaID;
 
+    // var cueVersion = event.cueVersion.toString();
+
     var signature = Signature(riderID: rusaID, event: event, codeLength: 4);
 
     var validCode = signature.text.toUpperCase();
 
     if (validCode != startCode.toUpperCase()) {
-      print("Invalid Start Code $startCode; Valid code is '$validCode'");
+      Logger.print("Invalid Start Code $startCode; Valid code is '$validCode'");
       return "Invalid Start Code.";
     }
 
@@ -340,10 +349,10 @@ class _EventCardState extends State<EventCard> {
   Future<String?> openStartBrevetDialog() => showDialog<String>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Enter Brevet Start Code'),
+          title: const Text('Enter Brevet Start Code'),
           content: TextField(
             decoration:
-                InputDecoration(hintText: 'Enter code from brevet card'),
+                const InputDecoration(hintText: 'Enter code from brevet card'),
             autofocus: true,
             controller: controller,
             onSubmitted: (_) => submitStartBrevetDialog(),
@@ -353,7 +362,7 @@ class _EventCardState extends State<EventCard> {
                 onPressed: () {
                   submitStartBrevetDialog();
                 },
-                child: Text('SUBMIT'))
+                child: const Text('SUBMIT'))
           ],
         ),
       );

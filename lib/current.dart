@@ -30,6 +30,7 @@ import 'location.dart';
 import 'event_history.dart';
 import 'signature.dart';
 import 'app_settings.dart';
+import 'logger.dart';
 
 // Class for doing stuff with the the current context of event/rider/region
 // The Event class has a static "current" that holds one of these during the ride
@@ -41,7 +42,7 @@ class Current {
 
   static void activate(Event e, String riderID, {bool isPreride = false}) {
     activatedEvent = EventHistory.addActivate(e, riderID, isPreride);
-    print(
+    Logger.print(
         "Activated ${activatedEvent!.event.nameDist}${isPreride ? ' PRERIDE' : ''}");
   }
 
@@ -144,16 +145,16 @@ class Current {
           activatedEvent!.outcomes.lastUpload = now;
           lastSuccessfulServerUpload.value = now;
 
-          print('Check in successfully reported to server.');
+          Logger.print('Check in successfully reported to server.');
         }
       } catch (e) {
-        print("Couldn't decode server response to report.");
+        Logger.print("Couldn't decode server response to report.");
       }
     } else {
-      print("Error response from server when sending report.");
+      Logger.print("Error response from server when sending report.");
     }
 
-    print("POST Status: ${response.statusCode}; Body: ${response.body}");
+    Logger.print("POST Status: ${response.statusCode}; Body: ${response.body}");
   }
 
 
@@ -202,7 +203,7 @@ class Current {
             ? EventOutcomes.toJson(value)
             : throw FormatException('Cannot convert to JSON: $value'));
 
-    print("Sending JSON: $reportJSON");
+    Logger.print("Sending JSON: $reportJSON");
 
     return http.post(
       Uri.parse(url),

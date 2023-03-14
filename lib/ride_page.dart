@@ -28,6 +28,7 @@ import 'app_settings.dart';
 import 'day_night.dart';
 
 class RidePage extends StatefulWidget {
+  const RidePage({super.key});
   @override
   State<RidePage> createState() => _RidePageState();
 }
@@ -102,7 +103,7 @@ class _RidePageState extends State<RidePage> {
                           (isPreride)
                               ? 'Volunteer Preride'
                               : 'Scheduled Brevet',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         // (Current.outcomes?.overallOutcome == OverallOutcome.dns)
                         //     ? SizedBox.shrink()
@@ -117,19 +118,20 @@ class _RidePageState extends State<RidePage> {
                         //                 : FontWeight.bold),
                         //       ),
                         Text(
-                            'At ${RiderLocation.lastLocationUpdateString} ${RiderLocation.lastLocationUpdateTimeZoneName} '
-                            'location was ${RiderLocation.latLongString}',
-                            textAlign: TextAlign.center,),
+                          'At ${RiderLocation.lastLocationUpdateString} ${RiderLocation.lastLocationUpdateTimeZoneName} '
+                          'location was ${RiderLocation.latLongString}',
+                          textAlign: TextAlign.center,
+                        ),
                         Row(
                           children: [
                             ElevatedButton(
                                 onPressed: () => RiderLocation.updateLocation(),
-                                child: Text("GPS Refresh")),
-                            Spacer(),
+                                child: const Text("GPS Refresh")),
+                            const Spacer(),
                             ElevatedButton(
                                 onPressed: () =>
                                     Current.constructReportAndSend(),
-                                child: Text("Upload results")),
+                                child: const Text("Upload results")),
                           ],
                         ),
                       ] +
@@ -144,7 +146,7 @@ class _RidePageState extends State<RidePage> {
 
 class ControlCard extends StatefulWidget {
   final Control control;
-  const ControlCard(this.control);
+  const ControlCard(this.control, {super.key});
   @override
   State<ControlCard> createState() => _ControlCardState();
 }
@@ -181,7 +183,7 @@ class _ControlCardState extends State<ControlCard> {
                     const SizedBox(width: 8),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 )
               ],
@@ -296,7 +298,7 @@ class _ControlCardState extends State<ControlCard> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('OK'))
+                child: const Text('OK'))
           ],
         ),
       );
@@ -307,8 +309,8 @@ class _ControlCardState extends State<ControlCard> {
 
     if (checkInTime != null) {
       var checkInIcon = (lastUpload != null && lastUpload.isAfter(checkInTime))
-          ? Icon(Icons.check_circle, color: Colors.green)
-          : Icon(Icons.pending_sharp, color: Colors.red);
+          ? const Icon(Icons.check_circle, color: Colors.green)
+          : const Icon(Icons.pending_sharp, color: Colors.red);
       return Column(
         children: [
           checkInIcon,
@@ -322,24 +324,24 @@ class _ControlCardState extends State<ControlCard> {
       var proximityRadiusInfinite = AppSettings.proximityRadius ==
           AppSettings.infiniteDistance.toDouble();
 
-      return Text.rich(TextSpan(style: TextStyle(fontSize: 12), children: [
+      return Text.rich(TextSpan(style: const TextStyle(fontSize: 12), children: [
         if (open || openTimeOverride)
           TextSpan(
             text: 'Open now${openTimeOverride ? "*" : ""}',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         if (!open && !openTimeOverride)
-          TextSpan(
+          const TextSpan(
             text: 'Not open',
           ),
-        TextSpan(text: ' - '),
+        const TextSpan(text: ' - '),
         if (near)
           TextSpan(
             text: 'At control${proximityRadiusInfinite ? "*" : ""}',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         if (!near)
-          TextSpan(
+          const TextSpan(
             text: 'Not near',
           ),
       ]));
@@ -348,7 +350,7 @@ class _ControlCardState extends State<ControlCard> {
         onPressed: () {
           openCheckInDialog();
         },
-        child: Text('CHECK IN'),
+        child: const Text('CHECK IN'),
       );
     }
     // else {
@@ -371,16 +373,16 @@ class _ControlCardState extends State<ControlCard> {
             children: [
               Text(
                 widget.control.name,
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               showControlStatus(widget.control),
               showExactDistance(widget.control.cLoc),
               if (widget.control.cLoc.isNearControl)
-                Text(
+                const Text(
                   'AT THIS CONTROL',
-                  style: TextStyle(
+                  style:  TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),

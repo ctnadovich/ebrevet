@@ -157,7 +157,7 @@ class SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Past Events',
           //style: TextStyle(fontSize: 14),
         ),
@@ -210,7 +210,7 @@ class SettingsPageState extends State<SettingsPage> {
               ),
               //   ],
               // ),
-              SizedBox(
+              const SizedBox(
                 height: 25,
               ),
               ExpandableSettingsTile(
@@ -235,7 +235,7 @@ class SettingsPageState extends State<SettingsPage> {
                     title: 'Control Proximity Radius',
                     subtitle: 'Distance from control that allows check-in',
                     settingKey: 'key-control-proximity-thresh',
-                    values: <int, String>{
+                    values: const <int, String>{
                       100: '100 m',
                       500: '500 m',
                       2500: '2.5 km',
@@ -272,7 +272,7 @@ class SettingsPageState extends State<SettingsPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
                     onPressed: () => _showAboutDialog(),
-                    child: Text('About this app')),
+                    child: const Text('About this app')),
               )
             ],
           ),
@@ -300,17 +300,17 @@ class SettingsPageState extends State<SettingsPage> {
         applicationLegalese:
             '(c)2023 Chris Nadovich. This free application is licensed under GPLv3.',
         children: [
-          SizedBox(
+          const SizedBox(
             height: 16,
           ),
-          Text(
+          const Text(
             'An electronic brevet card application for Electronic Proof of Passage in Randonneuring.',
             textAlign: TextAlign.center,
           ),
           InkWell(
             onTap: () =>
                 launchUrl(Uri.parse('https://github.com/ctnadovich/ebrevet')),
-            child: Text(
+            child: const Text(
               'Documentation and Source Code',
               textAlign: TextAlign.center,
               style: TextStyle(

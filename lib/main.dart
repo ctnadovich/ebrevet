@@ -30,16 +30,17 @@ import 'future_events.dart';
 import 'region.dart';
 import 'current.dart';
 import 'day_night.dart';
+import 'logger.dart';
 
 void main() {
   initSettings().then((_) {
-    print("** runApp(MyApp)");
-    runApp(MyApp());
+    Logger.print("** runApp(MyApp)");
+    runApp(const MyApp());
   });
 }
 
 Future<void> initSettings() async {
-  print('Init settings start...');
+  Logger.print('Init settings start...');
   await Settings.init(
     cacheProvider: SharePreferenceCache(),
   );
@@ -47,11 +48,11 @@ Future<void> initSettings() async {
   await FutureEvents.refreshEventsFromDisk(Region.fromSettings());
   // .then((_) =>
   await EventHistory.load();
-  print('...Init settings end');
+  Logger.print('...Init settings end');
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
   // @override
   // Widget build(BuildContext context) {
@@ -90,13 +91,14 @@ class MyApp extends StatelessWidget {
             theme: dayNight.dayTheme,
             darkTheme: dayNight.nightTheme,
             themeMode: dayNight.mode,
-            home: HomePage(),
+            home: const HomePage(),
           );
         }));
   }
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -124,7 +126,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'eBrevet Card',
         ),
         actions: [
@@ -138,12 +140,12 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context)
             .push(MaterialPageRoute(
-              builder: (context) => SettingsPage(),
+              builder: (context) => const SettingsPage(),
             ))
             .then((value) => setState(
                   () {},
                 )),
-        child: Icon(Icons.settings),
+        child: const Icon(Icons.settings),
       ),
       body: (AppSettings.isRusaIDSet)
           ? mainMenu(context)
@@ -153,14 +155,14 @@ class _HomePageState extends State<HomePage> {
 
   Column requiredSettings() {
     return Column(children: [
-      Text('Enter your RUSA number and select a Club/Region:'),
-      SizedBox(
+      const Text('Enter your RUSA number and select a Club/Region:'),
+      const SizedBox(
         height: 10,
       ),
       Padding(
         padding: const EdgeInsets.all(8.0),
         child: TextFormField(
-          decoration: InputDecoration(hintText: 'Enter your RUSA ID'),
+          decoration: const InputDecoration(hintText: 'Enter your RUSA ID'),
           autofocus: true,
           controller: controller,
           validator: (value) => AppSettings.rusaFieldValidator(value),
@@ -175,10 +177,10 @@ class _HomePageState extends State<HomePage> {
             for (var k in Region.regionMap.keys)
               k: Region.regionMap[k]!['clubName']!
           }),
-      SizedBox(
+      const SizedBox(
         height: 15,
       ),
-      ElevatedButton(onPressed: () => setState(() {}), child: Text('Continue')),
+      ElevatedButton(onPressed: () => setState(() {}), child: const Text('Continue')),
     ]);
   }
 
@@ -191,7 +193,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Container mainMenu(BuildContext context) {
-    var style = TextStyle(
+    var style = const TextStyle(
       fontSize: 20,
     );
 
@@ -203,12 +205,12 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Spacer(flex: 4),
+              const Spacer(flex: 4),
               ElevatedButton(
                   onPressed: () => Navigator.of(context)
                       .push(MaterialPageRoute(
                         builder: (context) =>
-                            EventsPage(), // will implicitly ride event just activated
+                            const EventsPage(), // will implicitly ride event just activated
                       ))
                       .then((value) => setState(
                             () {},
@@ -217,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                     'Future Events',
                     style: style,
                   )),
-              Spacer(flex: 1),
+              const Spacer(flex: 1),
               ElevatedButton(
                   onPressed: (Current.isActivated ||
                           Current.outcomes?.overallOutcome ==
@@ -225,7 +227,7 @@ class _HomePageState extends State<HomePage> {
                       ? () => Navigator.of(context)
                           .push(MaterialPageRoute(
                             builder: (context) =>
-                                RidePage(), // will implicitly ride event just activated
+                                const RidePage(), // will implicitly ride event just activated
                           ))
                           .then((value) => setState(
                                 () {},
@@ -235,12 +237,12 @@ class _HomePageState extends State<HomePage> {
                     'Current Event',
                     style: style,
                   )),
-              Spacer(flex: 1),
+              const Spacer(flex: 1),
               ElevatedButton(
                   onPressed: () => Navigator.of(context)
                       .push(MaterialPageRoute(
                         builder: (context) =>
-                            PastEventsPage(), // will implicitly ride event just activated
+                            const PastEventsPage(), // will implicitly ride event just activated
                       ))
                       .then((value) => setState(
                             () {},
@@ -249,7 +251,7 @@ class _HomePageState extends State<HomePage> {
                     'Past Events',
                     style: style,
                   )),
-              Spacer(flex: 1),
+              const Spacer(flex: 1),
               // ElevatedButton(
               //     onPressed: () => Navigator.of(context)
               //         .push(MaterialPageRoute(
@@ -263,7 +265,7 @@ class _HomePageState extends State<HomePage> {
               //       'Settings',
               //       style: style,
               //     )),
-              Spacer(flex: 4),
+              const Spacer(flex: 4),
             ],
           ),
         ),
@@ -271,21 +273,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future openRusaIDDialog() => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Enter RUSA ID'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  // submitRusaIDDialog();
-                },
-                child: const Text('Submit'))
-          ],
-        ),
-      );
+  // Future openRusaIDDialog() => showDialog(
+  //       context: context,
+  //       builder: (context) => AlertDialog(
+  //         title: const Text('Enter RUSA ID'),
+  //         // content: Column(
+  //         //   mainAxisSize: MainAxisSize.min,
+  //         //   children: [],
+  //         // ),
+  //         actions: [
+  //           TextButton(
+  //               onPressed: () {
+  //                 // submitRusaIDDialog();
+  //               },
+  //               child: const Text('Submit'))
+  //         ],
+  //       ),
+  //     );
 }

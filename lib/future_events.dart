@@ -25,6 +25,7 @@ import 'dart:convert';
 import 'files.dart';
 import 'exception.dart';
 import 'app_settings.dart';
+import 'logger.dart';
 
 // import 'current.dart';
 
@@ -49,7 +50,7 @@ class FutureEvents {
   static Future<int> refreshEventsFromDisk(Region rgn) async {
     Map<String, dynamic> eventMapFromFile;
     try {
-      print("** Refreshing events from DISK for ${rgn.clubName}");
+      Logger.print("** Refreshing events from DISK for ${rgn.clubName}");
 
       try {
         eventMapFromFile = await storedEvents.readJSON();
@@ -70,7 +71,7 @@ class FutureEvents {
           lrs = "Unkown";
         }
         refreshCount.value++;
-        print(
+        Logger.print(
             "Successfully restored ${events.length} events from disk. Last Refreshed = $lrs");
         return refreshCount.value;
       } else {
@@ -79,14 +80,14 @@ class FutureEvents {
     } catch (error) {
       events.clear();
       // TODO Do somethnig better than just printing this, if possible.
-      print("Couldn't refresh future events from FILE: $error");
+      Logger.print("Couldn't refresh future events from FILE: $error");
       return 0;
     }
   }
 
   static Future<bool> refreshEventsFromServer(Region rgn) async {
     try {
-      print("Refreshing events from SERVER for ${rgn.clubName}");
+      Logger.print("Refreshing events from SERVER for ${rgn.clubName}");
 
       // Then try to fetch from the server in background with callback to process
       var eventMapFromServer = await fetchFutureEventsFromServer(rgn);
@@ -98,12 +99,12 @@ class FutureEvents {
           eventMapFromServer); // Save what we just downloaded to disk
       lastRefreshed = now;
       refreshCount.value++;
-      print("Refresh complete. Write status: $writeStatus");
+      Logger.print("Refresh complete. Write status: $writeStatus");
     } catch (error) {
       // events.clear();
       SnackbarGlobal.show(error.toString());
       // TODO format this and adjust the text (maybe need custom exception class?)
-      print("Error refreshing events: $error");
+      Logger.print("Error refreshing events: $error");
       return false;
     }
     return true;
@@ -123,17 +124,17 @@ class FutureEvents {
 
   static void rebuildEventList(Map eventMap, Region g) {
     List el = eventMap['event_list'];
-    print("rebuildEventList() from ${el.length} events in Map");
+    Logger.print("rebuildEventList() from ${el.length} events in Map");
     events.clear();
     for (var e in el) {
       var eventToAdd = Event.fromMap(e);
       if (eventToAdd.valid == false) {
-        throw FormatException('Invalid event data found.');
+        throw const FormatException('Invalid event data found.');
       }
 
       var now = DateTime.now();
       var eventReallyEnds =
-          eventToAdd.endDateTime.add(Duration(hours: futureEventGraceTime));
+          eventToAdd.endDateTime.add(const Duration(hours: futureEventGraceTime));
       if (eventReallyEnds.isAfter(now)) events.add(eventToAdd);
     }
     events.sort((a, b) => a.startDateTime.isBefore(b.startDateTime)
@@ -142,7 +143,7 @@ class FutureEvents {
     // rider = r;
     region = g;
     var n = events.length;
-    print("Event List rebuilt with $n events in ${region!.clubName}.");
+    Logger.print("Event List rebuilt with $n events in ${region!.clubName}.");
   }
 
   static Future<Map<String, dynamic>?> fetchFutureEventsFromServer(
@@ -150,7 +151,7 @@ class FutureEvents {
     var futureEventsURL = rgn.eventURL;
 
     String url = '$futureEventsURL/future_events';
-    print('Fetching future event data from $url');
+    Logger.print('Fetching future event data from $url');
 
     Map<String, dynamic> decodedResponse;
     http.Response? response;
@@ -159,7 +160,7 @@ class FutureEvents {
     try {
       response = await http
           .get(Uri.parse(url))
-          .timeout(Duration(seconds: AppSettings.httpGetTimeoutSeconds));
+          .timeout(const Duration(seconds: AppSettings.httpGetTimeoutSeconds));
     } on TimeoutException {
       throw ServerException(
           'No response from server (${AppSettings.httpGetTimeoutSeconds} sec timeout).');

@@ -22,8 +22,10 @@ import 'region.dart';
 import 'event.dart';
 import 'outcome.dart';
 import 'day_night.dart';
+import 'logger.dart';
 
 class PastEventsPage extends StatefulWidget {
+  const PastEventsPage({super.key});
   @override
   State<PastEventsPage> createState() => _PastEventsPageState();
 }
@@ -36,18 +38,17 @@ class _PastEventsPageState extends State<PastEventsPage> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(
+          title: const Text(
             'Past Events',
             //style: TextStyle(fontSize: 14),
           ),
-       actions: [
-          IconButton(
-              icon: dayNight.icon,
-              onPressed: () {
-                dayNight.toggleMode();
-              })
-        ],
-
+          actions: [
+            IconButton(
+                icon: dayNight.icon,
+                onPressed: () {
+                  dayNight.toggleMode();
+                })
+          ],
         ),
         body: Container(
           color: Theme.of(context).colorScheme.primaryContainer,
@@ -56,7 +57,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
             child: ListView(
               // mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // SizedBox(height: 2),
+                // const SizedBox(height: 2),
 
                 // Text('Past events for: ${AppSettings.rusaID}'),
 
@@ -68,9 +69,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
         ));
   }
 
-
-Widget pastEventCard(BuildContext context, Event event) {
-
+  Widget pastEventCard(BuildContext context, Event event) {
     final eventID = event.eventID;
     final pe = EventHistory.lookupPastEvent(eventID);
     // var eventInHistory = pe?.event;
@@ -85,7 +84,7 @@ Widget pastEventCard(BuildContext context, Event event) {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon(Icons.pedal_bike),
+            leading: const Icon(Icons.pedal_bike),
             title: Text(event.nameDist),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,13 +97,13 @@ Widget pastEventCard(BuildContext context, Event event) {
           ),
           Row(
             children: [
-              SizedBox(
+              const SizedBox(
                 width: 16,
               ),
               Text(
                 overallOutcomeDescriptionInHistory,
                 style: overallOutcomeInHistory == OverallOutcome.active
-                    ? TextStyle(
+                    ? const TextStyle(
                         fontWeight: FontWeight.bold,
                         // decoration: TextDecoration.underline,
                       )
@@ -112,19 +111,19 @@ Widget pastEventCard(BuildContext context, Event event) {
               ),
               overallOutcomeInHistory == OverallOutcome.finish
                   ? Text(" ${EventHistory.getElapsedTimeString(eventID)}")
-                  : SizedBox.shrink(),
-              Spacer(),
+                  : const SizedBox.shrink(),
+              const Spacer(),
               viewButton(context, eventID),
-              SizedBox(
+              const SizedBox(
                 width: 4,
               ),
               deleteButton(context, eventID),
-              SizedBox(
+              const SizedBox(
                 width: 4,
               ),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 8,
           ),
         ],
@@ -142,40 +141,41 @@ Widget pastEventCard(BuildContext context, Event event) {
         confirmDeleteDialog(context, pe!);
       },
       child: (pe?.outcomes.overallOutcome == OverallOutcome.dns)
-          ? SizedBox.shrink()
-          : Text("DELETE"),
+          ? const SizedBox.shrink()
+          : const Text("DELETE"),
     );
   }
 
-void confirmDeleteDialog(BuildContext context, PastEvent pe) {
+  void confirmDeleteDialog(BuildContext context, PastEvent pe) {
     showDialog(
         context: context,
         builder: (BuildContext ctx) {
-              return AlertDialog(
-      title: const Text('Please Confirm'),
-      content:  Text('Delete the ${pe.event.nameDist}?'),
-      actions: [
-        // The "Yes" button
-        TextButton(
-            onPressed: () {
-              // Remove the box
-              setState(() {
-                EventHistory.deletePastEvent(pe);
-              });
+          return AlertDialog(
+            title: const Text('Please Confirm'),
+            content: Text('Delete the ${pe.event.nameDist}?'),
+            actions: [
+              // The "Yes" button
+              TextButton(
+                  onPressed: () {
+                    // Remove the box
+                    setState(() {
+                      EventHistory.deletePastEvent(pe);
+                    });
 
-              // Close the dialog
-              Navigator.of(context).pop();
-            },
-            child: const Text('Yes')),
-        TextButton(
-            onPressed: () {
-              // Close the dialog
-              Navigator.of(context).pop();
-            },
-            child: const Text('No'))
-      ],
-    );
-  });}
+                    // Close the dialog
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Yes')),
+              TextButton(
+                  onPressed: () {
+                    // Close the dialog
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('No'))
+            ],
+          );
+        });
+  }
 
   Widget viewButton(BuildContext context, String eventID) {
     final pe = EventHistory.lookupPastEvent(eventID);
@@ -183,7 +183,7 @@ void confirmDeleteDialog(BuildContext context, PastEvent pe) {
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
 
     if (overallOutcomeInHistory != OverallOutcome.finish) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return TextButton(
@@ -196,19 +196,18 @@ void confirmDeleteDialog(BuildContext context, PastEvent pe) {
             builder: (context) => ViewPage(pe!),
           ));
         } else {
-          print("Not mounted!?");
+          Logger.print("Not mounted!?");
         }
       },
-      child: Text("VIEW"),
+      child: const Text("VIEW"),
     );
   }
 }
 
-
 class ViewPage extends StatelessWidget {
   final PastEvent pastEvent;
 
-  const ViewPage(this.pastEvent);
+  const ViewPage(this.pastEvent, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -226,12 +225,12 @@ class ViewPage extends StatelessWidget {
             child: ListView(
               // mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // SizedBox(height: 2),
+                // const SizedBox(height: 2),
                 Text(
                   (pastEvent.isPreride)
                       ? 'Volunteer Preride'
                       : 'Scheduled Brevet',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text('Overall result: ${pastEvent.overallOutcomeDescription}'),
                 Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
@@ -244,7 +243,7 @@ class ViewPage extends StatelessWidget {
         ));
   }
 
-  // TODO Start codes shouldn't have 0's or 1's in them. 
+  // TODO Start codes shouldn't have 0's or 1's in them.
 
   // TODO Pretty this up and add more analytics
 

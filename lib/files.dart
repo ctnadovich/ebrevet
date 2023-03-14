@@ -20,6 +20,7 @@ import 'dart:io';
 
 import 'package:ebrevet_card/event_history.dart';
 import 'package:path_provider/path_provider.dart';
+import 'logger.dart';
 
 class FileStorage {
   String fileName;
@@ -42,7 +43,7 @@ class FileStorage {
       final file = await _localFile;
       await file.delete();
     } catch (e) {
-      print("In FileStorage.clear() Couldn't delete $fileName.");
+      Logger.print("In FileStorage.clear() Couldn't delete $fileName.");
     }
   }
 
@@ -53,7 +54,7 @@ class FileStorage {
       var decodedResult = jsonDecode(contents) as Map<String, dynamic>;
       return decodedResult;
     } catch (e) {
-      print("Exception in FileStorage.readJSON: $e");
+      Logger.print("Exception in FileStorage.readJSON: $e");
       return {};
     }
   }
@@ -71,10 +72,10 @@ class FileStorage {
       await file.writeAsString(jsonData);
 
 
-      print("Wrote to file ${file.path}");
+      Logger.print("Wrote to file ${file.path}");
       return true;
     } catch (e) {
-      print("Failed write to file: $e");
+      Logger.print("Failed write to file: $e");
       return false;
     }
   }
