@@ -79,18 +79,23 @@ the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, automa
 
 However generated, the future event details must be provided as a JSON encoded list of events on a URL of the form 
 
-```https://<yourdomain.com/your_base_path>/future_events```
+```
+https://<yourdomain.com/your_base_path>/future_events
+```
 
 An example of the JSON data that must be returned for future_events is show [in this file](examples/future_events.json).
 
 When riders check into a control, if internet is available the eBrevet app will attempt to POST a JSON checkin record to a different URL of the form 
 
-```https://<yourdomain.com/your_base_path>/post_checkin```
+```
+https://<yourdomain.com/your_base_path>/post_checkin
+```
 
 An example of the checkin record is the following
 
 ```
-{"event_id":"938017-382","rider_id":"5456","control_index":"0","comment":"No Comment","outcome":{"overall_outcome":"active","check_in_times":[["0","2023-03-14T06:11:51.232885Z"]]},"app_version":"0.1.6","proximity_radius":9999999.0,"open_override":"YES","preride":"YES","rider_location":"37.4226711N, -122.0849872E","last_loc_update":"2023-03-14T06:11:07.902975Z","timestamp":"2023-03-14T06:11:51.235675Z","signature":"C37D730E"}```
+{"event_id":"938017-382","rider_id":"5456","control_index":"0","comment":"No Comment","outcome":{"overall_outcome":"active","check_in_times":[["0","2023-03-14T06:11:51.232885Z"]]},"app_version":"0.1.6","proximity_radius":9999999.0,"open_override":"YES","preride":"YES","rider_location":"37.4226711N, -122.0849872E","last_loc_update":"2023-03-14T06:11:07.902975Z","timestamp":"2023-03-14T06:11:51.235675Z","signature":"C37D730E"}
+```
 
 If the received checkin record is decoded successfully by the Club/Region server, and
 the signature is valid, the sever should reply with a JSON acknowledgement that includes `"status";"OK"` and minimally
