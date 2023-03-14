@@ -67,6 +67,20 @@ to the Future Events page. To go back to riding and checking into controls, hit 
 
 After your complete an event, the results will be visible on the "Past Events" page accessible from the main menu. Past events are stored on your phone. Should the app be uninstalled, Past Events will be erased. Of course, your results are also stored in Le Grand Livre for posterity, so no worries. 
 
+## Club/Region Webserver Support
+
+In order to support the eBrevet app for your Club/Region/Organization, you will need to configure your webserver to provide event details on a public URL, and to accept results on
+another URL. 
+
+The event details required include the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are UTC. All locations are RWGPS compatibile Lattitude and Longitude. If your club uses RWGPS cue markup as described in 
+the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, the required information can readily be extracted automatically from the RWGPS data. See the Cue Wizard source code for example methods.
+
+Future event details must be provided as a JSON encoded list of events on a URL of the form 
+
+```https://<yourdomain.com/your_base_path>/future_events```
+
+An example of the JSON data that must be returned for future_events is show [in this file](examples/future_events.json).
+
 ## Randonneuring Resources:
 
 - [Pennsylvania Randonneurs](https://parando.org)
