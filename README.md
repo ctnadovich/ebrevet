@@ -50,13 +50,13 @@ access. If you don't do this, the event data on your phone may be invalid and yo
 be able to ride.*
 
 Once the latest future events are downloaded to your phone, you should see cards describing each
-upcoming event. If the event may be pre-ridden, a "PRERIDE" button will apper on the lower right of the event card. On the scheduled day of the event a "RIDE" button will appear. Press this button to RIDE or PRERIDE the event. 
+upcoming event. If the event may be pre-ridden, a "PRERIDE" button will appear on the lower right of the event card. On the scheduled day of the event a "RIDE" button will appear. Press this button to RIDE or PRERIDE the event. 
 
 The first time you choose RIDE/PRERIDE, you will need to enter your Start Code to start the event. The start code is a four character code printed on your brevet card, and also is available from the event organizer. Every rider has a different start code.  If your Start Code isn't working, make sure you have
 the latest version of the events Refreshed from the Server, and that you have the latest
 version of the eBrevet app. 
 
-Once you have started the event you need to check in to every control, including the start control. To be able to check in to a control, you need to be physically near the control and the time of day must be within the open/close interval of that control. When you are eligable to check in, a "Check In" button will appear. 
+Once you have started the event you need to check in to every control, including the start control. To be able to check in to a control, you need to be physically near the control and the time of day must be within the open/close interval of that control. When you are eligible to check in, a "Check In" button will appear. 
 
 After you check in, you will see either a red three-dots icon, or a green check. The green check means you've checked in and your check-in time has been uploaded to the Club/Region. If you see a red threee-dots icon, that means the app itself has recorded your check-in, but your check-in has not been uploaded to the Club/Region yet. This will occur if your phone is in 
 Airplane Mode or if there is no data service on your phone. At some point in the future when your phone has internet service again, press the "Upload Results" button and you should see all your red marks turn into green checks. 
@@ -151,9 +151,6 @@ This application was developed in the Dart language using the Flutter framework.
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
-
-The code for this project is (C) 2023 Chris Nadovich released for public use under the GPLv3 
-open source license. 
 
 Copyright (C) 2023 Chris Nadovich
 This file is part of eBrevet <https://github.com/ctnadovich/ebrevet>.
