@@ -1,6 +1,8 @@
 # eBrevet
 
-![eBrevet](assets/images/eBrevet-128.png) An electronic brevet card for randonneuring.
+![eBrevet](assets/images/eBrevet-128.png) 
+
+An electronic brevet card for randonneuring.
 
 ## Introduction
 
