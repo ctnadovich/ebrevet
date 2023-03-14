@@ -38,7 +38,7 @@ Once you've set your RUSA number and region, press "Continue".
 
 The main screen has buttons for Future, Current, and Past events. There's also a "Settings" gear icon on the lower left, and a day/night mode switch on the upper right. 
 
-![eBrevet Main Menu](https://parando.org/ebrevet/MainMenu.png)
+![eBrevet Screen Shots](https://parando.org/ebrevet/ScreenShots.png)
 
 Press the "Future Events" button. The first time you visit that page there will be no events listed. Hit the "Refresh Events from Server" button. If you have Internet service, in a few
 seconds the available events from your chosen Club/Region will appear. 
@@ -50,8 +50,6 @@ be able to ride.*
 Once the latest future events are downloaded to your phone, you should see cards describing each
 upcoming event. If the event may be pre-ridden, a "PRERIDE" button will apper on the lower right of the event card. On the scheduled day of the event a "RIDE" button will appear. Press this button to RIDE or PRERIDE the event. 
 
-![Future Events Page](https://parando.org/ebrevet/FutureEvents.png)
-
 The first time you choose RIDE/PRERIDE, you will need to enter your Start Code to start the event. The start code is a four character code printed on your brevet card, and also is available from the event organizer. Every rider has a different start code.  If your Start Code isn't working, make sure you have
 the latest version of the events Refreshed from the Server, and that you have the latest
 version of the eBrevet app. 
@@ -62,8 +60,6 @@ After you check in, you will see either a red three-dots icon, or a green check.
 Airplane Mode or if there is no data service on your phone. At some point in the future when your phone has internet service again, press the "Upload Results" button and you should see all your red marks turn into green checks. 
 
 **IMPORTANT:** *Be sure all your controls show green checks at the end of the event. When all your controls are green you have officially completed the event and your results have been recorded at the Club/Region. If you still have some red marks next to controls, you need to find working Internet service and upload your results ASAP.*
-
-![eBrevet Ride Page](https://parando.org/ebrevet/RidePage.png)
 
 
 While you are riding an event, you can hit the exit arrow on the upper left, returning 
