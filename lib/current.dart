@@ -22,15 +22,13 @@ import 'dart:convert';
 
 import 'snackbarglobal.dart';
 import 'event.dart';
-// import 'rider.dart';
-// import 'region.dart';
 import 'outcome.dart';
 import 'control.dart';
 import 'location.dart';
 import 'event_history.dart';
 import 'signature.dart';
 import 'app_settings.dart';
-import 'logger.dart';
+import 'mylogger.dart';
 
 // Class for doing stuff with the the current context of event/rider/region
 // The Event class has a static "current" that holds one of these during the ride
@@ -42,11 +40,11 @@ class Current {
 
   static void activate(Event e, String riderID, {bool isPreride = false}) {
     activatedEvent = EventHistory.addActivate(e, riderID, isPreride);
-    Logger.logInfo(
+    MyLogger.logInfo(
         "Activated ${activatedEvent!.event.nameDist}${isPreride ? ' PRERIDE' : ''}");
   }
 
-  static void deactivate() => activatedEvent=null;
+  static void deactivate() => activatedEvent = null;
 
   static Event? get event {
     return activatedEvent?.event;
@@ -55,7 +53,6 @@ class Current {
   static EventOutcomes? get outcomes {
     return activatedEvent?.outcomes;
   }
-
 
   static bool get isActivated {
     return activatedEvent != null;
@@ -137,26 +134,35 @@ class Current {
       ValueNotifier(null);
 
   static void recordReportResponse(http.Response response) {
+    String? result;
     if (response.statusCode == 200) {
       try {
         var r = jsonDecode(response.body);
-        if (r.containsKey('status') && r['status'] == 'OK') {
+        var status = (r.containsKey('status')) ? r['status'] : '';
+        if (status == 'OK') {
           var now = DateTime.now().toUtc();
           activatedEvent!.outcomes.lastUpload = now;
           lastSuccessfulServerUpload.value = now;
-
-          Logger.logInfo('Check in successfully reported to server.');
+        } else {
+          result = ('Did not receive OK response. Got: $status');
         }
       } catch (e) {
-        Logger.logInfo("Couldn't decode server response to report.");
+        result = ("Couldn't decode server response to report.");
       }
     } else {
-      Logger.logInfo("Error response from server when sending report.");
+      result = ("Error response from server when sending report.");
     }
 
-    Logger.logInfo("POST Status: ${response.statusCode}; Body: ${response.body}");
+    if (result == null) {
+      result = ('Check in data successfully uploaded to server.');
+      SnackbarGlobal.show(result);
+    } else {
+      SnackbarGlobal.show("Failed to upload checkin: $result");
+    }
+    MyLogger.logInfo(result);
+    MyLogger.logInfo(
+        "POST Status: ${response.statusCode}; Body: ${response.body}");
   }
-
 
   static Map<String, dynamic> constructReport(
       {int? controlIndex, // Set if we are checking into a control
@@ -173,10 +179,10 @@ class Current {
     if (comment != null) report['comment'] = comment;
     report['outcome'] = outcomes!;
 
-    report['app_version']=AppSettings.version;
-    report['proximity_radius']=AppSettings.proximityRadius;
-    report['open_override']=AppSettings.openTimeOverride?"YES":"NO";
-    report['preride']= (activatedEvent!.isPreride)?"YES":"NO";
+    report['app_version'] = AppSettings.version;
+    report['proximity_radius'] = AppSettings.proximityRadius;
+    report['open_override'] = AppSettings.openTimeOverride ? "YES" : "NO";
+    report['preride'] = (activatedEvent!.isPreride) ? "YES" : "NO";
 
     report['rider_location'] = RiderLocation.latLongFullString;
     report['last_loc_update'] = RiderLocation.lastLocationUpdateUTCString;
@@ -203,7 +209,7 @@ class Current {
             ? EventOutcomes.toJson(value)
             : throw FormatException('Cannot convert to JSON: $value'));
 
-    Logger.logInfo("Sending JSON: $reportJSON");
+    MyLogger.logInfo("Sending JSON: $reportJSON");
 
     return http.post(
       Uri.parse(url),

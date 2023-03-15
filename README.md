@@ -136,7 +136,12 @@ be useful to record/display. These include indications whether the ride is a pre
 - `signature` the first 8 hex digits of the SHA256 hash of a plaintext string. The plaintext is 
 the timestamp, the event ID, the rider ID, and a club/region secret separated by dashes. The Club/Region webserver should reject checkin records that do not bear a correct signature. This prevents "spoofing" results into the server as well as general exploitation of the URL. 
 
-
+The brevet start code is similar to the signature. The start code is the first 4 
+hex digits of the SHA256 hash
+of plaintext comprising the cue version, the event ID, the rider RUSA ID, and the 
+club/region secret separated by dashes. In the hex result, a "X" is substituted for the digit "0" and
+a "Y" is substituted for the digit "1" to avoid confusion with "O" and "I". Start code
+comparisons should be case insensitive. 
 
 ## Randonneuring Resources:
 

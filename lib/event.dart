@@ -19,7 +19,7 @@ import 'control.dart';
 import 'time_till.dart';
 import 'region.dart';
 import 'app_settings.dart';
-import 'logger.dart';
+import 'mylogger.dart';
 
 // The Event object documents an event details
 // with no reference to who is riding the event
@@ -81,7 +81,7 @@ class Event {
           ? json['club_acp_code']
           : int.tryParse(json['club_acp_code'])!;
       List<dynamic> controlsListMap = json['controls'];
-      Logger.logInfo(
+      MyLogger.logInfo(
           'Event.fromMap() restored $name from JSON. Found ${controlsListMap.length} controls.');
       controls.clear();
       for (var i = 0; i < controlsListMap.length; i++) {
@@ -97,7 +97,7 @@ class Event {
     } catch (error) {
       var etxt = "Error converting JSON future event response: $error";
       SnackbarGlobal.show(etxt);
-      Logger.logInfo(etxt);
+      MyLogger.logInfo(etxt);
     }
   }
 

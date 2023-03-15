@@ -22,7 +22,7 @@ import 'region.dart';
 import 'event.dart';
 import 'outcome.dart';
 import 'day_night.dart';
-import 'logger.dart';
+import 'mylogger.dart';
 
 class PastEventsPage extends StatefulWidget {
   const PastEventsPage({super.key});
@@ -196,7 +196,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
             builder: (context) => ViewPage(pe!),
           ));
         } else {
-          Logger.logInfo("Not mounted!?");
+          MyLogger.logInfo("Not mounted!?");
         }
       },
       child: const Text("VIEW"),
@@ -242,8 +242,6 @@ class ViewPage extends StatelessWidget {
           ),
         ));
   }
-
-  // TODO Start codes shouldn't have 0's or 1's in them.
 
   // TODO Pretty this up and add more analytics
 

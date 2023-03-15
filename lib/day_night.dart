@@ -25,6 +25,8 @@ class DayNight extends ChangeNotifier {
         _color = color;
   ThemeMode get mode => _mode;
 
+  ThemeData get themeData => (_mode == ThemeMode.light) ? dayTheme : nightTheme;
+
   get dayTheme => ThemeData(
         useMaterial3: true,
         // colorScheme: ColorScheme.light(),

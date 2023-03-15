@@ -28,7 +28,7 @@ import 'current.dart';
 import 'signature.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
-import 'logger.dart';
+import 'mylogger.dart';
 import 'ticker.dart';
 
 // TODO automatic periodic updating of the events
@@ -320,7 +320,7 @@ class _EventCardState extends State<EventCard> {
                 ))
                 .then((_) => setState(() {}));
           } else {
-            Logger.logInfo("Not mounted!?");
+            MyLogger.logInfo("Not mounted!?");
           }
         }
       },
@@ -332,28 +332,26 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  // TODO fold cue-version into start code
-
-  String? validateStartCode(String? startCode, Event event) {
-    if (startCode == null || startCode.isEmpty) {
-      return "Missing start code";
-    }
-
-    if (startCode == AppSettings.magicStartCode) return null;
-
+  String? validateStartCode(String? s, Event event) {
+    if (s == null || s.isEmpty) return "Missing start code";
     if (false == AppSettings.isRusaIDSet) return "Rider not set.";
     if (FutureEvents.region == null) return "No region. ";
 
+    var startCode = Signature.substituteZeroOneXY(s.toUpperCase());
+    var magicCode = Signature.substituteZeroOneXY(AppSettings.magicStartCode.toUpperCase());
+
+    if (startCode == magicCode) return null;
+
     var rusaID = AppSettings.rusaID;
 
-    // var cueVersion = event.cueVersion.toString();
+    var cueVersion = event.cueVersion.toString();
 
-    var signature = Signature(riderID: rusaID, event: event, codeLength: 4);
+    var signature = Signature(data: cueVersion, riderID: rusaID, event: event, codeLength: 4);
 
-    var validCode = signature.text.toUpperCase();
+    var validCode = Signature.substituteZeroOneXY(signature.text.toUpperCase());
 
-    if (validCode != startCode.toUpperCase()) {
-      Logger.logInfo(
+    if (validCode != startCode) {
+      MyLogger.logInfo(
           "Invalid Start Code $startCode; Valid code is '$validCode'");
       return "Invalid Start Code.";
     }

@@ -26,8 +26,6 @@ import 'region.dart';
 import 'region_data.dart';
 import 'day_night.dart';
 
-// TODO Access control for Advanced settings
-
 class AppSettings {
   // static bool get isPrerideMode =>
   //     Settings.getValue<bool>('key-preride-mode', defaultValue: false)!;
@@ -142,15 +140,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-  // This should be called when the RUSA ID changes or for any other
-  // time when we want to blow away previous rider event records.
-
-  //  void _clear() {
-  //   FutureEvents.clear();
-  //   Current.clear();
-  //   EventHistory.clear();
-  // }
-
   @override
   Widget build(BuildContext context) {
     var dayNight = context.watch<DayNight>();
@@ -158,7 +147,7 @@ class SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Past Events',
+          'Settings',
           //style: TextStyle(fontSize: 14),
         ),
         actions: [
@@ -198,7 +187,9 @@ class SettingsPageState extends State<SettingsPage> {
               const SizedBox(
                 height: 25,
               ),
-              advancedSettings(dayNight),
+              AppSettings.rusaID == AppSettings.maxRUSAID.toString()
+                  ? advancedSettings()
+                  : const SizedBox.shrink(),
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
@@ -212,62 +203,64 @@ class SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  ExpandableSettingsTile advancedSettings(DayNight dayNight) {
+  ExpandableSettingsTile advancedSettings() {
+    var dayNight = context.watch<DayNight>();
+
     return ExpandableSettingsTile(
-              title: 'Advanced Options',
-              children: <Widget>[
-                ColorPickerSettingsTile(
-                  title: 'Theme Color',
-                  settingKey: 'key-theme-color',
-                  onChange: (p0) {
-                    dayNight.color = p0;
-                  },
-                ),
-                TextInputSettingsTile(
-                  settingKey: 'key-magic-start_code',
-                  title: 'Magic Start Code',
-                  // subtitle: 'Cheat code for starting any event',
-                  initialValue: 'XYZZY',
-                  validator: textFieldValidator,
-                ),
-                RadioSettingsTile<int>(
-                  leading: const Icon(Icons.social_distance),
-                  title: 'Control Proximity Radius',
-                  subtitle: 'Distance from control that allows check-in',
-                  settingKey: 'key-control-proximity-thresh',
-                  values: const <int, String>{
-                    100: '100 m',
-                    500: '500 m',
-                    2500: '2.5 km',
-                    12500: '12.5 km',
-                    AppSettings.infiniteDistance: 'Infinite',
-                  },
-                  selected: 500,
-                ),
-                SwitchSettingsTile(
-                  title: "Open Time Override",
-                  settingKey: "key-open-time-override",
-                  subtitle: "Ignore control open/close time.",
-                  leading: const Icon(Icons.free_cancellation),
-                ),
-                SwitchSettingsTile(
-                  title: "Preride Date Window Override",
-                  settingKey: "key-preride-date-window-override",
-                  subtitle: "Preride any time.",
-                  leading: const Icon(Icons.free_cancellation),
-                ),
-                // SliderSettingsTile(
-                //   settingKey: 'key-location-poll-period',
-                //   title: 'Period of Location Poll (seconds)',
-                //   subtitle: "How often the GPS location is updated.",
-                //   defaultValue: 60,
-                //   min: 10,
-                //   max: 120,
-                //   step: 10,
-                //   leading: const Icon(Icons.access_time),
-                // ),
-              ],
-            );
+      title: 'Advanced Options',
+      children: <Widget>[
+        ColorPickerSettingsTile(
+          title: 'Theme Color',
+          settingKey: 'key-theme-color',
+          onChange: (p0) {
+            dayNight.color = p0;
+          },
+        ),
+        TextInputSettingsTile(
+          settingKey: 'key-magic-start_code',
+          title: 'Magic Start Code',
+          // subtitle: 'Cheat code for starting any event',
+          initialValue: 'XYZZY',
+          validator: textFieldValidator,
+        ),
+        RadioSettingsTile<int>(
+          leading: const Icon(Icons.social_distance),
+          title: 'Control Proximity Radius',
+          subtitle: 'Distance from control that allows check-in',
+          settingKey: 'key-control-proximity-thresh',
+          values: const <int, String>{
+            100: '100 m',
+            500: '500 m',
+            2500: '2.5 km',
+            12500: '12.5 km',
+            AppSettings.infiniteDistance: 'Infinite',
+          },
+          selected: 500,
+        ),
+        SwitchSettingsTile(
+          title: "Open Time Override",
+          settingKey: "key-open-time-override",
+          subtitle: "Ignore control open/close time.",
+          leading: const Icon(Icons.free_cancellation),
+        ),
+        SwitchSettingsTile(
+          title: "Preride Date Window Override",
+          settingKey: "key-preride-date-window-override",
+          subtitle: "Preride any time.",
+          leading: const Icon(Icons.free_cancellation),
+        ),
+        // SliderSettingsTile(
+        //   settingKey: 'key-location-poll-period',
+        //   title: 'Period of Location Poll (seconds)',
+        //   subtitle: "How often the GPS location is updated.",
+        //   defaultValue: 60,
+        //   min: 10,
+        //   max: 120,
+        //   step: 10,
+        //   leading: const Icon(Icons.access_time),
+        // ),
+      ],
+    );
   }
 
   String? textFieldValidator(String? value) {
@@ -280,14 +273,15 @@ class SettingsPageState extends State<SettingsPage> {
   void _showAboutDialog() {
     showAboutDialog(
         context: context,
-        applicationName: 'eBrevetCard',
+        applicationName: 'eBrevet',
         applicationIcon: Image.asset(
           'assets/images/eBrevet-128.png',
           width: 64,
         ),
-        applicationVersion: "v${AppSettings.version ?? '?'}",
+        applicationVersion:
+            "v${AppSettings.version ?? '?'}(${AppSettings.buildNumber})",
         applicationLegalese:
-            '(c)2023 Chris Nadovich. This free application is licensed under GPLv3.',
+            '(c)2023 Chris Nadovich. This is free software licensed under GPLv3.',
         children: [
           const SizedBox(
             height: 16,

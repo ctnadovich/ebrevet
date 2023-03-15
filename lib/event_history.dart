@@ -21,7 +21,7 @@ import 'outcome.dart';
 import 'control.dart';
 import 'app_settings.dart';
 import 'current.dart';
-import 'logger.dart';
+import 'mylogger.dart';
 
 // PastEvents are events with outcomes
 // when a plain Event is "activated" it becomes
@@ -213,20 +213,20 @@ class EventHistory {
   static Future<int> load() async {
     var storage = FileStorage(pastEventsFileName);
     try {
-      Logger.logInfo("** Loading event history from DISK");
+      MyLogger.logInfo("** Loading event history from DISK");
       var pastEventsFromFile =
           await storage.readJSON(); //  as Map <String, PastEvent>;
       if (pastEventsFromFile.isNotEmpty) {
         _pastEventMap = fromJsonMap(pastEventsFromFile);
-        Logger.logInfo(
+        MyLogger.logInfo(
             "EventHistory.load() restored ${_pastEventMap.length} past activated events.");
         return _pastEventMap.length;
       } else {
-        Logger.logInfo("Empty, missing, or undecodable file: $pastEventsFileName");
+        MyLogger.logInfo("Empty, missing, or undecodable file: $pastEventsFileName");
         return 0;
       }
     } catch (e) {
-      Logger.logInfo("Couldn't fetch past events from file: $e");
+      MyLogger.logInfo("Couldn't fetch past events from file: $e");
       return 0;
     }
   }
@@ -236,9 +236,9 @@ class EventHistory {
     try {
       storage.writeJSON(_pastEventMap);
 
-      Logger.logInfo("Saved  ${_pastEventMap.keys.length} events to file.");
+      MyLogger.logInfo("Saved  ${_pastEventMap.keys.length} events to file.");
     } catch (e) {
-      Logger.logInfo("Couldn't save past events to file.");
+      MyLogger.logInfo("Couldn't save past events to file.");
     }
   }
 

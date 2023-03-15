@@ -48,4 +48,13 @@ class Signature {
         ciphertext.toString().substring(0, codeLength).toUpperCase();
     return startCode;
   }
+
+  static String substituteZeroOneXY(String s){
+    return s.replaceAll('0', 'X').replaceAll('1', 'Y');
+  }
+
+  static String substituteXYZeroOne(String s){
+    return s.replaceAll('X', '0').replaceAll('Y', '1');
+  }
+
 }

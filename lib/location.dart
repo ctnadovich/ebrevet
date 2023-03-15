@@ -20,7 +20,7 @@ import 'package:geolocator/geolocator.dart';
 import 'control.dart';
 import 'exception.dart';
 import 'app_settings.dart';
-import 'logger.dart';
+import 'mylogger.dart';
 
 class RiderLocation {
   static Position? riderLocation;
@@ -47,12 +47,12 @@ class RiderLocation {
                 desiredAccuracy: LocationAccuracy.high)
             .timeout(const Duration(seconds: 5));
         lastLocationUpdate.value = DateTime.now();
-        Logger.logInfo(
+        MyLogger.logInfo(
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
       }
     } catch (e) {
       // SnackbarGlobal.show(e.toString());
-      Logger.logInfo('GPS Error: ${e.toString()}');
+      MyLogger.logInfo('GPS Error: ${e.toString()}');
     }
   }
 

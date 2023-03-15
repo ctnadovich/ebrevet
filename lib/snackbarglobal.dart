@@ -20,14 +20,35 @@ class SnackbarGlobal {
   static GlobalKey<ScaffoldMessengerState> key =
       GlobalKey<ScaffoldMessengerState>();
 
-  static void show(String message) {
+
+  static void show(String message, {Color? color}) {
+
+    var themeColor = Theme.of(key.currentContext!).primaryColorDark;
+
     key.currentState!
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(
-          content: Text(message))
-          ); 
-          
-          // TODO Better formatting, adjust timeout. 
-          // Verify that standalone uses are true user viewable and not developer errors
+        content: Container(
+            padding: const EdgeInsets.all(16),
+            height: 90,
+            decoration:  BoxDecoration(
+                color: color ?? themeColor,
+                borderRadius: const BorderRadius.all(Radius.circular(20.0))),
+            child: Column(
+              children: [
+                Text(
+                  message,
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            )),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 6),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ));
+
   }
 }

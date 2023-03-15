@@ -30,17 +30,17 @@ import 'future_events.dart';
 import 'region.dart';
 import 'current.dart';
 import 'day_night.dart';
-import 'logger.dart';
+import 'mylogger.dart';
 
 void main() {
   initSettings().then((_) {
-    Logger.logInfo("** runApp(MyApp)");
+    MyLogger.logInfo("** runApp(MyApp)");
     runApp(const MyApp());
   });
 }
 
 Future<void> initSettings() async {
-  Logger.logInfo('Init settings start...');
+  MyLogger.logInfo('Init settings start...');
   await Settings.init(
     cacheProvider: SharePreferenceCache(),
   );
@@ -48,7 +48,7 @@ Future<void> initSettings() async {
   await FutureEvents.refreshEventsFromDisk(Region.fromSettings());
   // .then((_) =>
   await EventHistory.load();
-  Logger.logInfo('...Init settings end');
+  MyLogger.logInfo('...Init settings end');
 }
 
 class MyApp extends StatelessWidget {
@@ -273,21 +273,5 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Future openRusaIDDialog() => showDialog(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //         title: const Text('Enter RUSA ID'),
-  //         // content: Column(
-  //         //   mainAxisSize: MainAxisSize.min,
-  //         //   children: [],
-  //         // ),
-  //         actions: [
-  //           TextButton(
-  //               onPressed: () {
-  //                 // submitRusaIDDialog();
-  //               },
-  //               child: const Text('Submit'))
-  //         ],
-  //       ),
-  //     );
+
 }

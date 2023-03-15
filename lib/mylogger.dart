@@ -29,7 +29,7 @@ class LogRecord{
   }
 }
 
-class Logger {
+class MyLogger {
   static List <LogRecord> log = [];
 
   static const int logLength = 100; 
