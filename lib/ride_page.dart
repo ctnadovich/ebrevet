@@ -28,6 +28,9 @@ import 'app_settings.dart';
 import 'day_night.dart';
 import 'ticker.dart';
 
+// TODO Does the ride page need a progress indicator waiting for 
+// the first GPS update
+
 class RidePage extends StatefulWidget {
   const RidePage({super.key});
   @override

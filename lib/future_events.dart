@@ -104,7 +104,6 @@ class FutureEvents {
     } catch (error) {
       // events.clear();
       SnackbarGlobal.show(error.toString());
-      // TODO format this and adjust the text (maybe need custom exception class?)
       MyLogger.logInfo("Error refreshing events: $error");
       return false;
     }

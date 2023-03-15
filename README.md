@@ -58,7 +58,7 @@ version of the eBrevet app.
 
 Once you have started the event you need to check in to every control, including the start control. To be able to check in to a control, you need to be physically near the control and the time of day must be within the open/close interval of that control. When you are eligible to check in, a "Check In" button will appear. 
 
-After you check in, you will see either a red three-dots icon, or a green check. The green check means you've checked in and your check-in time has been uploaded to the Club/Region. If you see a red threee-dots icon, that means the app itself has recorded your check-in, but your check-in has not been uploaded to the Club/Region yet. This will occur if your phone is in 
+After you check in, you will see either a red three-dots icon, or a green check. The green check means you've checked in and your check-in time has been uploaded to the Club/Region. If you see a red three-dots icon, that means the app itself has recorded your check-in, but your check-in has not been uploaded to the Club/Region yet. This will occur if your phone is in 
 Airplane Mode or if there is no data service on your phone. At some point in the future when your phone has internet service again, press the "Upload Results" button and you should see all your red marks turn into green checks. 
 
 **IMPORTANT:** *Be sure all your controls show green checks at the end of the event. When all your controls are green you have officially completed the event and your results have been recorded at the Club/Region. If you still have some red marks next to controls, you need to find working Internet service and upload your results ASAP.*
@@ -136,10 +136,12 @@ be useful to record/display. These include indications whether the ride is a pre
 - `signature` the first 8 hex digits of the SHA256 hash of a plaintext string. The plaintext is 
 the timestamp, the event ID, the rider ID, and a club/region secret separated by dashes. The Club/Region webserver should reject checkin records that do not bear a correct signature. This prevents "spoofing" results into the server as well as general exploitation of the URL. 
 
-The brevet start code is similar to the signature. The start code is the first 4 
+The brevet start code is similar to the signature. 
+The start code is the first 4 
 hex digits of the SHA256 hash
 of plaintext comprising the cue version, the event ID, the rider RUSA ID, and the 
-club/region secret separated by dashes. In the hex result, a "X" is substituted for the digit "0" and
+club/region secret separated by dashes. In the hex result, 
+a "X" is substituted for the digit "0" and
 a "Y" is substituted for the digit "1" to avoid confusion with "O" and "I". Start code
 comparisons should be case insensitive. 
 
