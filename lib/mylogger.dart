@@ -37,6 +37,6 @@ class MyLogger {
   static void logInfo(String s){
     log.add(LogRecord(Severity.info, s));
     if(log.length>logLength) log.removeAt(0);
-    print("${log.length}:$s");
+    print("LOG: $s");
   }
 }
