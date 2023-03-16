@@ -78,8 +78,8 @@ class _RidePageState extends State<RidePage> {
         lastLocationUpdateText = 'Location found $agoText';
       } else {
         lastLocationUpdateText = "GPS OFF! Last update: $agoText";
-        lastLocationUpdateTextStyle = const TextStyle(fontWeight: FontWeight.bold,
-        fontSize: 15);
+        lastLocationUpdateTextStyle =
+            const TextStyle(fontWeight: FontWeight.bold, fontSize: 15);
       }
     } else {
       lastLocationUpdateText = "Rider Location Not Known!";
@@ -149,6 +149,20 @@ class ControlCard extends StatefulWidget {
 }
 
 class _ControlCardState extends State<ControlCard> {
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
@@ -338,11 +352,11 @@ class _ControlCardState extends State<ControlCard> {
             text: 'At control${proximityRadiusInfinite ? "*" : ""}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-        if (!near && RiderLocation.riderLocation!=null)
+        if (!near && RiderLocation.riderLocation != null)
           const TextSpan(
             text: 'Not near',
           ),
-          if (RiderLocation.riderLocation==null)
+        if (RiderLocation.riderLocation == null)
           const TextSpan(
             text: 'Dist ??',
           ),
@@ -388,6 +402,12 @@ class _ControlCardState extends State<ControlCard> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+              TextField(
+                decoration:
+                    const InputDecoration(hintText: 'Comment (optional)'),
+                controller: controller,
+                onSubmitted: (_) => submitCheckInDialog(),
+              ),
             ],
           ),
           actions: [
@@ -403,7 +423,9 @@ class _ControlCardState extends State<ControlCard> {
   void submitCheckInDialog() {
     setState(() {
       if (Current.event != null) {
-        Current.controlCheckIn(control: widget.control, comment: 'No Comment');
+        Current.controlCheckIn(
+            control: widget.control, comment: controller.text);
+        controller.clear();
       } else {
         SnackbarGlobal.show('No current event to check into.');
       }
