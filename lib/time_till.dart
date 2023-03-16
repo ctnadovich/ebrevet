@@ -41,7 +41,7 @@ class TimeTill {
       s = (days == 1) ? '' : 's';
     } else if (hours > 0) {
       interval = myToStringAsFixed(minutes / 60.0);
-      unit = 'hour';
+      unit = 'hr';
       if (interval == '1' || interval == '1.0') {
         s = '';
         interval = '1';
@@ -50,7 +50,7 @@ class TimeTill {
       }
     } else if (minutes >= 1) {
       interval = myToStringAsFixed(seconds / 60.0);
-      unit = 'minute';
+      unit = 'min';
       if (interval == '1' || interval == '1.0') {
         s = '';
         interval = '1';
@@ -58,7 +58,7 @@ class TimeTill {
         s = 's';
       }
     } else {
-      interval = 'less than 1 minute';
+      interval = 'less than 1 min';
       s = '';
       unit = '';
     }

@@ -39,6 +39,7 @@ class SnackbarGlobal {
                 Text(
                   message,
                   style: const TextStyle(fontSize: 16, color: Colors.white),
+                  textAlign: TextAlign.center,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),

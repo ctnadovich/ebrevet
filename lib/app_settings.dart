@@ -48,7 +48,7 @@ class AppSettings {
   static const int startableTimeWindowMinutes = 60;
   static const int prerideTimeWindowDays = 15;
   static const int httpGetTimeoutSeconds = 15;
-  static const int timeRefreshPeriod = 60;
+  static const int timeRefreshPeriod = 20;
   static const int maxRUSAID = 99999;
 
   static Color get themeColor {

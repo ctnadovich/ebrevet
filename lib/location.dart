@@ -21,20 +21,23 @@ import 'control.dart';
 import 'exception.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
+import 'snackbarglobal.dart';
 
 class RiderLocation {
   static Position? riderLocation;
-  static ValueNotifier <DateTime?> lastLocationUpdate = ValueNotifier(null);
+  static DateTime? lastLocationUpdate;
 
   static bool gpsServiceEnabled = false;
 
-  static void updateLocation() async {  // Consider automatic periodic report to remote server?  
+// Consider automatic periodic report to remote server?  
                                         // of location not just when checiking in
                                         // Perhaps as settings option with different period
+
+  static Future <void> updateLocation() async {  
     try {
-      var gpsServiceEnabled = await Geolocator.isLocationServiceEnabled();
+      gpsServiceEnabled = await Geolocator.isLocationServiceEnabled();
       if (gpsServiceEnabled == false) {
-        throw GPSException('GPS Service Not Enabled.');
+        throw GPSException('GPS service not available.');
       } else {
         var permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied) {
@@ -46,12 +49,12 @@ class RiderLocation {
         riderLocation = await Geolocator.getCurrentPosition(
                 desiredAccuracy: LocationAccuracy.high)
             .timeout(const Duration(seconds: 5));
-        lastLocationUpdate.value = DateTime.now();
+        lastLocationUpdate = DateTime.now();
         MyLogger.logInfo(
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
       }
     } catch (e) {
-      // SnackbarGlobal.show(e.toString());
+      SnackbarGlobal.show(e.toString());
       MyLogger.logInfo('GPS Error: ${e.toString()}');
     }
   }
@@ -66,25 +69,25 @@ static get latLongFullString {
   }
 
   static get lastLocationUpdateString {
-    return (lastLocationUpdate.value == null)
+    return (lastLocationUpdate == null)
         ? 'Never'
-        : (lastLocationUpdate.value.toString()).substring(11, 16);
+        : (lastLocationUpdate.toString()).substring(11, 16);
   }
 
  static get lastLocationUpdateMinutesAgoString {
-    if(lastLocationUpdate.value == null) return 'unknown';
-    return DateTime.now().difference(lastLocationUpdate.value!).inMinutes.toString();
+    if(lastLocationUpdate == null) return 'unknown';
+    return DateTime.now().difference(lastLocationUpdate!).inMinutes.toString();
  }
 
 
 static get lastLocationUpdateUTCString {
-    return (lastLocationUpdate.value == null)
+    return (lastLocationUpdate == null)
         ? 'Never'
-        : (lastLocationUpdate.value!.toUtc().toIso8601String());
+        : (lastLocationUpdate!.toUtc().toIso8601String());
   }
 
   static get lastLocationUpdateTimeZoneName {
-    return (lastLocationUpdate.value == null) ? '' : lastLocationUpdate.value!.timeZoneName;
+    return (lastLocationUpdate == null) ? '' : lastLocationUpdate!.timeZoneName;
   }
 }
 

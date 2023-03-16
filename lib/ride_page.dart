@@ -28,7 +28,7 @@ import 'app_settings.dart';
 import 'day_night.dart';
 import 'ticker.dart';
 
-// TODO Does the ride page need a progress indicator waiting for 
+// TODO Does the ride page need a progress indicator waiting for
 // the first GPS update
 
 class RidePage extends StatefulWidget {
@@ -47,7 +47,10 @@ class _RidePageState extends State<RidePage> {
 
     ticker.init(
       period: AppSettings.timeRefreshPeriod,
-      onTick: RiderLocation.updateLocation,
+      onTick: () async {
+        await RiderLocation.updateLocation();
+        if (mounted) setState(() {});
+      },
     );
   }
 
@@ -63,6 +66,25 @@ class _RidePageState extends State<RidePage> {
     var eventText =
         (Current.isActivated) ? Current.event!.nameDist : 'No event';
     var dayNight = context.watch<DayNight>();
+    var lastLocationUpdate = RiderLocation.lastLocationUpdate;
+
+    String lastLocationUpdateText = "Rider Location Not Known!";
+    TextStyle? lastLocationUpdateTextStyle;
+    if (lastLocationUpdate != null) {
+      var ttLastLocationUpdate = TimeTill(lastLocationUpdate);
+      var agoText =
+          '${ttLastLocationUpdate.interval} ${ttLastLocationUpdate.unit}${ttLastLocationUpdate.ago}';
+      if (RiderLocation.gpsServiceEnabled) {
+        lastLocationUpdateText = 'Location found $agoText';
+      } else {
+        lastLocationUpdateText = "GPS OFF! Last update: $agoText";
+        lastLocationUpdateTextStyle = const TextStyle(fontWeight: FontWeight.bold,
+        fontSize: 15);
+      }
+    } else {
+      lastLocationUpdateText = "Rider Location Not Known!";
+      lastLocationUpdateTextStyle = Theme.of(context).textTheme.bodyLarge;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -83,50 +105,36 @@ class _RidePageState extends State<RidePage> {
         color: Theme.of(context).colorScheme.primaryContainer,
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
         child: Center(
-          child: ValueListenableBuilder(
-              valueListenable: RiderLocation.lastLocationUpdate,
-              builder: (context, value, child) {
-                return ListView(
-                  children: <Widget>[
-                        Text(
-                          (isPreride)
-                              ? 'Volunteer Preride'
-                              : 'Scheduled Brevet',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        // (Current.outcomes?.overallOutcome == OverallOutcome.dns)
-                        //     ? SizedBox.shrink()
-                        //     : Text(
-                        //         "${Current.activatedEvent?.checkInFractionString ?? ''} "
-                        //         "(${Current.activatedEvent?.isFullyUploadedString ?? ''})",
-                        //         style: TextStyle(
-                        //             fontWeight: Current.activatedEvent
-                        //                         ?.isCurrentOutcomeFullyUploaded ??
-                        //                     false
-                        //                 ? FontWeight.normal
-                        //                 : FontWeight.bold),
-                        //       ),
-                        Text(
-                          'At ${RiderLocation.lastLocationUpdateString} ${RiderLocation.lastLocationUpdateTimeZoneName} '
-                          'location was ${RiderLocation.latLongString}',
-                          textAlign: TextAlign.center,
-                        ),
-                        Row(
-                          children: [
-                            ElevatedButton(
-                                onPressed: () => RiderLocation.updateLocation(),
-                                child: const Text("GPS Refresh")),
-                            const Spacer(),
-                            ElevatedButton(
-                                onPressed: () =>
-                                    Current.constructReportAndSend(),
-                                child: const Text("Upload results")),
-                          ],
-                        ),
-                      ] +
-                      [for (var c in controlList) ControlCard(c)],
-                );
-              }),
+          child: ListView(
+            children: <Widget>[
+                  Text(
+                    (isPreride) ? 'Volunteer Preride' : 'Scheduled Brevet',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    lastLocationUpdateText,
+                    textAlign: TextAlign.center,
+                    style: lastLocationUpdateTextStyle,
+                  ),
+                  Row(
+                    children: [
+                      // RiderLocation.gpsServiceEnabled
+                      //     ?
+                      ElevatedButton(
+                          onPressed: () => RiderLocation.updateLocation(),
+                          child: const Text("GPS Update")),
+                      //    const ElevatedButton(
+                      //       onPressed: null, child: Text("GPS Off")),
+                      const Spacer(),
+                      ElevatedButton(
+                          onPressed: () => Current.constructReportAndSend(),
+                          child: const Text("Upload results")),
+                    ],
+                  ),
+                ] +
+                [for (var c in controlList) ControlCard(c)],
+          ),
         ),
       ),
     );
@@ -299,7 +307,7 @@ class _ControlCardState extends State<ControlCard> {
     if (checkInTime != null) {
       var checkInIcon = (lastUpload != null && lastUpload.isAfter(checkInTime))
           ? const Icon(Icons.check_circle, color: Colors.green)
-          : const Icon(Icons.pending_sharp, color: Colors.red);
+          : const Icon(Icons.pending_sharp, color: Colors.orangeAccent);
       return Column(
         children: [
           checkInIcon,
@@ -330,9 +338,13 @@ class _ControlCardState extends State<ControlCard> {
             text: 'At control${proximityRadiusInfinite ? "*" : ""}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-        if (!near)
+        if (!near && RiderLocation.riderLocation!=null)
           const TextSpan(
             text: 'Not near',
+          ),
+          if (RiderLocation.riderLocation==null)
+          const TextSpan(
+            text: 'Dist ??',
           ),
       ]));
     } else {

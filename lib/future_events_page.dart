@@ -30,8 +30,7 @@ import 'app_settings.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
 import 'ticker.dart';
-
-// TODO automatic periodic updating of the events
+import 'time_till.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -40,10 +39,7 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
-  // Future<DateTime>? lastTime;
-
   bool fetchingFromServerNow = false;
-
   Ticker ticker = Ticker();
 
   @override
@@ -68,6 +64,9 @@ class _EventsPageState extends State<EventsPage> {
   Widget build(BuildContext context) {
     var events = FutureEvents.events;
     var dayNight = context.watch<DayNight>();
+    var ttLastRefreshed = FutureEvents.lastRefreshed != null
+        ? TimeTill(FutureEvents.lastRefreshed!)
+        : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -96,7 +95,8 @@ class _EventsPageState extends State<EventsPage> {
                 // SizedBox(height: 2),
                 ElevatedButton.icon(
                   onPressed: () {
-                    SnackbarGlobal.show('Refreshing Future Events...');
+                    SnackbarGlobal.show(
+                        'Updating events from server... (This may take a few seconds.)');
                     setState(() {
                       fetchingFromServerNow = true;
                     });
@@ -106,17 +106,23 @@ class _EventsPageState extends State<EventsPage> {
                             setState(() => fetchingFromServerNow = false));
                   },
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Refresh Events from Server'),
+                  label: const Text('Update Events from Server'),
                 ),
                 Text(
                   'Future events for: ${Region.fromSettings().clubName}',
                   textAlign: TextAlign.center,
                 ),
                 Text(
-                  'Last refreshed: ${FutureEvents.lastRefreshedStr}',
+                  ttLastRefreshed != null
+                      ? 'Last updated: ${ttLastRefreshed.interval} ${ttLastRefreshed.unit}${ttLastRefreshed.ago}'
+                      : 'Update Events Now!',
                   textAlign: TextAlign.center,
                 ),
-                // Text('Rider: RUSA #${AppSettings.rusaID}'),
+                const Text(
+                  'Update events before you ride!',
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                  textAlign: TextAlign.center,
+                ),
                 ...events.map((e) => EventCard(e)), // All the Event Cards
               ],
             ),
@@ -204,9 +210,10 @@ class _EventCardState extends State<EventCard> {
                 Text(regionName),
                 Text('${widget.event.startCity}, ${widget.event.startState}'),
                 Text('${widget.event.dateTime} (${widget.event.statusText})'),
-                Text(
-                    'Organizer: ${widget.event.organizerName} (${widget.event.organizerPhone})'),
                 Text('Latest Cue Ver: ${widget.event.cueVersionString}'),
+                const Text('Organizer (Call if abandoning):'),
+                Text(
+                    '  ${widget.event.organizerName} ${widget.event.organizerPhone}'),
               ],
             ),
           ),
@@ -338,7 +345,8 @@ class _EventCardState extends State<EventCard> {
     if (FutureEvents.region == null) return "No region. ";
 
     var startCode = Signature.substituteZeroOneXY(s.toUpperCase());
-    var magicCode = Signature.substituteZeroOneXY(AppSettings.magicStartCode.toUpperCase());
+    var magicCode =
+        Signature.substituteZeroOneXY(AppSettings.magicStartCode.toUpperCase());
 
     if (startCode == magicCode) return null;
 
@@ -346,7 +354,8 @@ class _EventCardState extends State<EventCard> {
 
     var cueVersion = event.cueVersion.toString();
 
-    var signature = Signature(data: cueVersion, riderID: rusaID, event: event, codeLength: 4);
+    var signature = Signature(
+        data: cueVersion, riderID: rusaID, event: event, codeLength: 4);
 
     var validCode = Signature.substituteZeroOneXY(signature.text.toUpperCase());
 

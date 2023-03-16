@@ -58,8 +58,8 @@ version of the eBrevet app.
 
 Once you have started the event you need to check in to every control, including the start control. To be able to check in to a control, you need to be physically near the control and the time of day must be within the open/close interval of that control. When you are eligible to check in, a "Check In" button will appear. 
 
-After you check in, you will see either a red three-dots icon, or a green check. The green check means you've checked in and your check-in time has been uploaded to the Club/Region. If you see a red three-dots icon, that means the app itself has recorded your check-in, but your check-in has not been uploaded to the Club/Region yet. This will occur if your phone is in 
-Airplane Mode or if there is no data service on your phone. At some point in the future when your phone has internet service again, press the "Upload Results" button and you should see all your red marks turn into green checks. 
+After you check in, you will see either a orange three-dots icon, or a green check. The green check means you've checked in and your check-in time has been uploaded to the Club/Region. If you see an orange three-dots icon, that means the app itself has recorded your check-in, but your check-in has not been uploaded to the Club/Region yet. This will occur if your phone is in 
+Airplane Mode or if there is no data service on your phone. At some point in the future when your phone has internet service again, press the "Upload Results" button and you should see all your orange marks turn into green checks. 
 
 **IMPORTANT:** *Be sure all your controls show green checks at the end of the event. When all your controls are green you have officially completed the event and your results have been recorded at the Club/Region. If you still have some red marks next to controls, you need to find working Internet service and upload your results ASAP.*
 
