@@ -3,7 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to location when open.</string>
+	<string>This app needs access to your location to report it
+	to the organizer of your chosen randonneuring event. This can provide 
+	electronic Proof of Passage for your ride as permitted by your 
+	organizer and allowed  
+	by the rules of randonneuring. </string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
