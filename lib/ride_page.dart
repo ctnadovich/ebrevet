@@ -27,9 +27,8 @@ import 'current.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
 import 'ticker.dart';
+import 'outcome.dart';
 
-// TODO Does the ride page need a progress indicator waiting for
-// the first GPS update
 
 class RidePage extends StatefulWidget {
   const RidePage({super.key});
@@ -117,6 +116,24 @@ class _RidePageState extends State<RidePage> {
                     textAlign: TextAlign.center,
                     style: lastLocationUpdateTextStyle,
                   ),
+
+
+(Current.outcomes?.overallOutcome == OverallOutcome.dns)
+                  ? const SizedBox.shrink()
+                  : Column(
+                      children: [
+                        Text(Current.activatedEvent?.checkInFractionString ?? ''),
+                        Text(
+                             Current.activatedEvent?.isFullyUploadedString ?? '',
+                          style: TextStyle(
+                              fontWeight: (Current.activatedEvent?.isCurrentOutcomeFullyUploaded ?? false)
+                                  ? FontWeight.normal
+                                  : FontWeight.bold),
+                        ),
+                      ],
+                    ),
+
+
                   Row(
                     children: [
                       // RiderLocation.gpsServiceEnabled
@@ -375,8 +392,6 @@ class _ControlCardState extends State<ControlCard> {
   }
 
   // TODO Posting result and elapsed time to roster
-
-  // TODO Enter comment,  "take photo", or answer the control question
 
   // TODO Convert some logger statements to exceptions -- in app notifications
 
