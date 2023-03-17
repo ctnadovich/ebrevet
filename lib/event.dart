@@ -34,9 +34,12 @@ class Event {
   late String distance; // Official distance in KM
   late String startCity;
   late String startState;
+  late String eventSanction;
+  late String eventType;
   String organizerName = "Not Set";
   String organizerPhone = 'Not Set';
   late int cueVersion;
+  late String eventInfoUrl;
   late String
       eventID; // This must be unique worldwide (could be contstructed "$regionID-$regionEventID")
 
@@ -53,9 +56,12 @@ class Event {
         'distance': distance,
         'start_city': startCity,
         'start_state': startState,
+        'sanction': eventSanction,
+        'type': eventType,
         'cue_version': cueVersion,
         'organizer_name': organizerName,
         'organizer_phone': organizerPhone,
+        'event_info_url': eventInfoUrl,
         'event_id': eventID,
         'club_acp_code': regionID,
         'controls': [for (var cntrl in controls) cntrl.toMap],
@@ -71,8 +77,11 @@ class Event {
       distance = json['distance'];
       startCity = json['start_city'];
       startState = json['start_state'];
+      eventSanction = json['sanction'] ?? "?";
+      eventType = json['type'] ?? "?";
       organizerName = json['organizer_name'] ?? "?";
       organizerPhone = json['organizer_phone'] ?? "?";
+      eventInfoUrl = json['event_info_url'] ?? "";
       cueVersion = (json['cue_version'] is int)
           ? json['cue_version']
           : int.tryParse(json['cue_version'])!;

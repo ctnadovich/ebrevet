@@ -53,7 +53,7 @@ class RiderLocation {
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
       }
     } catch (e) {
-      SnackbarGlobal.show(e.toString());
+      // SnackbarGlobal.show(e.toString());
       MyLogger.logInfo('GPS Error: ${e.toString()}');
     }
   }
