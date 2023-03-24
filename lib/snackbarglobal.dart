@@ -30,7 +30,7 @@ class SnackbarGlobal {
       ..showSnackBar(SnackBar(
         content: Container(
             padding: const EdgeInsets.all(16),
-            height: 100,
+            // height: 100, 
             decoration:  BoxDecoration(
                 color: color ?? themeColor,
                 borderRadius: const BorderRadius.all(Radius.circular(20.0))),
@@ -38,7 +38,7 @@ class SnackbarGlobal {
               children: [
                 Text(
                   message,
-                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                   textAlign: TextAlign.center,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,

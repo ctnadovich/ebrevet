@@ -256,6 +256,13 @@ class _ControlCardState extends State<ControlCard> {
     // }
   }
 
+
+  // TODO Automatic check-in of first control. 
+
+  // TODO Completion certificate
+
+  // TODO Control check-in code
+
   // TODO Posting result and elapsed time to roster
 
   // TODO Convert some logger statements to exceptions -- in app notifications

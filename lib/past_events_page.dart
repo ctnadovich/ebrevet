@@ -243,8 +243,6 @@ class ViewPage extends StatelessWidget {
         ));
   }
 
-  // TODO Completion code and completion fanfare/certificate
-
   // TODO Pretty this up and add more analytics
 
   // TODO should show download state and possibly offer download button

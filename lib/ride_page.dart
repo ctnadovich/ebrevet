@@ -41,7 +41,7 @@ class _RidePageState extends State<RidePage> {
     super.initState();
 
     ticker.init(
-      period: AppSettings.timeRefreshPeriod,
+      period: AppSettings.gpsRefreshPeriod,
       onTick: () async {
         await RiderLocation.updateLocation();
         if (mounted) setState(() {});

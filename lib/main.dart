@@ -19,16 +19,12 @@ import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 
 import 'package:ebrevet_card/event_history.dart';
 import 'package:ebrevet_card/app_settings.dart';
-import 'package:ebrevet_card/outcome.dart';
 import 'package:provider/provider.dart';
 
 import 'snackbarglobal.dart';
 import 'future_events_page.dart';
-import 'past_events_page.dart';
-import 'ride_page.dart';
 import 'future_events.dart';
 import 'region.dart';
-import 'current.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
 
@@ -91,187 +87,9 @@ class MyApp extends StatelessWidget {
             theme: dayNight.dayTheme,
             darkTheme: dayNight.nightTheme,
             themeMode: dayNight.mode,
-            home: const HomePage(),
+            home: const EventsPage(),
+//            home: const HomePage(),
           );
         }));
   }
-}
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  late TextEditingController controller;
-
-  // bool rusaError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    controller = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var dayNight = context.watch<DayNight>();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'eBrevet Card',
-        ),
-        actions: [
-          IconButton(
-              icon: dayNight.icon,
-              onPressed: () {
-                dayNight.toggleMode();
-              })
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.of(context)
-            .push(MaterialPageRoute(
-              builder: (context) => const SettingsPage(),
-            ))
-            .then((value) => setState(
-                  () {},
-                )),
-        child: const Icon(Icons.settings),
-      ),
-      body: (AppSettings.isRusaIDSet)
-          ? mainMenu(context)
-          : requiredSettings(), //  rusaIDField(),
-    );
-  }
-
-  Column requiredSettings() {
-    return Column(children: [
-      const Text('Enter your RUSA number and select a Club/Region:'),
-      const SizedBox(
-        height: 10,
-      ),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextFormField(
-          decoration: const InputDecoration(hintText: 'Enter your RUSA ID'),
-          autofocus: true,
-          controller: controller,
-          validator: (value) => AppSettings.rusaFieldValidator(value),
-          onChanged: (_) => submitRusaID(),
-        ),
-      ),
-      DropDownSettingsTile<int>(
-          title: 'Events Club',
-          settingKey: 'key-region',
-          selected: Region.defaultRegion,
-          values: <int, String>{
-            for (var k in Region.regionMap.keys)
-              k: Region.regionMap[k]!['clubName']!
-          }),
-      const SizedBox(
-        height: 15,
-      ),
-      ElevatedButton(onPressed: () => setState(() {}), child: const Text('Continue')),
-    ]);
-  }
-
-  void submitRusaID() {
-    var rusaIDString = controller.text.trim();
-    if (AppSettings.isValidRusaID(rusaIDString)) {
-      AppSettings.setRusaID(rusaIDString);
-      // controller.clear();
-    }
-  }
-
-  Container mainMenu(BuildContext context) {
-    var style = const TextStyle(
-      fontSize: 20,
-    );
-
-    return Container(
-      color: Theme.of(context).colorScheme.primaryContainer,
-      child: Center(
-        child: IntrinsicWidth(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(flex: 4),
-              ElevatedButton(
-                  onPressed: () => Navigator.of(context)
-                      .push(MaterialPageRoute(
-                        builder: (context) =>
-                            const EventsPage(), // will implicitly ride event just activated
-                      ))
-                      .then((value) => setState(
-                            () {},
-                          )),
-                  child: Text(
-                    'Future Events',
-                    style: style,
-                  )),
-              const Spacer(flex: 1),
-              ElevatedButton(
-                  onPressed: (Current.isActivated ||
-                          Current.outcomes?.overallOutcome ==
-                              OverallOutcome.active)
-                      ? () => Navigator.of(context)
-                          .push(MaterialPageRoute(
-                            builder: (context) =>
-                                const RidePage(), // will implicitly ride event just activated
-                          ))
-                          .then((value) => setState(
-                                () {},
-                              ))
-                      : null,
-                  child: Text(
-                    'Current Event',
-                    style: style,
-                  )),
-              const Spacer(flex: 1),
-              ElevatedButton(
-                  onPressed: () => Navigator.of(context)
-                      .push(MaterialPageRoute(
-                        builder: (context) =>
-                            const PastEventsPage(), // will implicitly ride event just activated
-                      ))
-                      .then((value) => setState(
-                            () {},
-                          )),
-                  child: Text(
-                    'Past Events',
-                    style: style,
-                  )),
-              const Spacer(flex: 1),
-              // ElevatedButton(
-              //     onPressed: () => Navigator.of(context)
-              //         .push(MaterialPageRoute(
-              //           builder: (context) =>
-              //               SettingsPage(), // will implicitly ride event just activated
-              //         ))
-              //         .then((value) => setState(
-              //               () {},
-              //             )),
-              //     child: Text(
-              //       'Settings',
-              //       style: style,
-              //     )),
-              const Spacer(flex: 4),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-
 }

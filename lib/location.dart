@@ -20,7 +20,6 @@ import 'control.dart';
 import 'exception.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
-import 'snackbarglobal.dart';
 
 class RiderLocation {
   static Position? riderLocation;

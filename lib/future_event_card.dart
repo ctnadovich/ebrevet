@@ -209,7 +209,7 @@ class _EventCardState extends State<EventCard> {
       child: Text(overallOutcomeInHistory == OverallOutcome.finish
           ? "VIEW"
           : (overallOutcomeInHistory == OverallOutcome.active
-              ? "CONTINUE"
+              ? "CONTINUE RIDE"
               : (isPreride ? 'PRERIDE' : 'RIDE'))),
     );
   }
