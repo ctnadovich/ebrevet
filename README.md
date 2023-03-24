@@ -36,18 +36,17 @@ Also when you open eBrevet for the first time, you will be able to select the Cl
 for the events you want to ride. Only regions that have support for eBrevet will appear on
 the selection list. You will only see events from the Club/Region you select.
 
-Once you've set your RUSA number and region, press "Continue".
+Once you've set your RUSA number and region, press "Continue". This will take
+you to the main eBrevet screen. 
 
-The main screen has buttons for Future, Current, and Past events. There's also a "Settings" gear icon on the lower left, and a day/night mode switch on the upper right. 
-
-![eBrevet Screen Shots](https://parando.org/ebrevet/ScreenShots.png)
-
-Press the "Future Events" button. The first time you visit that page there will be no events listed. Hit the "Refresh Events from Server" button. If you have Internet service, in a few
-seconds the available events from your chosen Club/Region will appear. 
+The main screen will show you future events for your selected Club/Region. The first time
+you run the app, this page will be blank. If the page is blank, or it's been several days since the last time you updated the page, hit the "Refresh Events from Server" button. If you have Internet service, in a few seconds the available events from your chosen Club/Region will appear. 
 
 **IMPORTANT:** *If your Club/Region changes the cues for an event (control location, start time, route, etc...), you will need to press "Refresh Events" again when you have Internet
 access. If you don't do this, the event data on your phone may be invalid and you won't 
 be able to ride.*
+
+![eBrevet Screen Shots](https://parando.org/ebrevet/ScreenShots.png)
 
 Once the latest future events are downloaded to your phone, you should see cards describing each
 upcoming event. If the event may be pre-ridden, a "PRERIDE" button will appear on the lower right of the event card. On the scheduled day of the event a "RIDE" button will appear. Press this button to RIDE or PRERIDE the event. 
@@ -65,9 +64,11 @@ Airplane Mode or if there is no data service on your phone. At some point in the
 
 
 While you are riding an event, you can hit the exit arrow on the upper left, returning 
-to the Future Events page. To go back to riding and checking into controls, hit the Continue button on the event card. Should you want to abandon an event, click the black X button next to the Riding Now indicator. It's possible to "Un-abandon" by hitting "RIDE" again. 
+to the main eBrevet Events page. To go back to riding and checking into controls, hit the CONTINUE RIDE button on the event card. Should you want to abandon an event, click the black X button next to the Riding Now indicator. It's possible to "Un-abandon" by hitting "RIDE" again. 
 
-After your complete an event, the results will be visible on the "Past Events" page accessible from the main menu. Past events are stored on your phone. Should the app be uninstalled, Past Events will be erased. Of course, your results are also stored in Le Grand Livre for posterity, so no worries. 
+On the main eBrevet page you will see three horizontal lines in the upper left corner (the so called hamburger icon). Clicking this will open the side drawer menu. 
+
+After your complete an event, the results will be visible on the "Past Events" page accessible from the drawer menu. Past events are stored on your phone. Should the app be uninstalled, Past Events will be erased. Of course, your results are also stored in Le Grand Livre for posterity, so no worries. 
 
 ## Club/Region Webserver Support
 
