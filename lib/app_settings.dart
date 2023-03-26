@@ -17,7 +17,6 @@
 // import 'package:ebrevet_card/day_night.dart';
 import 'package:ebrevet_card/future_events.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -191,12 +190,12 @@ class SettingsPageState extends State<SettingsPage> {
               AppSettings.rusaID == AppSettings.maxRUSAID.toString()
                   ? advancedSettings()
                   : const SizedBox.shrink(),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ElevatedButton(
-                    onPressed: () => _showAboutDialog(),
-                    child: const Text('About this app')),
-              )
+              // Padding(
+              //   padding: const EdgeInsets.all(16.0),
+              //   child: ElevatedButton(
+              //       onPressed: () => _showAboutDialog(),
+              //       child: const Text('About this app')),
+              // )
             ],
           ),
         ),
@@ -271,38 +270,4 @@ class SettingsPageState extends State<SettingsPage> {
     return null;
   }
 
-  void _showAboutDialog() {
-    showAboutDialog(
-        context: context,
-        applicationName: 'eBrevet',
-        applicationIcon: Image.asset(
-          'assets/images/eBrevet-128.png',
-          width: 64,
-        ),
-        applicationVersion:
-            "v${AppSettings.version ?? '?'}(${AppSettings.buildNumber})",
-        applicationLegalese:
-            '(c)2023 Chris Nadovich. This is free software licensed under GPLv3.',
-        children: [
-          const SizedBox(
-            height: 16,
-          ),
-          const Text(
-            'An electronic brevet card application for Electronic Proof of Passage in Randonneuring.',
-            textAlign: TextAlign.center,
-          ),
-          InkWell(
-            onTap: () =>
-                launchUrl(Uri.parse('https://github.com/ctnadovich/ebrevet')),
-            child: const Text(
-              'Documentation and Source Code',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: Color.fromRGBO(0, 0, 128, 1),
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.underline),
-            ),
-          ),
-        ]);
   }
-}

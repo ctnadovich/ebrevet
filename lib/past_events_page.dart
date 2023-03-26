@@ -23,6 +23,7 @@ import 'event.dart';
 import 'outcome.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
+import 'view_page.dart';
 
 class PastEventsPage extends StatefulWidget {
   const PastEventsPage({super.key});
@@ -204,75 +205,3 @@ class _PastEventsPageState extends State<PastEventsPage> {
   }
 }
 
-class ViewPage extends StatelessWidget {
-  final PastEvent pastEvent;
-
-  const ViewPage(this.pastEvent, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            pastEvent.event.nameDist,
-            //style: TextStyle(fontSize: 14),
-          ),
-        ),
-        body: Container(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-          child: Center(
-            child: ListView(
-              // mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // const SizedBox(height: 2),
-                Text(
-                  (pastEvent.isPreride)
-                      ? 'Volunteer Preride'
-                      : 'Scheduled Brevet',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text('Overall result: ${pastEvent.overallOutcomeDescription}'),
-                Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
-
-                for (var checkIn in pastEvent.outcomes.checkInTimeList)
-                  checkInCard(checkIn),
-              ],
-            ),
-          ),
-        ));
-  }
-
-  // TODO Pretty this up and add more analytics
-
-  // TODO should show download state and possibly offer download button
-
-  Widget checkInCard(List<String> checkIn) {
-    var controlIndex = int.parse(checkIn[0]);
-    var citString = DateTime.parse(checkIn[1]).toLocal().toIso8601String();
-    var ciDate = citString.substring(0, 10);
-    var ciTime = citString.substring(11, 16);
-    var event = pastEvent.event;
-    var control = event.controls[controlIndex];
-    var courseMile = control.distMi;
-    var controlName = control.name;
-    return Card(
-      child: ListTile(
-        leading: Icon(controlIndex == event.startControlKey
-            ? Icons.play_arrow
-            : (controlIndex == event.finishControlKey
-                ? Icons.stop
-                : Icons.pedal_bike)),
-        title: Text(controlName),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(control.address),
-            Text(
-                'Control ${controlIndex + 1} ($courseMile mi): $ciDate @ $ciTime'),
-          ],
-        ),
-      ),
-    );
-  }
-}

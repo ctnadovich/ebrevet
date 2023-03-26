@@ -19,6 +19,8 @@ import 'package:ebrevet_card/past_events_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 import 'snackbarglobal.dart';
 import 'future_events.dart';
@@ -83,6 +85,8 @@ class _EventsPageState extends State<EventsPage> {
         ],
       ),
 
+// TODO Menu items should have bigger font and icons
+
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -93,6 +97,12 @@ class _EventsPageState extends State<EventsPage> {
               ),
               child: const Text('eBrevet Main Menu'),
             ),
+          //  ListTile(
+          //     title: const Text('Current and Future Events'),
+          //     onTap: () {
+          //       Navigator.pop(context);
+          //     },
+          //   ),
             ListTile(
               title: const Text('Past Events'),
               onTap: () {
@@ -123,6 +133,13 @@ class _EventsPageState extends State<EventsPage> {
                 });
               },
             ),
+           ListTile(
+              title: const Text('About eBrevet'),
+              onTap: () {
+                Navigator.pop(context);
+                _showAboutDialog();
+              },
+            ),
           ],
         ),
       ),
@@ -147,6 +164,42 @@ class _EventsPageState extends State<EventsPage> {
           : requiredSettings(), //  rusaIDField(),
     );
   }
+
+  void _showAboutDialog() {
+    showAboutDialog(
+        context: context,
+        applicationName: 'eBrevet',
+        applicationIcon: Image.asset(
+          'assets/images/eBrevet-128.png',
+          width: 64,
+        ),
+        applicationVersion:
+            "v${AppSettings.version ?? '?'}(${AppSettings.buildNumber})",
+        applicationLegalese:
+            '(c)2023 Chris Nadovich. This is free software licensed under GPLv3.',
+        children: [
+          const SizedBox(
+            height: 16,
+          ),
+          const Text(
+            'An electronic brevet card application for Electronic Proof of Passage in Randonneuring.',
+            textAlign: TextAlign.center,
+          ),
+          InkWell(
+            onTap: () =>
+                launchUrl(Uri.parse('https://github.com/ctnadovich/ebrevet')),
+            child: const Text(
+              'Documentation and Source Code',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: Color.fromRGBO(0, 0, 128, 1),
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline),
+            ),
+          ),
+        ]);
+  }
+
 
   Stack mainEventsPage(
       BuildContext context, TimeTill? ttLastRefreshed, List<Event> events) {
