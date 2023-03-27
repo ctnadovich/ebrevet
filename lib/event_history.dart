@@ -121,6 +121,17 @@ class PastEvent {
     return "${elapsedDuration!.inHours}H ${elapsedDuration!.inMinutes % 60}M";
   }
 
+    String get elapsedTimeStringhhmm {
+    if (elapsedDuration == null) return "No Finish";
+    return "${elapsedDuration!.inHours.toString().padLeft(2,'0')}"
+    "${(elapsedDuration!.inMinutes % 60).toString().padLeft(2,'0')}";
+  }
+
+  String get elapsedTimeStringVerbose {
+    if (elapsedDuration == null) return "No Finish";
+    return "${elapsedDuration!.inHours} hours, and  ${elapsedDuration!.inMinutes % 60} minutes";
+  }
+
   DateTime? openActual(int controlKey) {
     Control control = _event.controls[controlKey];
     var openDur = control.openDuration(_event.startDateTime);

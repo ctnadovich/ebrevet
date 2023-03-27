@@ -124,6 +124,11 @@ class Event {
     return sdtl.toString().substring(0, 16);
   }
 
+  get startDate {
+    var sdtl = startDateTime.toLocal();
+    return sdtl.toString().substring(0, 10);
+  }
+
   get statusText {
     DateTime now = DateTime.now();
     if (startDateTime.isAfter(now)) {

@@ -23,7 +23,7 @@ import 'event.dart';
 import 'outcome.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
-import 'view_page.dart';
+import 'cert_page.dart';
 
 class PastEventsPage extends StatefulWidget {
   const PastEventsPage({super.key});
@@ -79,6 +79,8 @@ class _PastEventsPageState extends State<PastEventsPage> {
     final String overallOutcomeDescriptionInHistory =
         overallOutcomeInHistory.description;
     final clubName = Region(regionID: event.regionID).clubName;
+    final bool isOutcomeFullyUploaded =
+        pe?.isCurrentOutcomeFullyUploaded ?? false;
 
     return Card(
       child: Column(
@@ -86,13 +88,16 @@ class _PastEventsPageState extends State<PastEventsPage> {
         children: <Widget>[
           ListTile(
             leading: const Icon(Icons.pedal_bike),
+            trailing: IconButton(onPressed: () async {
+        confirmDeleteDialog(context, pe!);
+      },
+            icon:const Icon(Icons.delete)),
             title: Text(event.nameDist),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(clubName),
-                Text('${event.startCity}, ${event.startState}'),
-                Text('${event.dateTime}'),
+                Text('${event.startDate}'),
               ],
             ),
           ),
@@ -118,34 +123,27 @@ class _PastEventsPageState extends State<PastEventsPage> {
               const SizedBox(
                 width: 4,
               ),
-              deleteButton(context, eventID),
-              const SizedBox(
-                width: 4,
-              ),
             ],
           ),
-          const SizedBox(
-            height: 8,
-          ),
+          // const SizedBox(
+          //   height: 8,
+          // ),
+
+         
+                        Text(pe?.checkInFractionString ?? ''),
+                        Text(
+                          pe?.isFullyUploadedString ?? '',
+                          style: TextStyle(
+                              fontWeight: isOutcomeFullyUploaded
+                                  ? FontWeight.normal
+                                  : FontWeight.bold),
+                        ),
+                      
         ],
       ),
     );
   }
 
-  Widget deleteButton(BuildContext context, String eventID) {
-    final pe = EventHistory.lookupPastEvent(eventID);
-    return TextButton(
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.zero,
-      ),
-      onPressed: () async {
-        confirmDeleteDialog(context, pe!);
-      },
-      child: (pe?.outcomes.overallOutcome == OverallOutcome.dns)
-          ? const SizedBox.shrink()
-          : const Text("DELETE"),
-    );
-  }
 
   void confirmDeleteDialog(BuildContext context, PastEvent pe) {
     showDialog(
@@ -194,7 +192,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
       onPressed: () async {
         if (context.mounted) {
           Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ViewPage(pe!),
+            builder: (context) => CertificatePage(pe!),
           ));
         } else {
           MyLogger.logInfo("Not mounted!?");

@@ -155,7 +155,7 @@ class Current {
 
     if (result == null) {
       result = ('Check in data successfully uploaded to server.');
-      SnackbarGlobal.show(result);
+      // SnackbarGlobal.show(result);
     } else {
       SnackbarGlobal.show("Failed to upload checkin: $result");
     }

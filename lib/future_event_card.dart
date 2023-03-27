@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/cert_page.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -198,7 +199,8 @@ class _EventCardState extends State<EventCard> {
             Navigator.of(context)
                 .push(MaterialPageRoute(
                   builder: (context) =>
-                      const RidePage(), // will implicitly ride event just activated
+                  overallOutcomeInHistory != OverallOutcome.finish?
+                      const RidePage():CertificatePage(pe!), // will implicitly ride event just activated
                 ))
                 .then((_) => setState(() {}));
           } else {

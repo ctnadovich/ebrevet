@@ -137,7 +137,7 @@ class _EventsPageState extends State<EventsPage> {
               title: const Text('About eBrevet'),
               onTap: () {
                 Navigator.pop(context);
-                _showAboutDialog();
+                aboutDialog();
               },
             ),
           ],
@@ -165,7 +165,7 @@ class _EventsPageState extends State<EventsPage> {
     );
   }
 
-  void _showAboutDialog() {
+  void aboutDialog() {
     showAboutDialog(
         context: context,
         applicationName: 'eBrevet',
@@ -274,11 +274,13 @@ class _EventsPageState extends State<EventsPage> {
   Widget requiredSettings() {
     return Container(
       color: Theme.of(context).colorScheme.primaryContainer,
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+
       child: Column(children: [
         const SizedBox(
           height: 10,
         ),
-        const Text('Enter your RUSA number and select a Club/Region:'),
+        const Text('Enter your RUSA number and select a Club/Region that supports eBrevet EPP:'),
         const SizedBox(
           height: 10,
         ),
