@@ -38,8 +38,6 @@ class FutureEvents {
   static const futureEventsFileName = 'future_events.json';
   static var storedEvents = FileStorage(futureEventsFileName);
 
-  
-
   static void clear() {
     events.clear();
     lastRefreshed = null;
@@ -52,7 +50,7 @@ class FutureEvents {
   static Future<int> refreshEventsFromDisk(Region rgn) async {
     Map<String, dynamic> eventMapFromFile;
     try {
-      MyLogger.logInfo("** Refreshing events from DISK for ${rgn.clubName}");
+      MyLogger.entry("** Refreshing events from DISK for ${rgn.clubName}");
 
       try {
         eventMapFromFile = await storedEvents.readJSON();
@@ -73,7 +71,7 @@ class FutureEvents {
           lrs = "Unkown";
         }
         refreshCount.value++;
-        MyLogger.logInfo(
+        MyLogger.entry(
             "Successfully restored ${events.length} events from disk. Last Refreshed = $lrs");
         return refreshCount.value;
       } else {
@@ -81,14 +79,14 @@ class FutureEvents {
       }
     } catch (error) {
       events.clear();
-      MyLogger.logInfo("Couldn't refresh future events from FILE: $error");
+      MyLogger.entry("Couldn't refresh future events from FILE: $error");
       return 0;
     }
   }
 
   static Future<bool> refreshEventsFromServer(Region rgn) async {
     try {
-      MyLogger.logInfo("Refreshing events from SERVER for ${rgn.clubName}");
+      MyLogger.entry("Refreshing events from SERVER for ${rgn.clubName}");
 
       // Then try to fetch from the server in background with callback to process
       var eventMapFromServer = await fetchFutureEventsFromServer(rgn);
@@ -100,11 +98,11 @@ class FutureEvents {
           eventMapFromServer); // Save what we just downloaded to disk
       lastRefreshed = now;
       refreshCount.value++;
-      MyLogger.logInfo("Refresh complete. Write status: $writeStatus");
+      MyLogger.entry("Refresh complete. Write status: $writeStatus");
     } catch (error) {
       // events.clear();
       SnackbarGlobal.show(error.toString());
-      MyLogger.logInfo("Error refreshing events: $error");
+      MyLogger.entry("Error refreshing events: $error");
       return false;
     }
     return true;
@@ -124,7 +122,7 @@ class FutureEvents {
 
   static void rebuildEventList(Map eventMap, Region g) {
     List el = eventMap['event_list'];
-    MyLogger.logInfo("rebuildEventList() from ${el.length} events in Map");
+    MyLogger.entry("rebuildEventList() from ${el.length} events in Map");
     events.clear();
     for (var e in el) {
       var eventToAdd = Event.fromMap(e);
@@ -133,8 +131,8 @@ class FutureEvents {
       }
 
       var now = DateTime.now();
-      var eventReallyEnds =
-          eventToAdd.endDateTime.add(const Duration(hours: futureEventGraceTime));
+      var eventReallyEnds = eventToAdd.endDateTime
+          .add(const Duration(hours: futureEventGraceTime));
       if (eventReallyEnds.isAfter(now)) events.add(eventToAdd);
     }
     events.sort((a, b) => a.startDateTime.isBefore(b.startDateTime)
@@ -143,7 +141,7 @@ class FutureEvents {
     // rider = r;
     region = g;
     var n = events.length;
-    MyLogger.logInfo("Event List rebuilt with $n events in ${region!.clubName}.");
+    MyLogger.entry("Event List rebuilt with $n events in ${region!.clubName}.");
   }
 
   static Future<Map<String, dynamic>?> fetchFutureEventsFromServer(
@@ -151,11 +149,10 @@ class FutureEvents {
     var futureEventsURL = rgn.eventURL;
 
     String url = '$futureEventsURL/future_events';
-    MyLogger.logInfo('Fetching future event data from $url');
+    MyLogger.entry('Fetching future event data from $url');
 
     Map<String, dynamic> decodedResponse;
     http.Response? response;
-
 
     try {
       response = await http

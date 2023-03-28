@@ -90,7 +90,7 @@ class Event {
           ? json['club_acp_code']
           : int.tryParse(json['club_acp_code'])!;
       List<dynamic> controlsListMap = json['controls'];
-      MyLogger.logInfo(
+      MyLogger.entry(
           'Event.fromMap() restored $name from JSON. Found ${controlsListMap.length} controls.');
       controls.clear();
       for (var i = 0; i < controlsListMap.length; i++) {
@@ -106,7 +106,7 @@ class Event {
     } catch (error) {
       var etxt = "Error converting JSON future event response: $error";
       SnackbarGlobal.show(etxt);
-      MyLogger.logInfo(etxt);
+      MyLogger.entry(etxt);
     }
   }
 
@@ -178,6 +178,7 @@ class Event {
     var now = DateTime.now();
     var difference = startDateTime.difference(now);
     return difference.inMinutes > AppSettings.startableTimeWindowMinutes &&
-        (AppSettings.prerideDateWindowOverride || difference.inDays <= AppSettings.prerideTimeWindowDays);
+        (AppSettings.prerideDateWindowOverride ||
+            difference.inDays <= AppSettings.prerideTimeWindowDays);
   }
 }

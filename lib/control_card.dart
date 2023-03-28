@@ -256,12 +256,11 @@ class _ControlCardState extends State<ControlCard> {
     // }
   }
 
+  // TODO lastUpload seem to be "forgotten" after an app restart
 
   // TODO Automatic check-in of first control. 
 
-  // TODO Completion certificate
-
-  // TODO Control check-in code
+  // TODO Control check-in code?
 
   // TODO Posting result and elapsed time to roster
 

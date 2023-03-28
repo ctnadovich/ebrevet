@@ -14,29 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
-enum Severity{
+enum Severity {
   info,
   warning,
   error,
 }
 
-class LogRecord{
+class LogRecord {
   late DateTime timestamp;
   Severity severity;
   String message;
-  LogRecord(this.severity, this.message){
-    timestamp=DateTime.now();
+  LogRecord(this.severity, this.message) {
+    timestamp = DateTime.now();
   }
 }
 
 class MyLogger {
-  static List <LogRecord> log = [];
+  static final List<LogRecord> _log = [];
 
-  static const int logLength = 100; 
+  static const int logLength = 100;
 
-  static void logInfo(String s){
-    log.add(LogRecord(Severity.info, s));
-    if(log.length>logLength) log.removeAt(0);
+  static void entry(String s, {Severity severity = Severity.info}) {
+    _log.add(LogRecord(severity, s));
+    if (_log.length > logLength) _log.removeAt(0);
     print("LOG: $s");
   }
 }

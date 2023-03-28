@@ -43,7 +43,7 @@ class FileStorage {
       final file = await _localFile;
       await file.delete();
     } catch (e) {
-      MyLogger.logInfo("In FileStorage.clear() Couldn't delete $fileName.");
+      MyLogger.entry("In FileStorage.clear() Couldn't delete $fileName.");
     }
   }
 
@@ -54,7 +54,7 @@ class FileStorage {
       var decodedResult = jsonDecode(contents) as Map<String, dynamic>;
       return decodedResult;
     } catch (e) {
-      MyLogger.logInfo("Exception in FileStorage.readJSON: $e");
+      MyLogger.entry("Exception in FileStorage.readJSON: $e");
       return {};
     }
   }
@@ -66,16 +66,15 @@ class FileStorage {
       var jsonData = jsonEncode(contents,
           toEncodable: (Object? value) => (value is PastEvent)
               ? PastEvent.toJson(value)
-              : throw FormatException('In FileStorage.writeJSON() Cannot convert to JSON: $value'
-              ));
+              : throw FormatException(
+                  'In FileStorage.writeJSON() Cannot convert to JSON: $value'));
 
       await file.writeAsString(jsonData);
 
-
-      MyLogger.logInfo("Wrote to file ${file.path}");
+      MyLogger.entry("Wrote to file ${file.path}");
       return true;
     } catch (e) {
-      MyLogger.logInfo("Failed write to file: $e");
+      MyLogger.entry("Failed write to file: $e");
       return false;
     }
   }

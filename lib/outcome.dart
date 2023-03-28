@@ -41,8 +41,9 @@ enum OverallOutcome {
 class EventOutcomes {
   late OverallOutcome _overallOutcome;
   late Map<int, DateTime> _checkInTimeMap; // control number -> check in time
- 
-  DateTime? lastUpload;
+
+  DateTime?
+      lastUpload; // If using this setter don't forget to save event history
 
   EventOutcomes(
       {OverallOutcome? overallOutcome,
@@ -52,7 +53,6 @@ class EventOutcomes {
     _overallOutcome = overallOutcome ?? OverallOutcome.dns;
   }
 
-
   Map<String, dynamic> get toMap => {
         'overall_outcome': _overallOutcome.name,
         'last_upload': lastUpload?.toUtc().toIso8601String(),
@@ -61,8 +61,9 @@ class EventOutcomes {
       };
 
   factory EventOutcomes.fromMap(Map<String, dynamic> jsonMap) {
-    var eo=EventOutcomes();
-    eo._overallOutcome = OverallOutcome.values.byName(jsonMap['overall_outcome']);
+    var eo = EventOutcomes();
+    eo._overallOutcome =
+        OverallOutcome.values.byName(jsonMap['overall_outcome']);
     Map<String, dynamic> checkInJsonMap = jsonMap['check_in_times'];
     eo._checkInTimeMap
         .clear(); // not needed as default constructor will make this empty anyway
@@ -71,6 +72,7 @@ class EventOutcomes {
       DateTime vDateTime = DateTime.parse(checkInJsonMap[k]);
       eo._checkInTimeMap[kInt] = vDateTime;
     }
+    eo.lastUpload = DateTime.parse(jsonMap['last_upload']);
     return eo;
     // =checkInJsonMap.map((key, value) => MapEntry(int.parse(key), DateTime.parse(value)));
   }
@@ -89,10 +91,17 @@ class EventOutcomes {
     return _overallOutcome;
   }
 
+  String get lastUploadString {
+    var timestamp = lastUpload?.toLocal().toIso8601String();
+    return timestamp == null
+        ? 'Never'
+        : '${timestamp.substring(5, 10)} ${timestamp.substring(11, 19)}';
+  }
+
   // When using this setter, don't forget to call EventHistory.save() afterwards
 
   set overallOutcome(OverallOutcome oo) {
-    MyLogger.logInfo("Overall outcome set to ${oo.name.toUpperCase()}");
+    MyLogger.entry("Overall outcome set to ${oo.name.toUpperCase()}");
     _overallOutcome = oo;
   }
 

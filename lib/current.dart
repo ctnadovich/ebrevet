@@ -40,7 +40,7 @@ class Current {
 
   static void activate(Event e, String riderID, {bool isPreride = false}) {
     activatedEvent = EventHistory.addActivate(e, riderID, isPreride);
-    MyLogger.logInfo(
+    MyLogger.entry(
         "Activated ${activatedEvent!.event.nameDist}${isPreride ? ' PRERIDE' : ''}");
   }
 
@@ -108,14 +108,14 @@ class Current {
       }
     }
 
+    assert(controlCheckInTime(control) != null); // should have just set this
+
+    constructReportAndSend(control: control, comment: comment);
+
     EventHistory.save(); // It seems excessive to save the whole event history
     // every check in, but this certainly does the job.
     // The only time an event can change state is when
     // activated or at a control checkin.
-
-    assert(controlCheckInTime(control) != null); // should have just set this
-
-    constructReportAndSend(control: control, comment: comment);
   }
 
   static void constructReportAndSend({Control? control, String? comment}) {
@@ -129,6 +129,8 @@ class Current {
           "No worries. Try upload later. RIDE ON!");
     });
   }
+
+// TODO Do we really want a ValueNotifier for this?
 
   static ValueNotifier<DateTime?> lastSuccessfulServerUpload =
       ValueNotifier(null);
@@ -159,8 +161,8 @@ class Current {
     } else {
       SnackbarGlobal.show("Failed to upload checkin: $result");
     }
-    MyLogger.logInfo(result);
-    MyLogger.logInfo(
+    MyLogger.entry(result);
+    MyLogger.entry(
         "POST Status: ${response.statusCode}; Body: ${response.body}");
   }
 
@@ -209,7 +211,7 @@ class Current {
             ? EventOutcomes.toJson(value)
             : throw FormatException('Cannot convert to JSON: $value'));
 
-    MyLogger.logInfo("Sending JSON: $reportJSON");
+    MyLogger.entry("Sending JSON: $reportJSON");
 
     return http.post(
       Uri.parse(url),

@@ -16,11 +16,12 @@
 
 import 'package:ebrevet_card/event_history.dart';
 import 'package:flutter/material.dart';
+import 'control.dart';
 
-class ViewPage extends StatelessWidget {
+class ControlDetailPage extends StatelessWidget {
   final PastEvent pastEvent;
 
-  const ViewPage(this.pastEvent, {super.key});
+  const ControlDetailPage(this.pastEvent, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +48,8 @@ class ViewPage extends StatelessWidget {
                 ),
                 Text('Overall result: ${pastEvent.overallOutcomeDescription}'),
                 Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
+                Text(
+                    'Last Upload: ${pastEvent.outcomes.lastUploadString ?? "Never"}'),
 
                 for (var checkIn in pastEvent.outcomes.checkInTimeList)
                   checkInCard(checkIn),
@@ -58,12 +61,15 @@ class ViewPage extends StatelessWidget {
 
   // TODO Pretty this up and add more analytics
 
-  // TODO should show download state and possibly offer download button
+  // TODO should show result upload state and possibly offer upload button
+
+  // TODO when event is finished, there doesn't seem to be a way
+  // to "get back" to being able to upload results
 
   Widget checkInCard(List<String> checkIn) {
     var controlIndex = int.parse(checkIn[0]);
     var citString = DateTime.parse(checkIn[1]).toLocal().toIso8601String();
-    var ciDate = citString.substring(0, 10);
+    var ciDate = citString.substring(5, 10);
     var ciTime = citString.substring(11, 16);
     var event = pastEvent.event;
     var control = event.controls[controlIndex];
@@ -83,9 +89,28 @@ class ViewPage extends StatelessWidget {
             Text(control.address),
             Text(
                 'Control ${controlIndex + 1} ($courseMile mi): $ciDate @ $ciTime'),
+            checkInButton(control, pastEvent.outcomes.lastUpload),
           ],
         ),
       ),
+    );
+  }
+
+  Widget checkInButton(Control c, DateTime? lastUpload) {
+    var checkInTime = pastEvent.outcomes.getControlCheckInTime(c.index);
+    Icon checkInIcon;
+    if (checkInTime != null) {
+      checkInIcon = (lastUpload != null && lastUpload.isAfter(checkInTime))
+          ? const Icon(Icons.check_circle, color: Colors.green)
+          : const Icon(Icons.pending_sharp, color: Colors.orangeAccent);
+    } else {
+      checkInIcon = const Icon(
+        Icons.broken_image,
+        color: Colors.red,
+      );
+    }
+    return Row(
+      children: [const Text('Upload: '), checkInIcon],
     );
   }
 }

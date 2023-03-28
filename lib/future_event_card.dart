@@ -137,8 +137,10 @@ class _EventCardState extends State<EventCard> {
                   //   ),
                   // ),
                   const Spacer(),
-                  (isStartable || isPreridable)
-                      ? rideButton(context)
+                  (isStartable ||
+                          isPreridable ||
+                          overallOutcomeInHistory != OverallOutcome.dns)
+                      ? rideButton(context, pe)
                       : const SizedBox.shrink(),
                   const SizedBox(width: 8),
                 ],
@@ -167,10 +169,12 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  TextButton rideButton(BuildContext context) {
+  TextButton rideButton(BuildContext context, PastEvent? pe) {
     final isPreride = widget.event.isPreridable;
-    final eventID = widget.event.eventID;
-    final pe = EventHistory.lookupPastEvent(eventID);
+    // final bool isOutcomeFullyUploaded =
+    //     pe?.isCurrentOutcomeFullyUploaded ?? false;
+    // final eventID = widget.event.eventID;
+    // final pe = EventHistory.lookupPastEvent(eventID);
     final OverallOutcome overallOutcomeInHistory =
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
 
@@ -199,12 +203,14 @@ class _EventCardState extends State<EventCard> {
             Navigator.of(context)
                 .push(MaterialPageRoute(
                   builder: (context) =>
-                  overallOutcomeInHistory != OverallOutcome.finish?
-                      const RidePage():CertificatePage(pe!), // will implicitly ride event just activated
+                      overallOutcomeInHistory != OverallOutcome.finish
+                          ? const RidePage()
+                          : CertificatePage(
+                              pe!), // will implicitly ride event just activated
                 ))
                 .then((_) => setState(() {}));
           } else {
-            MyLogger.logInfo("Not mounted!?");
+            MyLogger.entry("Not mounted!?");
           }
         }
       },
@@ -237,7 +243,7 @@ class _EventCardState extends State<EventCard> {
     var validCode = Signature.substituteZeroOneXY(signature.text.toUpperCase());
 
     if (validCode != startCode) {
-      MyLogger.logInfo(
+      MyLogger.entry(
           "Invalid Start Code $startCode; Valid code is '$validCode'");
       return "Invalid Start Code.";
     }
@@ -290,12 +296,15 @@ class _EventCardState extends State<EventCard> {
     // final eventID = widget.event.eventID;
     final we = event;
     final regionID = we.regionID;
-    final region =Region(regionID: regionID);
+    final region = Region(regionID: regionID);
     final regionName = region.regionName;
     final clubName = region.clubName;
 
     // note the scary ! after bodyLarge
-    final bigItalic = Theme.of(context).textTheme.bodyLarge!.copyWith(fontStyle: FontStyle.italic);
+    final bigItalic = Theme.of(context)
+        .textTheme
+        .bodyLarge!
+        .copyWith(fontStyle: FontStyle.italic);
 
     return showDialog(
       context: context,

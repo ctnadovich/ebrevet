@@ -27,11 +27,11 @@ class RiderLocation {
 
   static bool gpsServiceEnabled = false;
 
-// Consider automatic periodic report to remote server?  
-                                        // of location not just when checiking in
-                                        // Perhaps as settings option with different period
+// Consider automatic periodic report to remote server?
+  // of location not just when checiking in
+  // Perhaps as settings option with different period
 
-  static Future <void> updateLocation() async {  
+  static Future<void> updateLocation() async {
     try {
       gpsServiceEnabled = await Geolocator.isLocationServiceEnabled();
       if (gpsServiceEnabled == false) {
@@ -48,12 +48,12 @@ class RiderLocation {
                 desiredAccuracy: LocationAccuracy.high)
             .timeout(const Duration(seconds: 5));
         lastLocationUpdate = DateTime.now();
-        MyLogger.logInfo(
+        MyLogger.entry(
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
       }
     } catch (e) {
       // SnackbarGlobal.show(e.toString());
-      MyLogger.logInfo('GPS Error: ${e.toString()}');
+      MyLogger.entry('GPS Error: ${e.toString()}');
     }
   }
 
@@ -61,7 +61,8 @@ class RiderLocation {
     return '${(riderLocation != null) ? riderLocation!.latitude.toStringAsFixed(5) : '?'}N, '
         '${(riderLocation != null) ? riderLocation!.longitude.toStringAsFixed(5) : '?'}E';
   }
-static get latLongFullString {
+
+  static get latLongFullString {
     return '${(riderLocation != null) ? riderLocation!.latitude.toString() : '?'}N, '
         '${(riderLocation != null) ? riderLocation!.longitude.toString() : '?'}E';
   }
@@ -72,13 +73,12 @@ static get latLongFullString {
         : (lastLocationUpdate.toString()).substring(11, 16);
   }
 
- static get lastLocationUpdateMinutesAgoString {
-    if(lastLocationUpdate == null) return 'unknown';
+  static get lastLocationUpdateMinutesAgoString {
+    if (lastLocationUpdate == null) return 'unknown';
     return DateTime.now().difference(lastLocationUpdate!).inMinutes.toString();
- }
+  }
 
-
-static get lastLocationUpdateUTCString {
+  static get lastLocationUpdateUTCString {
     return (lastLocationUpdate == null)
         ? 'Never'
         : (lastLocationUpdate!.toUtc().toIso8601String());
@@ -93,7 +93,6 @@ class ControlLocation {
   late double controlLatitude;
   late double controlLongitude;
 
-
   ControlLocation(Control c) {
     controlLatitude = c.lat;
     controlLongitude = c.long;
@@ -101,9 +100,7 @@ class ControlLocation {
 
   static const miPerMeter = 0.0006213712;
 
-  bool get locationsDefined =>
-      (RiderLocation.riderLocation) !=
-      null;
+  bool get locationsDefined => (RiderLocation.riderLocation) != null;
 
   double? get crowDistMeters {
     return (locationsDefined)
@@ -141,15 +138,14 @@ class ControlLocation {
 
   String get crowDistMetersString =>
       (crowDistMiles == null) ? '?' : crowDistMeters!.toStringAsFixed(1);
-      
+
   String get crowCompassHeadingString =>
       (crowBearing == null) ? '?' : angleToCompassHeading(crowBearing);
 
   bool get isNearControl {
     if (crowDistMeters == null) return false;
-    var d =  AppSettings.proximityRadius;
+    var d = AppSettings.proximityRadius;
     var closeEnough = crowDistMeters! < d;
     return closeEnough;
   }
-
 }

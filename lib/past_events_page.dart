@@ -88,10 +88,11 @@ class _PastEventsPageState extends State<PastEventsPage> {
         children: <Widget>[
           ListTile(
             leading: const Icon(Icons.pedal_bike),
-            trailing: IconButton(onPressed: () async {
-        confirmDeleteDialog(context, pe!);
-      },
-            icon:const Icon(Icons.delete)),
+            trailing: IconButton(
+                onPressed: () async {
+                  confirmDeleteDialog(context, pe!);
+                },
+                icon: const Icon(Icons.delete)),
             title: Text(event.nameDist),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,21 +130,18 @@ class _PastEventsPageState extends State<PastEventsPage> {
           //   height: 8,
           // ),
 
-         
-                        Text(pe?.checkInFractionString ?? ''),
-                        Text(
-                          pe?.isFullyUploadedString ?? '',
-                          style: TextStyle(
-                              fontWeight: isOutcomeFullyUploaded
-                                  ? FontWeight.normal
-                                  : FontWeight.bold),
-                        ),
-                      
+          Text(pe?.checkInFractionString ?? ''),
+          Text(
+            pe?.isFullyUploadedString ?? '',
+            style: TextStyle(
+                fontWeight: isOutcomeFullyUploaded
+                    ? FontWeight.normal
+                    : FontWeight.bold),
+          ),
         ],
       ),
     );
   }
-
 
   void confirmDeleteDialog(BuildContext context, PastEvent pe) {
     showDialog(
@@ -195,11 +193,10 @@ class _PastEventsPageState extends State<PastEventsPage> {
             builder: (context) => CertificatePage(pe!),
           ));
         } else {
-          MyLogger.logInfo("Not mounted!?");
+          MyLogger.entry("Not mounted!?");
         }
       },
       child: const Text("VIEW"),
     );
   }
 }
-

@@ -98,9 +98,9 @@ class PastEvent {
         : "Checked into $numberOfCheckIns/$numberOfControls controls";
   }
 
-  String get isFullyUploadedString =>
-      (numberOfCheckIns==0)?'Nothing to Upload':
-      (isCurrentOutcomeFullyUploaded ? 'Uploaded' : 'Not Fully Uploaded');
+  String get isFullyUploadedString => (numberOfCheckIns == 0)
+      ? 'Nothing to Upload'
+      : (isCurrentOutcomeFullyUploaded ? 'Uploaded' : 'Not Fully Uploaded');
 
   DateTime? get startDateTimeActual => (isPreride)
       ? outcomes.getControlCheckInTime(_event.startControlKey)
@@ -121,10 +121,10 @@ class PastEvent {
     return "${elapsedDuration!.inHours}H ${elapsedDuration!.inMinutes % 60}M";
   }
 
-    String get elapsedTimeStringhhmm {
+  String get elapsedTimeStringhhmm {
     if (elapsedDuration == null) return "No Finish";
-    return "${elapsedDuration!.inHours.toString().padLeft(2,'0')}"
-    "${(elapsedDuration!.inMinutes % 60).toString().padLeft(2,'0')}";
+    return "${elapsedDuration!.inHours.toString().padLeft(2, '0')}"
+        "${(elapsedDuration!.inMinutes % 60).toString().padLeft(2, '0')}";
   }
 
   String get elapsedTimeStringVerbose {
@@ -225,20 +225,21 @@ class EventHistory {
   static Future<int> load() async {
     var storage = FileStorage(pastEventsFileName);
     try {
-      MyLogger.logInfo("** Loading event history from DISK");
+      MyLogger.entry("** Loading event history from DISK");
       var pastEventsFromFile =
           await storage.readJSON(); //  as Map <String, PastEvent>;
       if (pastEventsFromFile.isNotEmpty) {
         _pastEventMap = fromJsonMap(pastEventsFromFile);
-        MyLogger.logInfo(
+        MyLogger.entry(
             "EventHistory.load() restored ${_pastEventMap.length} past activated events.");
         return _pastEventMap.length;
       } else {
-        MyLogger.logInfo("Empty, missing, or undecodable file: $pastEventsFileName");
+        MyLogger.entry(
+            "Empty, missing, or undecodable file: $pastEventsFileName");
         return 0;
       }
     } catch (e) {
-      MyLogger.logInfo("Couldn't fetch past events from file: $e");
+      MyLogger.entry("Couldn't fetch past events from file: $e");
       return 0;
     }
   }
@@ -248,9 +249,9 @@ class EventHistory {
     try {
       storage.writeJSON(_pastEventMap);
 
-      MyLogger.logInfo("Saved  ${_pastEventMap.keys.length} events to file.");
+      MyLogger.entry("Saved  ${_pastEventMap.keys.length} events to file.");
     } catch (e) {
-      MyLogger.logInfo("Couldn't save past events to file.");
+      MyLogger.entry("Couldn't save past events to file.");
     }
   }
 
@@ -312,7 +313,7 @@ class EventHistory {
 
   static deletePastEvent(PastEvent pe) {
     if (_pastEventMap.containsKey(pe._event.eventID)) {
-      if (Current.activatedEvent?._event.eventID == pe._event.eventID){
+      if (Current.activatedEvent?._event.eventID == pe._event.eventID) {
         Current.deactivate();
       }
       _pastEventMap.remove(pe._event.eventID);
