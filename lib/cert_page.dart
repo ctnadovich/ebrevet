@@ -12,9 +12,8 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
+// along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:ebrevet_card/ride_page.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
