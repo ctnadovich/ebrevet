@@ -160,10 +160,6 @@ class _EventCardState extends State<EventCard> {
 
   TextButton rideButton(BuildContext context, PastEvent? pe) {
     final isPreride = widget.event.isPreridable;
-    // final bool isOutcomeFullyUploaded =
-    //     pe?.isCurrentOutcomeFullyUploaded ?? false;
-    // final eventID = widget.event.eventID;
-    // final pe = EventHistory.lookupPastEvent(eventID);
     final OverallOutcome overallOutcomeInHistory =
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
 

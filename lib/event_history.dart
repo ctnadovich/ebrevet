@@ -278,10 +278,6 @@ class EventHistory {
     return getFullOutcomes(eventID)?.overallOutcome;
   }
 
-  // static Map<int, DateTime>? getCheckInTimeMap(String eventID) {
-  //   return getFullOutcomes(eventID)?.checkInTimeMap;
-  // }
-
   static bool isInHistory(String eventID) {
     return _pastEventMap.containsKey(eventID);
   }

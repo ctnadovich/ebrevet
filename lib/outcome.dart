@@ -74,7 +74,6 @@ class EventOutcomes {
     }
     eo.lastUpload = DateTime.parse(jsonMap['last_upload']);
     return eo;
-    // =checkInJsonMap.map((key, value) => MapEntry(int.parse(key), DateTime.parse(value)));
   }
 
   // When using this setter, don't forget to call EventHistory.save() afterwards

@@ -56,11 +56,6 @@ class Region {
     regionID = rid;
   }
 
-  // static get isSet {
-  //   var rgnKey = AppSettings.regionID;
-  //   return (rgnKey<1) ? false : true;
-  // }
-
   Region.fromSettings() : this(regionID: AppSettings.regionID);
 
   static get regionMap => RegionData.regionMap;

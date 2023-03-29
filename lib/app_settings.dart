@@ -26,9 +26,6 @@ import 'region_data.dart';
 import 'day_night.dart';
 
 class AppSettings {
-  // static bool get isPrerideMode =>
-  //     Settings.getValue<bool>('key-preride-mode', defaultValue: false)!;
-
   static String? appName;
   static String? packageName;
   static String? version;
@@ -83,12 +80,6 @@ class AppSettings {
     return Settings.getValue('key-preride-date-window-override',
         defaultValue: false)!;
   }
-
-  // static double get locationPollPeriod {
-  //   var d = Settings.getValue<double>('key-location-poll-period',
-  //       defaultValue: 500)!;
-  //   return d;
-  // }
 
   static int get regionID => Settings.getValue<int>('key-region',
       defaultValue: RegionData.defaultRegion)!;
@@ -190,12 +181,6 @@ class SettingsPageState extends State<SettingsPage> {
               AppSettings.rusaID == AppSettings.maxRUSAID.toString()
                   ? advancedSettings()
                   : const SizedBox.shrink(),
-              // Padding(
-              //   padding: const EdgeInsets.all(16.0),
-              //   child: ElevatedButton(
-              //       onPressed: () => _showAboutDialog(),
-              //       child: const Text('About this app')),
-              // )
             ],
           ),
         ),
@@ -249,16 +234,6 @@ class SettingsPageState extends State<SettingsPage> {
           subtitle: "Preride any time.",
           leading: const Icon(Icons.free_cancellation),
         ),
-        // SliderSettingsTile(
-        //   settingKey: 'key-location-poll-period',
-        //   title: 'Period of Location Poll (seconds)',
-        //   subtitle: "How often the GPS location is updated.",
-        //   defaultValue: 60,
-        //   min: 10,
-        //   max: 120,
-        //   step: 10,
-        //   leading: const Icon(Icons.access_time),
-        // ),
       ],
     );
   }
@@ -269,5 +244,4 @@ class SettingsPageState extends State<SettingsPage> {
     }
     return null;
   }
-
-  }
+}

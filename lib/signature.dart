@@ -18,8 +18,6 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
 import 'event.dart';
-// import 'rider.dart';
-// import 'region.dart';
 
 class Signature {
   Signature(

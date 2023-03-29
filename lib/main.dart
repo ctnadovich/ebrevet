@@ -28,6 +28,16 @@ import 'region.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
 
+// TODO Rebuilding after upload, GPS update, Time passage
+
+// TODO Automatic check-in of first control.
+
+// TODO Control check-in code?
+
+// TODO Posting result and elapsed time to roster
+
+// TODO Convert some logger statements to exceptions -- in app notifications
+
 void main() {
   initSettings().then((_) {
     MyLogger.entry("** runApp(MyApp)");
@@ -49,47 +59,21 @@ Future<void> initSettings() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return AdaptiveTheme(
-  //     light: ThemeData(
-  //       brightness: Brightness.light,
-  //       // primarySwatch: Colors.red,
-  //       // accentColor: Colors.amber,
-  //     ),
-  //     dark: ThemeData(
-  //       brightness: Brightness.dark,
-  //       // primarySwatch: Colors.red,
-  //       // accentColor: Colors.amber,
-  //     ),
-  //     initial: AdaptiveThemeMode.light,
-  //     builder: (theme, darkTheme) => MaterialApp(
-  //       scaffoldMessengerKey: SnackbarGlobal.key,
-  //       title: 'eBrevet Card',
-  //       debugShowCheckedModeBanner: false,
-  //       theme: theme,
-  //       darkTheme: darkTheme,
-  //       home: HomePage(),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<DayNight>(
-        create: (_) => DayNight(),
-        child: Consumer<DayNight>(builder: (context, dayNight, child) {
-          return MaterialApp(
-            scaffoldMessengerKey: SnackbarGlobal.key,
-            title: 'eBrevet Card',
-            debugShowCheckedModeBanner: false,
-            theme: dayNight.dayTheme,
-            darkTheme: dayNight.nightTheme,
-            themeMode: dayNight.mode,
-            home: const EventsPage(),
-//            home: const HomePage(),
-          );
-        }));
+      create: (_) => DayNight(),
+      child: Consumer<DayNight>(builder: (context, dayNight, child) {
+        return MaterialApp(
+          scaffoldMessengerKey: SnackbarGlobal.key,
+          title: 'eBrevet Card',
+          debugShowCheckedModeBanner: false,
+          theme: dayNight.dayTheme,
+          darkTheme: dayNight.nightTheme,
+          themeMode: dayNight.mode,
+          home: const EventsPage(),
+        );
+      }),
+    );
   }
 }

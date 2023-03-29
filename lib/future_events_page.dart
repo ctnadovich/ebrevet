@@ -96,12 +96,6 @@ class _EventsPageState extends State<EventsPage> {
               ),
               child: const Text('eBrevet Main Menu'),
             ),
-            //  ListTile(
-            //     title: const Text('Current and Future Events'),
-            //     onTap: () {
-            //       Navigator.pop(context);
-            //     },
-            //   ),
             ListTile(
               title: const Text('Past Events'),
               onTap: () {
@@ -142,21 +136,6 @@ class _EventsPageState extends State<EventsPage> {
           ],
         ),
       ),
-      // body: ValueListenableBuilder(
-      //     valueListenable: FutureEvents.refreshCount,
-      //     builder: (context, value, child) {
-      //body: mainEventsPage(context, ttLastRefreshed, events),
-
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () => Navigator.of(context)
-      //       .push(MaterialPageRoute(
-      //         builder: (context) => const SettingsPage(),
-      //       ))
-      //       .then((value) => setState(
-      //             () {},
-      //           )),
-      //   child: const Icon(Icons.settings),
-      // ),
 
       body: (AppSettings.isRusaIDSet) //  && AppSettings.rusaID!='99999')
           ? mainEventsPage(context, ttLastRefreshed, events)

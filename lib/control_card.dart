@@ -211,20 +211,7 @@ class _ControlCardState extends State<ControlCard> {
         child: const Text('CHECK IN'),
       );
     }
-    // else {
-    //   return const SizedBox.shrink();
-    // }
   }
-
-  // TODO Rebuilding after upload, GPS update, Time passage
-
-  // TODO Automatic check-in of first control.
-
-  // TODO Control check-in code?
-
-  // TODO Posting result and elapsed time to roster
-
-  // TODO Convert some logger statements to exceptions -- in app notifications
 
   Future openCheckInDialog() => showDialog(
         context: context,
