@@ -65,8 +65,7 @@ class ControlDetailPage extends StatelessWidget {
                   const Spacer(flex: 1),
                   ElevatedButton(
                       onPressed: () {
-                        var report = Report(pastEvent);
-                        report.constructReportAndSend();
+                        Report.constructReportAndSend(pastEvent);
                       }, // Current.constructReportAndSend(),
                       child: const Text("Upload results")),
                   const SizedBox(

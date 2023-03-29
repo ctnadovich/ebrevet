@@ -25,7 +25,6 @@ import 'outcome.dart';
 import 'ride_page.dart';
 import 'region.dart';
 import 'event_history.dart';
-import 'current.dart';
 import 'signature.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
@@ -116,7 +115,7 @@ class _EventCardState extends State<EventCard> {
                               // pe can't be null because overallOutcomeInHistory wasn't unknown
                             });
                             EventHistory.save();
-                            Current.deactivate();
+                            // Current.deactivate();
                           },
                           icon: const Icon(Icons.cancel),
                           tooltip: 'Abandon the event',
@@ -126,9 +125,10 @@ class _EventCardState extends State<EventCard> {
                   //   ),
                   // ),
                   const Spacer(),
-                  (isStartable ||
-                          isPreridable ||
-                          overallOutcomeInHistory != OverallOutcome.dns)
+                  pe != null &&
+                          (isStartable ||
+                              isPreridable ||
+                              overallOutcomeInHistory != OverallOutcome.dns)
                       ? rideButton(context, pe)
                       : const SizedBox.shrink(),
                   const SizedBox(width: 8),
@@ -158,10 +158,9 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  TextButton rideButton(BuildContext context, PastEvent? pe) {
+  TextButton rideButton(BuildContext context, PastEvent pe) {
     final isPreride = widget.event.isPreridable;
-    final OverallOutcome overallOutcomeInHistory =
-        pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
+    final OverallOutcome overallOutcomeInHistory = pe.outcomes.overallOutcome;
 
     return TextButton(
       style: TextButton.styleFrom(
@@ -182,16 +181,16 @@ class _EventCardState extends State<EventCard> {
 
           if (context.mounted) {
             if (overallOutcomeInHistory != OverallOutcome.finish) {
-              Current.activate(widget.event, AppSettings.rusaID,
+              EventHistory.addActivate(widget.event, AppSettings.rusaID,
                   isPreride: isPreride);
             }
             Navigator.of(context)
                 .push(MaterialPageRoute(
                   builder: (context) =>
                       overallOutcomeInHistory != OverallOutcome.finish
-                          ? const RidePage()
+                          ? RidePage(pe)
                           : CertificatePage(
-                              pe!), // will implicitly ride event just activated
+                              pe), // will implicitly ride event just activated
                 ))
                 .then((_) => setState(() {}));
           } else {

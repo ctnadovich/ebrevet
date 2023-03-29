@@ -21,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'control.dart';
 import 'time_till.dart';
 import 'location.dart';
-import 'current.dart';
 import 'app_settings.dart';
 import 'event_history.dart';
 
@@ -84,8 +83,9 @@ class _ControlCardState extends State<ControlCard> {
   String controlStatusString(Control c) {
     DateTime now = DateTime.now();
     int controlKey = c.index;
-    var open = Current.activatedEvent!.openActual(controlKey);
-    var close = Current.activatedEvent!.closeActual(controlKey);
+    var activeEvent = widget.pastEvent;
+    var open = activeEvent.openActual(controlKey);
+    var close = activeEvent.closeActual(controlKey);
     if ((open ?? close) == null) return ""; // Pre ride undefined open/close
     if (open!.isAfter(now)) {
       // Open in future
@@ -132,7 +132,7 @@ class _ControlCardState extends State<ControlCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                  "Control: ${1 + widget.control.index} of ${Current.event?.controls.length ?? '?'}"),
+                  "Control: ${1 + widget.control.index} of ${widget.pastEvent.event.controls.length}"),
               Text("Address: ${widget.control.address}"),
               Text("Style: ${widget.control.style}"),
               Text('Course distance: ${widget.control.distMi.toString()} mi'),
@@ -141,9 +141,9 @@ class _ControlCardState extends State<ControlCard> {
                   "Location: ${widget.control.lat} N;  ${widget.control.long}E"),
               Text(controlStatusString(widget.control)),
               Text(
-                  'Open Time: ${Current.activatedEvent!.openActualString(widget.control.index)}'),
+                  'Open Time: ${widget.pastEvent.openActualString(widget.control.index)}'),
               Text(
-                  'Close Time: ${Current.activatedEvent!.closeActualString(widget.control.index)}'),
+                  'Close Time: ${widget.pastEvent.closeActualString(widget.control.index)}'),
             ],
           ),
           actions: [
@@ -157,7 +157,8 @@ class _ControlCardState extends State<ControlCard> {
       );
 
   Widget checkInButton(Control c, DateTime? lastUpload) {
-    var checkInTime = Current.controlCheckInTime(c);
+    var activeEvent = widget.pastEvent;
+    var checkInTime = activeEvent.controlCheckInTime(c);
     // var lastUpload = Current.activatedEvent?.outcomes.lastUpload;
 
     if (checkInTime != null) {
@@ -170,9 +171,9 @@ class _ControlCardState extends State<ControlCard> {
           Text(checkInTime.toLocal().toString().substring(11, 19)),
         ],
       );
-    } else if (false == Current.activatedEvent!.isAvailable(c.index)) {
-      var open = Current.activatedEvent!.isOpenControl(c.index);
-      var near = Current.activatedEvent!.isNear(c.index);
+    } else if (false == activeEvent.isAvailable(c.index)) {
+      var open = activeEvent.isOpenControl(c.index);
+      var near = activeEvent.isNear(c.index);
       var openTimeOverride = AppSettings.openTimeOverride;
       var proximityRadiusInfinite = AppSettings.proximityRadius ==
           AppSettings.infiniteDistance.toDouble();
@@ -255,13 +256,9 @@ class _ControlCardState extends State<ControlCard> {
 
   void submitCheckInDialog() {
     setState(() {
-      if (Current.event != null) {
-        Current.controlCheckIn(
-            control: widget.control, comment: controller.text);
-        controller.clear();
-      } else {
-        SnackbarGlobal.show('No current event to check into.');
-      }
+      widget.pastEvent
+          .controlCheckIn(control: widget.control, comment: controller.text);
+      controller.clear();
     });
     Navigator.of(context).pop();
   }

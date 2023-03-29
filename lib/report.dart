@@ -27,23 +27,24 @@ import 'mylogger.dart';
 import 'signature.dart';
 
 class Report {
-  PastEvent? activatedEvent;
+  static late PastEvent _reportingEvent;
 
-  Report(this.activatedEvent);
+  static void constructReportAndSend(PastEvent pe,
+      {Control? control, String? comment}) {
+    _reportingEvent = pe;
 
-  void constructReportAndSend({Control? control, String? comment}) {
     Map<String, dynamic> report =
-        constructReport(controlIndex: control?.index, comment: comment);
+        _constructReport(controlIndex: control?.index, comment: comment);
 
-    sendReportToServer(report)
-        .then((response) => recordReportResponse(response))
+    _sendReportToServer(report)
+        .then((response) => _recordReportResponse(response))
         .catchError((e) {
       SnackbarGlobal.show("No Internet. "
-          "No worries. Try upload later. RIDE ON!");
+          "Cannot upload results now. Try later.");
     });
   }
 
-  void recordReportResponse(http.Response response) {
+  static void _recordReportResponse(http.Response response) {
     String? result;
     if (response.statusCode == 200) {
       try {
@@ -51,7 +52,7 @@ class Report {
         var status = (r.containsKey('status')) ? r['status'] : '';
         if (status == 'OK') {
           var now = DateTime.now().toUtc();
-          activatedEvent!.outcomes.lastUpload = now;
+          _reportingEvent.outcomes.lastUpload = now;
           EventHistory
               .save(); // It seems excessive to save the whole event history
           // every check in, but this certainly does the job.
@@ -78,25 +79,25 @@ class Report {
         "POST Status: ${response.statusCode}; Body: ${response.body}");
   }
 
-  Map<String, dynamic> constructReport(
+  static Map<String, dynamic> _constructReport(
       {int? controlIndex, // Set if we are checking into a control
       String? comment // any text comment
       }) {
     // Never call this without activated event
-    assert(null != activatedEvent);
+    // assert(null != _activatedEvent);
 
     Map<String, dynamic> report = {};
 
-    report['event_id'] = activatedEvent!.event.eventID.toString();
-    report['rider_id'] = activatedEvent!.riderID;
+    report['event_id'] = _reportingEvent.event.eventID.toString();
+    report['rider_id'] = _reportingEvent.riderID;
     if (controlIndex != null) report['control_index'] = controlIndex.toString();
     if (comment != null) report['comment'] = comment;
-    report['outcome'] = activatedEvent!.outcomes;
+    report['outcome'] = _reportingEvent.outcomes;
 
     report['app_version'] = AppSettings.version;
     report['proximity_radius'] = AppSettings.proximityRadius;
     report['open_override'] = AppSettings.openTimeOverride ? "YES" : "NO";
-    report['preride'] = (activatedEvent!.isPreride) ? "YES" : "NO";
+    report['preride'] = (_reportingEvent.isPreride) ? "YES" : "NO";
 
     report['rider_location'] = RiderLocation.latLongFullString;
     report['last_loc_update'] = RiderLocation.lastLocationUpdateUTCString;
@@ -104,8 +105,8 @@ class Report {
     var timestamp = DateTime.now().toUtc().toIso8601String();
     report['timestamp'] = timestamp;
     var signature = Signature(
-        riderID: activatedEvent!.riderID, // non null by assertion above
-        event: activatedEvent!.event,
+        riderID: _reportingEvent.riderID, // non null by assertion above
+        event: _reportingEvent.event,
         data: timestamp,
         codeLength: 8);
 
@@ -113,10 +114,10 @@ class Report {
     return report;
   }
 
-  Future<http.Response> sendReportToServer(Map report) {
-    assert(null != activatedEvent); // Never call this without activated event
+  static Future<http.Response> _sendReportToServer(Map report) {
+    // assert(null != activatedEvent); // Never call this without activated event
 
-    var eventURL = activatedEvent!.event.eventURL;
+    var eventURL = _reportingEvent.event.eventURL;
     var url = "$eventURL/post_checkin";
     var reportJSON = jsonEncode(report,
         toEncodable: (Object? value) => value is EventOutcomes

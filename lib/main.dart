@@ -41,7 +41,12 @@ import 'mylogger.dart';
 void main() {
   initSettings().then((_) {
     MyLogger.entry("** runApp(MyApp)");
-    runApp(const MyApp());
+    runApp(
+      ChangeNotifierProvider(
+        create: (context) => DayNight(),
+        child: const MyApp(),
+      ),
+    );
   });
 }
 
@@ -61,19 +66,16 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<DayNight>(
-      create: (_) => DayNight(),
-      child: Consumer<DayNight>(builder: (context, dayNight, child) {
-        return MaterialApp(
-          scaffoldMessengerKey: SnackbarGlobal.key,
-          title: 'eBrevet Card',
-          debugShowCheckedModeBanner: false,
-          theme: dayNight.dayTheme,
-          darkTheme: dayNight.nightTheme,
-          themeMode: dayNight.mode,
-          home: const EventsPage(),
-        );
-      }),
-    );
+    return Consumer<DayNight>(builder: (context, dayNight, child) {
+      return MaterialApp(
+        scaffoldMessengerKey: SnackbarGlobal.key,
+        title: 'eBrevet Card',
+        debugShowCheckedModeBanner: false,
+        theme: dayNight.dayTheme,
+        darkTheme: dayNight.nightTheme,
+        themeMode: dayNight.mode,
+        home: const EventsPage(),
+      );
+    });
   }
 }

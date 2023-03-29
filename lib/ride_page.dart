@@ -20,21 +20,22 @@ import 'package:provider/provider.dart';
 import 'control_card.dart';
 import 'time_till.dart';
 import 'location.dart';
-import 'current.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
 import 'ticker.dart';
 import 'outcome.dart';
 import 'report.dart';
+import 'event_history.dart';
 
 class RidePage extends StatefulWidget {
-  const RidePage({super.key});
+  final PastEvent activeEvent;
+  const RidePage(this.activeEvent, {super.key});
+
   @override
   State<RidePage> createState() => _RidePageState();
 }
 
 class _RidePageState extends State<RidePage> {
-  final isPreride = Current.activatedEvent?.isPreride ?? false;
   Ticker ticker = Ticker();
 
   @override
@@ -58,9 +59,12 @@ class _RidePageState extends State<RidePage> {
 
   @override
   Widget build(BuildContext context) {
-    var controlList = (Current.isActivated) ? Current.event!.controls : [];
-    var eventText =
-        (Current.isActivated) ? Current.event!.nameDist : 'No event';
+    var activeEvent = widget.activeEvent;
+    var isPreride = activeEvent.isPreride;
+    var event = activeEvent.event;
+    var outcomes = activeEvent.outcomes;
+    var controlList = event.controls;
+    var eventText = event.nameDist;
     var dayNight = context.watch<DayNight>();
     var lastLocationUpdate = RiderLocation.lastLocationUpdate;
 
@@ -116,20 +120,16 @@ class _RidePageState extends State<RidePage> {
 
 // TODO immediate updating of these texts after checkin or upload
 
-                  (Current.outcomes?.overallOutcome == OverallOutcome.dns)
+                  (outcomes.overallOutcome == OverallOutcome.dns)
                       ? const SizedBox.shrink()
                       : Column(
                           children: [
+                            Text(activeEvent.checkInFractionString),
                             Text(
-                                Current.activatedEvent?.checkInFractionString ??
-                                    ''),
-                            Text(
-                              Current.activatedEvent?.isFullyUploadedString ??
-                                  '',
+                              activeEvent.isFullyUploadedString,
                               style: TextStyle(
-                                  fontWeight: (Current.activatedEvent
-                                              ?.isCurrentOutcomeFullyUploaded ??
-                                          false)
+                                  fontWeight: (activeEvent
+                                          .isCurrentOutcomeFullyUploaded)
                                       ? FontWeight.normal
                                       : FontWeight.bold),
                             ),
@@ -147,18 +147,13 @@ class _RidePageState extends State<RidePage> {
                       //       onPressed: null, child: Text("GPS Off")),
                       const Spacer(),
                       ElevatedButton(
-                          onPressed: () {
-                            var report = Report(Current.activatedEvent);
-                            report.constructReportAndSend();
-                          },
+                          onPressed: () =>
+                              Report.constructReportAndSend(activeEvent),
                           child: const Text("Upload results")),
                     ],
                   ),
                 ] +
-                [
-                  for (var c in controlList)
-                    ControlCard(c, Current.activatedEvent!)
-                ],
+                [for (var c in controlList) ControlCard(c, activeEvent)],
           ),
         ),
       ),

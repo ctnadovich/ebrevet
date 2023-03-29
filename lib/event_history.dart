@@ -20,8 +20,9 @@ import 'event.dart';
 import 'outcome.dart';
 import 'control.dart';
 import 'app_settings.dart';
-import 'current.dart';
 import 'mylogger.dart';
+import 'snackbarglobal.dart';
+import 'report.dart';
 
 // PastEvents are events with outcomes
 // when a plain Event is "activated" it becomes
@@ -50,6 +51,34 @@ class PastEvent {
     var e = Event.fromMap(eventMap);
     var o = EventOutcomes.fromMap(outcomeMap);
     return PastEvent(e, riderID, o, isPreride);
+  }
+
+  void controlCheckIn({required Control control, String? comment}) {
+    assert(isAvailable(
+        control.index)); // Trying to check into an unavailable control
+    var eventID = _event.eventID;
+    assert(null != EventHistory.lookupPastEvent(eventID));
+    // Trying to check into a never activated event
+
+    var now = DateTime.now().toUtc();
+    outcomes.setControlCheckInTime(control.index, now);
+    if (isAllChecked) {
+      if (isAllCheckedInOrder()) {
+        outcomes.overallOutcome = OverallOutcome.finish;
+        // Current.deactivate();
+        SnackbarGlobal.show(
+            'Congratulations! You have finished the ${_event.nameDist}. Your '
+            'elapsed time: $elapsedTimeString');
+      } else {
+        outcomes.overallOutcome = OverallOutcome.dnq;
+        // Current.deactivate();
+        SnackbarGlobal.show('Controls checked in wrong order. Disqualified!');
+      }
+    }
+
+    assert(controlCheckInTime(control) != null); // should have just set this
+
+    Report.constructReportAndSend(this, control: control, comment: comment);
   }
 
   bool get isFinalOutcomeFullyUploaded {
@@ -96,6 +125,38 @@ class PastEvent {
     return (outcomes.overallOutcome == OverallOutcome.dns)
         ? ""
         : "Checked into $numberOfCheckIns/$numberOfControls controls";
+  }
+
+  bool get isAllChecked {
+    for (var control in _event.controls) {
+      if (false == controlIsChecked(control)) return false;
+    }
+    return true;
+  }
+
+  bool controlIsChecked(Control control) {
+    return controlCheckInTime(control) != null;
+  }
+
+  DateTime? controlCheckInTime(Control control) {
+    return outcomes.getControlCheckInTime(control.index);
+  }
+
+  bool isAllCheckedInOrder() {
+    if (controlCheckInTime(_event.controls.first) == null) return false;
+    DateTime tLast = isPreride
+        ? controlCheckInTime(_event.controls.first)!
+        : _event.startDateTime;
+    for (var control in _event.controls) {
+      var tControl = controlCheckInTime(control);
+      if (tControl == null) return false;
+      if (tControl.isBefore(tLast)) return false;
+      tLast = tControl;
+    }
+
+    if (elapsedDuration == null) return false;
+
+    return true;
   }
 
   String get isFullyUploadedString => (numberOfCheckIns == 0)
@@ -195,7 +256,7 @@ class EventHistory {
 
   static const pastEventsFileName = 'past_events.json';
 
-  static PastEvent addActivate(Event e, String r, bool isPreride) {
+  static PastEvent addActivate(Event e, String r, {bool isPreride = false}) {
     var pe = lookupPastEvent(e.eventID);
     if (pe != null) {
       pe.outcomes.overallOutcome = OverallOutcome.active;
@@ -311,9 +372,9 @@ class EventHistory {
 
   static deletePastEvent(PastEvent pe) {
     if (_pastEventMap.containsKey(pe._event.eventID)) {
-      if (Current.activatedEvent?._event.eventID == pe._event.eventID) {
-        Current.deactivate();
-      }
+      // if (Current.activatedEvent?._event.eventID == pe._event.eventID) {
+      //   Current.deactivate();
+      // }
       _pastEventMap.remove(pe._event.eventID);
       save();
     }
