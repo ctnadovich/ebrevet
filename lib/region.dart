@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
+// along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 // import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:ebrevet_card/app_settings.dart';
@@ -57,12 +57,11 @@ class Region {
   }
 
   // static get isSet {
-  //   var rgnKey = AppSettings.regionID;  
+  //   var rgnKey = AppSettings.regionID;
   //   return (rgnKey<1) ? false : true;
   // }
 
-  Region.fromSettings()
-      : this(regionID: AppSettings.regionID);
+  Region.fromSettings() : this(regionID: AppSettings.regionID);
 
   static get regionMap => RegionData.regionMap;
   static get defaultRegion => RegionData.defaultRegion;

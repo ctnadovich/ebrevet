@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
+// along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
@@ -38,7 +38,8 @@ class Signature {
   String get text {
     var plainString = [
       if (data != null) data,
-      event.eventID, // regionID not needed because eventID is sufficient for world uniqueness, as "acp_club_code-pa_event"
+      event
+          .eventID, // regionID not needed because eventID is sufficient for world uniqueness, as "acp_club_code-pa_event"
       riderID,
       event.secret,
     ].join('-');
@@ -49,12 +50,11 @@ class Signature {
     return startCode;
   }
 
-  static String substituteZeroOneXY(String s){
+  static String substituteZeroOneXY(String s) {
     return s.replaceAll('0', 'X').replaceAll('1', 'Y');
   }
 
-  static String substituteXYZeroOne(String s){
+  static String substituteXYZeroOne(String s) {
     return s.replaceAll('X', '0').replaceAll('Y', '1');
   }
-
 }

@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
+// along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';

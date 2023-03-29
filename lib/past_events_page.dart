@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
+// along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:ebrevet_card/event_history.dart';
 import 'package:flutter/material.dart';

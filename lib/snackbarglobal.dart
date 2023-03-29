@@ -12,7 +12,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
+// along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
 
@@ -20,9 +20,7 @@ class SnackbarGlobal {
   static GlobalKey<ScaffoldMessengerState> key =
       GlobalKey<ScaffoldMessengerState>();
 
-
   static void show(String message, {Color? color}) {
-
     var themeColor = Theme.of(key.currentContext!).primaryColorDark;
 
     key.currentState!
@@ -30,8 +28,8 @@ class SnackbarGlobal {
       ..showSnackBar(SnackBar(
         content: Container(
             padding: const EdgeInsets.all(16),
-            // height: 100, 
-            decoration:  BoxDecoration(
+            // height: 100,
+            decoration: BoxDecoration(
                 color: color ?? themeColor,
                 borderRadius: const BorderRadius.all(Radius.circular(20.0))),
             child: Column(
@@ -50,6 +48,5 @@ class SnackbarGlobal {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ));
-
   }
 }
