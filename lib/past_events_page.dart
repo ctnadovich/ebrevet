@@ -24,6 +24,7 @@ import 'outcome.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
 import 'cert_page.dart';
+import 'event_card.dart';
 
 class PastEventsPage extends StatefulWidget {
   const PastEventsPage({super.key});
@@ -62,15 +63,17 @@ class _PastEventsPageState extends State<PastEventsPage> {
 
                 // Text('Past events for: ${AppSettings.rusaID}'),
 
-                for (var pe in EventHistory.pastEventList)
-                  pastEventCard(context, pe.event),
+                for (var pe in EventHistory.pastEventList) EventCard(pe.event),
               ],
             ),
           ),
         ));
   }
 
-  Widget pastEventCard(BuildContext context, Event event) {
+  // TODO Not used -- replated with event card
+  // TODO but this loses "Delete" option
+
+  Widget pastEventCardOld(BuildContext context, Event event) {
     final eventID = event.eventID;
     final pe = EventHistory.lookupPastEvent(eventID);
     // var eventInHistory = pe?.event;
@@ -138,6 +141,9 @@ class _PastEventsPageState extends State<PastEventsPage> {
                     ? FontWeight.normal
                     : FontWeight.bold),
           ),
+          const SizedBox(
+            height: 6,
+          ),
         ],
       ),
     );
@@ -196,7 +202,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
           MyLogger.entry("Not mounted!?");
         }
       },
-      child: const Text("VIEW"),
+      child: const Text("CERTIFICATE"),
     );
   }
 }

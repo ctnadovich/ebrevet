@@ -127,10 +127,33 @@ class ControlLocation {
         : null;
   }
 
-  static const octant = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N'];
+  static const octant = [
+    'North',
+    'NorthE',
+    'East',
+    'SouthE',
+    'South',
+    'SouthW',
+    'West',
+    'NorthW',
+    'North'
+  ];
 
   String angleToCompassHeading(theta) {
     return octant[((8 * theta / 360.0) % 8).round()];
+  }
+
+  String get crowDistString {
+    var dist = crowDistMeters;
+    var unit = 'm';
+
+    if (dist == null) return '??';
+    if (dist >= 1000.0) {
+      unit = 'km';
+      dist = dist / 1000.0;
+    }
+
+    return "${dist.toStringAsFixed(1)} $unit";
   }
 
   String get crowDistMiString =>

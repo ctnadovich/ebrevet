@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with dogtag.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/ride_page.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
@@ -125,7 +126,7 @@ class _CertificatePageState extends State<CertificatePage> {
                         style: emStyle,
                       ),
                       const Text('was completed in', style: emStyle),
-                      Text(widget.pastEvent.elapsedTimeStringVerbose,
+                      Text(pastEvent.elapsedTimeStringVerbose,
                           style: titleLarge),
                       const SizedBox(
                         height: 4,
@@ -149,7 +150,8 @@ class _CertificatePageState extends State<CertificatePage> {
                 TextButton(
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ControlDetailPage(pastEvent),
+                        builder: (context) => ControlDetailPage(
+                            pastEvent), // ControlDetailPage(pastEvent),
                       ));
                     },
                     child: const Text('Control Detail')),

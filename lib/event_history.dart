@@ -100,7 +100,9 @@ class PastEvent {
 
   String get isFullyUploadedString => (numberOfCheckIns == 0)
       ? 'Nothing to Upload'
-      : (isCurrentOutcomeFullyUploaded ? 'Uploaded' : 'Not Fully Uploaded');
+      : (isCurrentOutcomeFullyUploaded
+          ? 'Uploaded: ${outcomes.lastUploadString}'
+          : 'Not Fully Uploaded');
 
   DateTime? get startDateTimeActual => (isPreride)
       ? outcomes.getControlCheckInTime(_event.startControlKey)

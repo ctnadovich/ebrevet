@@ -23,12 +23,14 @@ import 'time_till.dart';
 import 'location.dart';
 import 'current.dart';
 import 'app_settings.dart';
-
-
+import 'event_history.dart';
 
 class ControlCard extends StatefulWidget {
   final Control control;
-  const ControlCard(this.control, {super.key});
+  final PastEvent pastEvent;
+
+  const ControlCard(this.control, this.pastEvent, {super.key});
+
   @override
   State<ControlCard> createState() => _ControlCardState();
 }
@@ -50,63 +52,36 @@ class _ControlCardState extends State<ControlCard> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-        valueListenable: Current.lastSuccessfulServerUpload,
-        builder: (context, lastUpload, child) {
-          return Card(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                ListTile(
-                  leading: Icon((widget.control.sif == SIF.intermediate)
-                      ? Icons.checklist
-                      : ((widget.control.sif == SIF.start)
-                          ? Icons.play_arrow
-                          : Icons.stop)),
-                  title: showControlName(widget.control),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      showDistance(widget.control.cLoc),
-                      showControlStatus(widget.control),
-                    ],
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    checkInButton(widget.control, lastUpload),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-                const SizedBox(
-                  height: 5,
-                )
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            leading: Icon((widget.control.sif == SIF.intermediate)
+                ? Icons.checklist
+                : ((widget.control.sif == SIF.start)
+                    ? Icons.play_arrow
+                    : Icons.stop)),
+            title: showControlName(widget.control),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(exactDistanceString(widget.control.cLoc)),
+                Text(controlStatusString(widget.control)),
               ],
             ),
-          );
-        });
+            trailing: checkInButton(
+                widget.control, widget.pastEvent.outcomes.lastUpload),
+          ),
+          const SizedBox(
+            height: 5,
+          )
+        ],
+      ),
+    );
   }
 
-  Text showControlStatus(Control c) {
-    // if (Current.activatedEvent!.isOpenControl(c.index)) {
-    //   return Text.rich(TextSpan(
-    //     children: [
-    //       TextSpan(
-    //         text: 'OPEN NOW! ',
-    //         style: TextStyle(fontWeight: FontWeight.bold),
-    //       ),
-    //       TextSpan(
-    //         text: controlStatus(c),
-    //       ),
-    //     ],
-    //   ));
-    // } else {
-    return Text(controlStatus(c));
-    //   }
-  }
-
-  String controlStatus(Control c) {
+  String controlStatusString(Control c) {
     DateTime now = DateTime.now();
     int controlKey = c.index;
     var open = Current.activatedEvent!.openActual(controlKey);
@@ -129,23 +104,8 @@ class _ControlCardState extends State<ControlCard> {
     }
   }
 
-  Text showDistance(ControlLocation cLoc) {
-    // if (cLoc.isNearControl) {
-    //   return Text(
-    //     'AT THIS CONTROL',
-    //     style: TextStyle(
-    //       fontWeight: FontWeight.bold,
-    //     ),
-    //   );
-    // } else {
-    return Text(
-        'Direction: ${cLoc.crowCompassHeadingString} ${cLoc.crowDistMiString} mi away');
-    //  }
-  }
-
-  Text showExactDistance(ControlLocation cLoc) {
-    return Text(
-        'Direction: ${cLoc.crowCompassHeadingString} ${cLoc.crowDistMetersString} meters away');
+  String exactDistanceString(ControlLocation cLoc) {
+    return ('Dir: ${cLoc.crowDistString} ${cLoc.crowCompassHeadingString}');
   }
 
   Widget showControlName(Control control) {
@@ -176,10 +136,10 @@ class _ControlCardState extends State<ControlCard> {
               Text("Address: ${widget.control.address}"),
               Text("Style: ${widget.control.style}"),
               Text('Course distance: ${widget.control.distMi.toString()} mi'),
-              showDistance(widget.control.cLoc),
+              Text(exactDistanceString(widget.control.cLoc)),
               Text(
                   "Location: ${widget.control.lat} N;  ${widget.control.long}E"),
-              showControlStatus(widget.control),
+              Text(controlStatusString(widget.control)),
               Text(
                   'Open Time: ${Current.activatedEvent!.openActualString(widget.control.index)}'),
               Text(
@@ -258,7 +218,7 @@ class _ControlCardState extends State<ControlCard> {
 
   // TODO lastUpload seem to be "forgotten" after an app restart
 
-  // TODO Automatic check-in of first control. 
+  // TODO Automatic check-in of first control.
 
   // TODO Control check-in code?
 
@@ -279,8 +239,8 @@ class _ControlCardState extends State<ControlCard> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              showControlStatus(widget.control),
-              showExactDistance(widget.control.cLoc),
+              Text(controlStatusString(widget.control)),
+              Text(exactDistanceString(widget.control.cLoc)),
               if (widget.control.cLoc.isNearControl)
                 const Text(
                   'AT THIS CONTROL',

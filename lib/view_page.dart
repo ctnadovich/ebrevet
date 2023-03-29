@@ -17,6 +17,7 @@
 import 'package:ebrevet_card/event_history.dart';
 import 'package:flutter/material.dart';
 import 'control.dart';
+import 'report.dart';
 
 class ControlDetailPage extends StatelessWidget {
   final PastEvent pastEvent;
@@ -35,36 +36,54 @@ class ControlDetailPage extends StatelessWidget {
         body: Container(
           color: Theme.of(context).colorScheme.primaryContainer,
           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-          child: Center(
-            child: ListView(
-              // mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // const SizedBox(height: 2),
-                Text(
-                  (pastEvent.isPreride)
-                      ? 'Volunteer Preride'
-                      : 'Scheduled Brevet',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text('Overall result: ${pastEvent.overallOutcomeDescription}'),
-                Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
-                Text(
-                    'Last Upload: ${pastEvent.outcomes.lastUploadString ?? "Never"}'),
-
-                for (var checkIn in pastEvent.outcomes.checkInTimeList)
-                  checkInCard(checkIn),
-              ],
-            ),
+          child: ListView(
+            children: [
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (pastEvent.isPreride)
+                            ? 'Volunteer Preride'
+                            : 'Scheduled Brevet',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                          'Overall result: ${pastEvent.overallOutcomeDescription}'),
+                      Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
+                      Text(
+                          'Last Upload: ${pastEvent.outcomes.lastUploadString}'),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                    ],
+                  ),
+                  const Spacer(flex: 1),
+                  ElevatedButton(
+                      onPressed: () {
+                        var report = Report(pastEvent);
+                        report.constructReportAndSend();
+                      }, // Current.constructReportAndSend(),
+                      child: const Text("Upload results")),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                ],
+              ),
+              for (var checkIn in pastEvent.outcomes.checkInTimeList)
+                checkInCard(checkIn),
+            ],
           ),
         ));
   }
 
   // TODO Pretty this up and add more analytics
-
-  // TODO should show result upload state and possibly offer upload button
-
-  // TODO when event is finished, there doesn't seem to be a way
-  // to "get back" to being able to upload results
+  // or maybe refactor/consolodate this with ControlCard
+  // used by RidePage
 
   Widget checkInCard(List<String> checkIn) {
     var controlIndex = int.parse(checkIn[0]);
@@ -89,14 +108,14 @@ class ControlDetailPage extends StatelessWidget {
             Text(control.address),
             Text(
                 'Control ${controlIndex + 1} ($courseMile mi): $ciDate @ $ciTime'),
-            checkInButton(control, pastEvent.outcomes.lastUpload),
+            checkInIcon(control, pastEvent.outcomes.lastUpload),
           ],
         ),
       ),
     );
   }
 
-  Widget checkInButton(Control c, DateTime? lastUpload) {
+  Widget checkInIcon(Control c, DateTime? lastUpload) {
     var checkInTime = pastEvent.outcomes.getControlCheckInTime(c.index);
     Icon checkInIcon;
     if (checkInTime != null) {

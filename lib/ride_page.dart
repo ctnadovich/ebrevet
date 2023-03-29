@@ -25,6 +25,7 @@ import 'app_settings.dart';
 import 'day_night.dart';
 import 'ticker.dart';
 import 'outcome.dart';
+import 'report.dart';
 
 class RidePage extends StatefulWidget {
   const RidePage({super.key});
@@ -146,16 +147,21 @@ class _RidePageState extends State<RidePage> {
                       //       onPressed: null, child: Text("GPS Off")),
                       const Spacer(),
                       ElevatedButton(
-                          onPressed: () => Current.constructReportAndSend(),
+                          onPressed: () {
+                            var report = Report(Current.activatedEvent);
+                            report.constructReportAndSend();
+                          },
                           child: const Text("Upload results")),
                     ],
                   ),
                 ] +
-                [for (var c in controlList) ControlCard(c)],
+                [
+                  for (var c in controlList)
+                    ControlCard(c, Current.activatedEvent!)
+                ],
           ),
         ),
       ),
     );
   }
 }
-

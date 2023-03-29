@@ -87,19 +87,9 @@ class _EventCardState extends State<EventCard> {
                 Text('${widget.event.startCity}, ${widget.event.startState}'),
                 Text('${widget.event.dateTime} (${widget.event.statusText})'),
                 Text('Latest Cue Ver: ${widget.event.cueVersionString}'),
-                // const Text('Organizer (Call if abandoning):'),
-                // Text(
-                //     '  ${widget.event.organizerName} ${widget.event.organizerPhone}'),
               ],
             ),
           ),
-          // Row(
-          //   // mainAxisAlignment: MainAxisAlignment.end,
-          //   children: <Widget>[
-          //     Container(
-          //       padding: EdgeInsets.fromLTRB(16, 16, 0, 8),
-          //       child:
-
           Column(
             children: [
               Row(
@@ -112,7 +102,6 @@ class _EventCardState extends State<EventCard> {
                     style: overallOutcomeInHistory == OverallOutcome.active
                         ? const TextStyle(
                             fontWeight: FontWeight.bold,
-                            // decoration: TextDecoration.underline,
                           )
                         : null,
                   ),
@@ -215,7 +204,7 @@ class _EventCardState extends State<EventCard> {
         }
       },
       child: Text(overallOutcomeInHistory == OverallOutcome.finish
-          ? "VIEW"
+          ? "CERTIFICATE "
           : (overallOutcomeInHistory == OverallOutcome.active
               ? "CONTINUE RIDE"
               : (isPreride ? 'PRERIDE' : 'RIDE'))),

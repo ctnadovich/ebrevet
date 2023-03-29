@@ -21,10 +21,9 @@ import 'package:provider/provider.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 import 'snackbarglobal.dart';
 import 'future_events.dart';
-import 'future_event_card.dart';
+import 'event_card.dart';
 import 'region.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
@@ -97,12 +96,12 @@ class _EventsPageState extends State<EventsPage> {
               ),
               child: const Text('eBrevet Main Menu'),
             ),
-          //  ListTile(
-          //     title: const Text('Current and Future Events'),
-          //     onTap: () {
-          //       Navigator.pop(context);
-          //     },
-          //   ),
+            //  ListTile(
+            //     title: const Text('Current and Future Events'),
+            //     onTap: () {
+            //       Navigator.pop(context);
+            //     },
+            //   ),
             ListTile(
               title: const Text('Past Events'),
               onTap: () {
@@ -133,7 +132,7 @@ class _EventsPageState extends State<EventsPage> {
                 });
               },
             ),
-           ListTile(
+            ListTile(
               title: const Text('About eBrevet'),
               onTap: () {
                 Navigator.pop(context);
@@ -199,7 +198,6 @@ class _EventsPageState extends State<EventsPage> {
           ),
         ]);
   }
-
 
   Stack mainEventsPage(
       BuildContext context, TimeTill? ttLastRefreshed, List<Event> events) {
@@ -274,13 +272,13 @@ class _EventsPageState extends State<EventsPage> {
   Widget requiredSettings() {
     return Container(
       color: Theme.of(context).colorScheme.primaryContainer,
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       child: Column(children: [
         const SizedBox(
           height: 10,
         ),
-        const Text('Enter your RUSA number and select a Club/Region that supports eBrevet EPP:'),
+        const Text(
+            'Enter your RUSA number and select a Club/Region that supports eBrevet EPP:'),
         const SizedBox(
           height: 10,
         ),
