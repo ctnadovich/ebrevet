@@ -33,8 +33,10 @@ import 'control_state.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
+  final bool? hasDelete;
+  final Function? onDelete;
 
-  const EventCard(this.event, {super.key});
+  const EventCard(this.event, {super.key, this.hasDelete, this.onDelete});
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -82,6 +84,13 @@ class _EventCardState extends State<EventCard> {
         children: <Widget>[
           ListTile(
             leading: const Icon(Icons.pedal_bike),
+            trailing: widget.hasDelete == true
+                ? IconButton(
+                    onPressed: () async {
+                      confirmDeleteDialog(context, pe!);
+                    },
+                    icon: const Icon(Icons.delete))
+                : null,
             title: showEventName(widget.event),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,6 +169,36 @@ class _EventCardState extends State<EventCard> {
         ],
       ),
     );
+  }
+
+  void confirmDeleteDialog(BuildContext context, PastEvent pe) {
+    showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: const Text('Please Confirm'),
+            content: Text('Delete the ${pe.event.nameDist}?'),
+            actions: [
+              // The "Yes" button
+              TextButton(
+                  onPressed: () {
+                    // Remove the box
+                    EventHistory.deletePastEvent(pe);
+
+                    // Close the dialog
+                    Navigator.of(context).pop();
+                    if (widget.onDelete != null) widget.onDelete!();
+                  },
+                  child: const Text('Yes')),
+              TextButton(
+                  onPressed: () {
+                    // Close the dialog
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('No'))
+            ],
+          );
+        });
   }
 
   TextButton rideButton(BuildContext context, PastEvent? pe) {

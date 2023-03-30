@@ -23,6 +23,13 @@ class Utility {
         : '${timestamp.substring(5, 10)} @ ${timestamp.substring(11, 16)}';
   }
 
+  static String toYearDateTimeString(DateTime? dt) {
+    var timestamp = dt?.toLocal().toIso8601String();
+    return timestamp == null
+        ? 'Never'
+        : '${timestamp.substring(0, 10)} @ ${timestamp.substring(11, 16)}';
+  }
+
   static String toBriefTimeString(DateTime? dt) {
     var timestamp = dt?.toLocal().toIso8601String();
     return timestamp == null ? 'Never' : timestamp.substring(11, 16);

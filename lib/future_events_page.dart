@@ -202,7 +202,7 @@ class _EventsPageState extends State<EventsPage> {
                           setState(() => fetchingFromServerNow = false));
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('Update Events from Server'),
+                label: const Text('Update event data from Server'),
               ),
               Text(
                 'Future events for: ${Region.fromSettings().clubName}',
@@ -210,12 +210,12 @@ class _EventsPageState extends State<EventsPage> {
               ),
               Text(
                 ttLastRefreshed != null
-                    ? 'Last updated: ${ttLastRefreshed.interval} ${ttLastRefreshed.unit}${ttLastRefreshed.ago}'
-                    : 'Update Events Now!',
+                    ? 'Event data updated: ${ttLastRefreshed.interval} ${ttLastRefreshed.unit}${ttLastRefreshed.ago}'
+                    : 'Update Event Data Now!',
                 textAlign: TextAlign.center,
               ),
               const Text(
-                'Update events before you ride!',
+                'Update event data before you ride!',
                 style: TextStyle(fontStyle: FontStyle.italic),
                 textAlign: TextAlign.center,
               ),

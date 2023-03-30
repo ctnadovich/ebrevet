@@ -20,6 +20,7 @@ import 'time_till.dart';
 import 'region.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
+import 'utility.dart';
 
 // The Event object documents an event details
 // with no reference to who is riding the event
@@ -121,7 +122,12 @@ class Event {
 
   get dateTime {
     var sdtl = startDateTime.toLocal();
-    return sdtl.toString().substring(0, 16);
+    if (sdtl.year == DateTime.now().toLocal().year) {
+      return Utility.toBriefDateTimeString(
+          sdtl); // sdtl.toString().substring(0, 16);
+    } else {
+      return Utility.toYearDateTimeString(sdtl);
+    }
   }
 
   get startDate {

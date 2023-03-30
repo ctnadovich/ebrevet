@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/app_settings.dart';
 import 'package:ebrevet_card/event_history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'region.dart';
-import 'event.dart';
 import 'outcome.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
@@ -63,121 +62,16 @@ class _PastEventsPageState extends State<PastEventsPage> {
 
                 // Text('Past events for: ${AppSettings.rusaID}'),
 
-                for (var pe in EventHistory.pastEventList) EventCard(pe.event),
+                for (var pe in EventHistory.pastEventList)
+                  EventCard(
+                    pe.event,
+                    hasDelete: AppSettings.canDeletePastEvents,
+                    onDelete: () => setState(() {}),
+                  ),
               ],
             ),
           ),
         ));
-  }
-
-  // TODO Not used -- replated with event card
-  // TODO but this loses "Delete" option
-
-  Widget pastEventCardOld(BuildContext context, Event event) {
-    final eventID = event.eventID;
-    final pe = EventHistory.lookupPastEvent(eventID);
-    // var eventInHistory = pe?.event;
-    final OverallOutcome overallOutcomeInHistory =
-        pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
-    final String overallOutcomeDescriptionInHistory =
-        overallOutcomeInHistory.description;
-    final clubName = Region(regionID: event.regionID).clubName;
-    final bool isOutcomeFullyUploaded =
-        pe?.isCurrentOutcomeFullyUploaded ?? false;
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            leading: const Icon(Icons.pedal_bike),
-            trailing: IconButton(
-                onPressed: () async {
-                  confirmDeleteDialog(context, pe!);
-                },
-                icon: const Icon(Icons.delete)),
-            title: Text(event.nameDist),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(clubName),
-                Text('${event.startDate}'),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              const SizedBox(
-                width: 16,
-              ),
-              Text(
-                overallOutcomeDescriptionInHistory,
-                style: overallOutcomeInHistory == OverallOutcome.active
-                    ? const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        // decoration: TextDecoration.underline,
-                      )
-                    : null,
-              ),
-              overallOutcomeInHistory == OverallOutcome.finish
-                  ? Text(" ${EventHistory.getElapsedTimeString(eventID)}")
-                  : const SizedBox.shrink(),
-              const Spacer(),
-              viewButton(context, eventID),
-              const SizedBox(
-                width: 4,
-              ),
-            ],
-          ),
-          // const SizedBox(
-          //   height: 8,
-          // ),
-
-          Text(pe?.checkInFractionString ?? ''),
-          Text(
-            pe?.isFullyUploadedString ?? '',
-            style: TextStyle(
-                fontWeight: isOutcomeFullyUploaded
-                    ? FontWeight.normal
-                    : FontWeight.bold),
-          ),
-          const SizedBox(
-            height: 6,
-          ),
-        ],
-      ),
-    );
-  }
-
-  void confirmDeleteDialog(BuildContext context, PastEvent pe) {
-    showDialog(
-        context: context,
-        builder: (BuildContext ctx) {
-          return AlertDialog(
-            title: const Text('Please Confirm'),
-            content: Text('Delete the ${pe.event.nameDist}?'),
-            actions: [
-              // The "Yes" button
-              TextButton(
-                  onPressed: () {
-                    // Remove the box
-                    setState(() {
-                      EventHistory.deletePastEvent(pe);
-                    });
-
-                    // Close the dialog
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Yes')),
-              TextButton(
-                  onPressed: () {
-                    // Close the dialog
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('No'))
-            ],
-          );
-        });
   }
 
   Widget viewButton(BuildContext context, String eventID) {

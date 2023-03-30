@@ -76,6 +76,10 @@ class AppSettings {
     return Settings.getValue('key-open-time-override', defaultValue: false)!;
   }
 
+  static bool get canDeletePastEvents {
+    return Settings.getValue('key-delete-past-events', defaultValue: false)!;
+  }
+
   static bool get prerideDateWindowOverride {
     return Settings.getValue('key-preride-date-window-override',
         defaultValue: false)!;
@@ -233,6 +237,12 @@ class SettingsPageState extends State<SettingsPage> {
           settingKey: "key-preride-date-window-override",
           subtitle: "Preride any time.",
           leading: const Icon(Icons.free_cancellation),
+        ),
+        SwitchSettingsTile(
+          title: "Delete Past Events",
+          settingKey: "key-delete-past-events",
+          subtitle: "Can delete events from past events page.",
+          leading: const Icon(Icons.delete),
         ),
       ],
     );

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:share_plus/share_plus.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:ebrevet_card/event_history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,11 +23,13 @@ import 'control.dart';
 import 'report.dart';
 import 'control_state.dart';
 import 'utility.dart';
+import 'mylogger.dart';
 
 class ControlDetailPage extends StatelessWidget {
   final PastEvent pastEvent;
+  final ScreenshotController screenshotController = ScreenshotController();
 
-  const ControlDetailPage(this.pastEvent, {super.key});
+  ControlDetailPage(this.pastEvent, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,52 +42,68 @@ class ControlDetailPage extends StatelessWidget {
             //style: TextStyle(fontSize: 14),
           ),
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _takeScreenshot(),
+          child: const Icon(Icons.share),
+        ),
         body: Container(
           color: Theme.of(context).colorScheme.primaryContainer,
           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-          child: ListView(
-            children: [
-              Row(
-                children: [
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        (pastEvent.isPreride)
-                            ? 'Volunteer Preride'
-                            : 'Scheduled Brevet',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                          'Overall result: ${pastEvent.overallOutcomeDescription}'),
-                      Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
-                      Text(
-                          'Last Upload: ${pastEvent.outcomes.lastUploadString}'),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                    ],
-                  ),
-                  const Spacer(flex: 1),
-                  ElevatedButton(
-                      onPressed: () {
-                        Report.constructReportAndSend(pastEvent,
-                            onUploadDone: controlState.reportUploaded);
-                      }, // Current.constructReportAndSend(),
-                      child: const Text("Upload results")),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                ],
-              ),
-              for (var checkIn in pastEvent.outcomes.checkInTimeList)
-                checkInCard(checkIn),
-            ],
+          child: Screenshot(
+            controller: screenshotController,
+            child: ListView(
+              children: [
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 8,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          (pastEvent.isPreride)
+                              ? 'Volunteer Preride'
+                              : 'Scheduled Brevet',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                            'Overall result: ${pastEvent.overallOutcomeDescription}'),
+                        Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
+                        Text(
+                            'Last Upload: ${pastEvent.outcomes.lastUploadString}'),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                      ],
+                    ),
+                    const Spacer(flex: 1),
+                    ElevatedButton(
+                        onPressed: () {
+                          Report.constructReportAndSend(pastEvent,
+                              onUploadDone: controlState.reportUploaded);
+                        }, // Current.constructReportAndSend(),
+                        child: const Text("Upload results")),
+                    const SizedBox(
+                      width: 8,
+                    ),
+                  ],
+                ),
+                for (var checkIn in pastEvent.outcomes.checkInTimeList)
+                  checkInCard(checkIn),
+              ],
+            ),
           ),
         ));
+  }
+
+  void _takeScreenshot() async {
+    final imageData = await screenshotController.capture();
+    if (imageData != null) {
+      Share.shareXFiles([XFile.fromData(imageData)]);
+    } else {
+      MyLogger.entry('Could not take screenshot.', severity: Severity.warning);
+    }
   }
 
   // TODO Pretty this up and add more analytics

@@ -15,10 +15,10 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:share_plus/share_plus.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:screenshot/screenshot.dart';
 
 import 'event_history.dart';
 import 'day_night.dart';
@@ -34,7 +34,6 @@ class CertificatePage extends StatefulWidget {
 }
 
 class _CertificatePageState extends State<CertificatePage> {
-  //Create an instance of ScreenshotController
   ScreenshotController screenshotController = ScreenshotController();
 
   @override
