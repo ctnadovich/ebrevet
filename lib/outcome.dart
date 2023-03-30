@@ -15,6 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'mylogger.dart';
+import 'utility.dart';
 
 enum OverallOutcome {
   dns,
@@ -90,12 +91,7 @@ class EventOutcomes {
     return _overallOutcome;
   }
 
-  String get lastUploadString {
-    var timestamp = lastUpload?.toLocal().toIso8601String();
-    return timestamp == null
-        ? 'Never'
-        : '${timestamp.substring(5, 10)} ${timestamp.substring(11, 19)}';
-  }
+  String get lastUploadString => Utility.toBriefDateTimeString(lastUpload);
 
   // When using this setter, don't forget to call EventHistory.save() afterwards
 

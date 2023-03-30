@@ -23,10 +23,13 @@ import 'app_settings.dart';
 import 'mylogger.dart';
 import 'snackbarglobal.dart';
 import 'report.dart';
+import 'control_state.dart';
 
 // PastEvents are events with outcomes
 // when a plain Event is "activated" it becomes
 // a past event in the EventHistory map
+
+// TODO should probably be a child class of Event
 
 class PastEvent {
   String riderID;
@@ -53,7 +56,11 @@ class PastEvent {
     return PastEvent(e, riderID, o, isPreride);
   }
 
-  void controlCheckIn({required Control control, String? comment}) {
+  void controlCheckIn(
+      {required Control control,
+      String? comment,
+      // Function? onUploadDone,
+      ControlState? controlState}) {
     assert(isAvailable(
         control.index)); // Trying to check into an unavailable control
     var eventID = _event.eventID;
@@ -62,6 +69,7 @@ class PastEvent {
 
     var now = DateTime.now().toUtc();
     outcomes.setControlCheckInTime(control.index, now);
+    if (controlState != null) controlState.checkIn();
     if (isAllChecked) {
       if (isAllCheckedInOrder()) {
         outcomes.overallOutcome = OverallOutcome.finish;
@@ -78,7 +86,10 @@ class PastEvent {
 
     assert(controlCheckInTime(control) != null); // should have just set this
 
-    Report.constructReportAndSend(this, control: control, comment: comment);
+    Report.constructReportAndSend(this, control: control, comment: comment,
+        onUploadDone: () {
+      if (controlState != null) controlState.reportUploaded();
+    });
   }
 
   bool get isFinalOutcomeFullyUploaded {

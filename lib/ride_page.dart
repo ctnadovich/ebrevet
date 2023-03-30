@@ -26,6 +26,7 @@ import 'ticker.dart';
 import 'outcome.dart';
 import 'report.dart';
 import 'event_history.dart';
+import 'control_state.dart';
 
 class RidePage extends StatefulWidget {
   final PastEvent activeEvent;
@@ -67,6 +68,8 @@ class _RidePageState extends State<RidePage> {
     var eventText = event.nameDist;
     var dayNight = context.watch<DayNight>();
     var lastLocationUpdate = RiderLocation.lastLocationUpdate;
+
+    var controlState = context.watch<ControlState>();
 
     String lastLocationUpdateText = "Rider Location Not Known!";
     TextStyle? lastLocationUpdateTextStyle;
@@ -117,9 +120,6 @@ class _RidePageState extends State<RidePage> {
                     textAlign: TextAlign.center,
                     style: lastLocationUpdateTextStyle,
                   ),
-
-// TODO immediate updating of these texts after checkin or upload
-
                   (outcomes.overallOutcome == OverallOutcome.dns)
                       ? const SizedBox.shrink()
                       : Column(
@@ -135,20 +135,22 @@ class _RidePageState extends State<RidePage> {
                             ),
                           ],
                         ),
-
                   Row(
                     children: [
                       // RiderLocation.gpsServiceEnabled
                       //     ?
                       ElevatedButton(
-                          onPressed: () => RiderLocation.updateLocation(),
+                          onPressed: () => RiderLocation.updateLocation()
+                              .then((_) => controlState.positionUpdated()),
                           child: const Text("GPS Update")),
                       //    const ElevatedButton(
                       //       onPressed: null, child: Text("GPS Off")),
                       const Spacer(),
                       ElevatedButton(
-                          onPressed: () =>
-                              Report.constructReportAndSend(activeEvent),
+                          onPressed: () => Report.constructReportAndSend(
+                                activeEvent,
+                                onUploadDone: () => controlState.reportUploaded,
+                              ),
                           child: const Text("Upload results")),
                     ],
                   ),

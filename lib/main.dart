@@ -27,8 +27,7 @@ import 'future_events.dart';
 import 'region.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
-
-// TODO Rebuilding after upload, GPS update, Time passage
+import 'control_state.dart';
 
 // TODO Automatic check-in of first control.
 
@@ -42,10 +41,18 @@ void main() {
   initSettings().then((_) {
     MyLogger.entry("** runApp(MyApp)");
     runApp(
-      ChangeNotifierProvider(
-        create: (context) => DayNight(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => DayNight()),
+          ChangeNotifierProvider(create: (context) => ControlState()),
+        ],
         child: const MyApp(),
       ),
+
+      // ChangeNotifierProvider(
+      //   create: (context) => DayNight(),
+      //   child: const MyApp(),
+      // ),
     );
   });
 }

@@ -24,6 +24,7 @@ import 'event_history.dart';
 import 'day_night.dart';
 import 'view_page.dart';
 import 'mylogger.dart';
+import 'control_state.dart';
 
 class CertificatePage extends StatefulWidget {
   final PastEvent pastEvent;
@@ -42,6 +43,8 @@ class _CertificatePageState extends State<CertificatePage> {
     var titleLarge = Theme.of(context).textTheme.titleLarge!;
     var titleMedium = Theme.of(context).textTheme.titleMedium!;
     const emStyle = TextStyle(fontStyle: FontStyle.italic);
+
+    context.read<ControlState>();
 
     var pastEvent = widget.pastEvent;
     // var wasOfficialFinish = pastEvent.wasOfficialFinish;

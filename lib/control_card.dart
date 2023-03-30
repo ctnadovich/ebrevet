@@ -15,14 +15,15 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'dart:async';
-import 'package:ebrevet_card/snackbarglobal.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'control.dart';
 import 'time_till.dart';
 import 'location.dart';
 import 'app_settings.dart';
 import 'event_history.dart';
+import 'control_state.dart';
 
 class ControlCard extends StatefulWidget {
   final Control control;
@@ -51,6 +52,7 @@ class _ControlCardState extends State<ControlCard> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ControlState>();
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -70,7 +72,9 @@ class _ControlCardState extends State<ControlCard> {
               ],
             ),
             trailing: checkInButton(
-                widget.control, widget.pastEvent.outcomes.lastUpload),
+              widget.control,
+              widget.pastEvent.outcomes.lastUpload,
+            ),
           ),
           const SizedBox(
             height: 5,
@@ -90,13 +94,11 @@ class _ControlCardState extends State<ControlCard> {
     if (open!.isAfter(now)) {
       // Open in future
       var tt = TimeTill(open);
-      var ot = open.toLocal().toString().substring(11, 16);
-      return "Opens $ot (in ${tt.interval} ${tt.unit})";
+      return "Opens ${tt.terseDateTime} (in ${tt.interval} ${tt.unit})";
     } else if (close!.isBefore(now)) {
       // Closed in past
       var tt = TimeTill(close);
-      var ct = close.toLocal().toString().substring(11, 16);
-      return "Closed $ct (${tt.interval} ${tt.unit} ago)";
+      return "Closed ${tt.terseDateTime} (${tt.interval} ${tt.unit} ago)";
     } else {
       var tt = TimeTill(close);
       //var ct = c.close.toLocal().toString().substring(11, 16);
@@ -255,11 +257,14 @@ class _ControlCardState extends State<ControlCard> {
       );
 
   void submitCheckInDialog() {
-    setState(() {
-      widget.pastEvent
-          .controlCheckIn(control: widget.control, comment: controller.text);
-      controller.clear();
-    });
+    var controlState = context.read<ControlState>();
+    widget.pastEvent.controlCheckIn(
+      control: widget.control,
+      comment: controller.text,
+      // onUploadDone: controlState.reportUploaded,
+      controlState: controlState,
+    );
+    controller.clear();
     Navigator.of(context).pop();
   }
 }

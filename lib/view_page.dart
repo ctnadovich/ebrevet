@@ -16,8 +16,11 @@
 
 import 'package:ebrevet_card/event_history.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'control.dart';
 import 'report.dart';
+import 'control_state.dart';
+import 'utility.dart';
 
 class ControlDetailPage extends StatelessWidget {
   final PastEvent pastEvent;
@@ -26,6 +29,8 @@ class ControlDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var controlState = context.watch<ControlState>();
+
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -65,7 +70,8 @@ class ControlDetailPage extends StatelessWidget {
                   const Spacer(flex: 1),
                   ElevatedButton(
                       onPressed: () {
-                        Report.constructReportAndSend(pastEvent);
+                        Report.constructReportAndSend(pastEvent,
+                            onUploadDone: controlState.reportUploaded);
                       }, // Current.constructReportAndSend(),
                       child: const Text("Upload results")),
                   const SizedBox(
@@ -86,9 +92,10 @@ class ControlDetailPage extends StatelessWidget {
 
   Widget checkInCard(List<String> checkIn) {
     var controlIndex = int.parse(checkIn[0]);
-    var citString = DateTime.parse(checkIn[1]).toLocal().toIso8601String();
-    var ciDate = citString.substring(5, 10);
-    var ciTime = citString.substring(11, 16);
+    var ciDateTime = DateTime.parse(checkIn[1]).toLocal();
+    var ciDateTimeString = Utility.toBriefDateTimeString(ciDateTime);
+    // var ciDate = citString.substring(5, 10);
+    // var ciTime = citString.substring(11, 16);
     var event = pastEvent.event;
     var control = event.controls[controlIndex];
     var courseMile = control.distMi;
@@ -106,7 +113,7 @@ class ControlDetailPage extends StatelessWidget {
           children: [
             Text(control.address),
             Text(
-                'Control ${controlIndex + 1} ($courseMile mi): $ciDate @ $ciTime'),
+                'Control ${controlIndex + 1} ($courseMile mi): $ciDateTimeString'),
             checkInIcon(control, pastEvent.outcomes.lastUpload),
           ],
         ),

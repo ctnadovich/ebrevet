@@ -15,32 +15,25 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-import 'package:flutter/material.dart';
-import 'utility.dart';
-
-class ControlState extends ChangeNotifier {
-  DateTime? _lastReportUpload;
-  DateTime? _lastPositionUpdate;
-  DateTime? _lastCheckIn;
-
-  String get lastReportUploadString =>
-      Utility.toBriefDateTimeString(_lastReportUpload);
-  String get lastPositionUpdateString =>
-      Utility.toBriefDateTimeString(_lastPositionUpdate);
-  String get lastCheckInString => Utility.toBriefDateTimeString(_lastCheckIn);
-
-  void reportUploaded() {
-    _lastReportUpload = DateTime.now();
-    notifyListeners();
+class Utility {
+  static String toBriefDateTimeString(DateTime? dt) {
+    var timestamp = dt?.toLocal().toIso8601String();
+    return timestamp == null
+        ? 'Never'
+        : '${timestamp.substring(5, 10)} @ ${timestamp.substring(11, 16)}';
   }
 
-  void checkIn() {
-    _lastCheckIn = DateTime.now();
-    notifyListeners();
+  static String toBriefTimeString(DateTime? dt) {
+    var timestamp = dt?.toLocal().toIso8601String();
+    return timestamp == null ? 'Never' : timestamp.substring(11, 16);
   }
 
-  void positionUpdated() {
-    _lastPositionUpdate = DateTime.now();
-    notifyListeners();
+  static String toStringAsFixed(
+    double d, {
+    int n = 1,
+  }) {
+    return (d.toStringAsFixed(2).endsWith('.000000000000'.substring(0, n)))
+        ? d.toStringAsFixed(n)
+        : d.toStringAsFixed(n);
   }
 }

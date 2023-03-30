@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'utility.dart';
+
 class TimeTill {
+  late DateTime t;
   late Duration d;
   late int days;
   late int hours;
@@ -27,7 +30,7 @@ class TimeTill {
   late String ago;
   late String s;
 
-  TimeTill(DateTime t) {
+  TimeTill(this.t) {
     d = t.difference(DateTime.now());
     var dAbs = d.abs();
     days = dAbs.inDays;
@@ -40,7 +43,7 @@ class TimeTill {
       unit = 'day';
       s = (days == 1) ? '' : 's';
     } else if (hours > 0) {
-      interval = myToStringAsFixed(minutes / 60.0);
+      interval = Utility.toStringAsFixed(minutes / 60.0);
       unit = 'hr';
       if (interval == '1' || interval == '1.0') {
         s = '';
@@ -49,7 +52,7 @@ class TimeTill {
         s = 's';
       }
     } else if (minutes >= 1) {
-      interval = myToStringAsFixed(seconds / 60.0);
+      interval = Utility.toStringAsFixed(seconds / 60.0);
       unit = 'min';
       if (interval == '1' || interval == '1.0') {
         s = '';
@@ -70,12 +73,11 @@ class TimeTill {
     ago = (d.inMicroseconds >= 0) ? '' : ' ago';
   }
 
-  myToStringAsFixed(
-    double d, {
-    int n = 1,
-  }) {
-    return (d.toStringAsFixed(2).endsWith('.000000000000'.substring(0, n)))
-        ? d.toStringAsFixed(n)
-        : d.toStringAsFixed(n);
+  String get terseDateTime {
+    if (t.toLocal().day != DateTime.now().toLocal().day) {
+      return Utility.toBriefDateTimeString(t);
+    } else {
+      return Utility.toBriefTimeString(t);
+    }
   }
 }

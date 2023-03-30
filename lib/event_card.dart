@@ -17,6 +17,7 @@
 import 'package:ebrevet_card/cert_page.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
 
 import 'snackbarglobal.dart';
 import 'future_events.dart';
@@ -28,6 +29,7 @@ import 'event_history.dart';
 import 'signature.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
+import 'control_state.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -56,6 +58,8 @@ class _EventCardState extends State<EventCard> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ControlState>();
+
     final eventID = widget.event.eventID;
     final regionID = widget.event.regionID;
     final regionName = Region(regionID: regionID).clubName;
@@ -125,10 +129,10 @@ class _EventCardState extends State<EventCard> {
                   //   ),
                   // ),
                   const Spacer(),
-                  pe != null &&
-                          (isStartable ||
-                              isPreridable ||
-                              overallOutcomeInHistory != OverallOutcome.dns)
+
+                  (isStartable ||
+                          isPreridable ||
+                          overallOutcomeInHistory != OverallOutcome.dns)
                       ? rideButton(context, pe)
                       : const SizedBox.shrink(),
                   const SizedBox(width: 8),
@@ -158,9 +162,10 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  TextButton rideButton(BuildContext context, PastEvent pe) {
+  TextButton rideButton(BuildContext context, PastEvent? pe) {
     final isPreride = widget.event.isPreridable;
-    final OverallOutcome overallOutcomeInHistory = pe.outcomes.overallOutcome;
+    final OverallOutcome overallOutcomeInHistory =
+        pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
 
     return TextButton(
       style: TextButton.styleFrom(
@@ -181,16 +186,17 @@ class _EventCardState extends State<EventCard> {
 
           if (context.mounted) {
             if (overallOutcomeInHistory != OverallOutcome.finish) {
-              EventHistory.addActivate(widget.event, AppSettings.rusaID,
+              pe = EventHistory.addActivate(widget.event, AppSettings.rusaID,
                   isPreride: isPreride);
             }
+            assert(pe != null);
             Navigator.of(context)
                 .push(MaterialPageRoute(
                   builder: (context) =>
                       overallOutcomeInHistory != OverallOutcome.finish
-                          ? RidePage(pe)
+                          ? RidePage(pe!)
                           : CertificatePage(
-                              pe), // will implicitly ride event just activated
+                              pe!), // will implicitly ride event just activated
                 ))
                 .then((_) => setState(() {}));
           } else {

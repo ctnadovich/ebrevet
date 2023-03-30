@@ -28,10 +28,16 @@ import 'signature.dart';
 
 class Report {
   static late PastEvent _reportingEvent;
+  static Function? _onUploadDoneCallback;
 
-  static void constructReportAndSend(PastEvent pe,
-      {Control? control, String? comment}) {
+  static void constructReportAndSend(
+    PastEvent pe, {
+    Control? control,
+    String? comment,
+    Function? onUploadDone,
+  }) {
     _reportingEvent = pe;
+    _onUploadDoneCallback = onUploadDone;
 
     Map<String, dynamic> report =
         _constructReport(controlIndex: control?.index, comment: comment);
@@ -40,7 +46,10 @@ class Report {
         .then((response) => _recordReportResponse(response))
         .catchError((e) {
       SnackbarGlobal.show("No Internet. "
-          "Cannot upload results now. Try later.");
+          "Cannot upload results now. Try later");
+      // Save the event history even if the upload was unsuccessful.
+      EventHistory.save();
+      if (_onUploadDoneCallback != null) _onUploadDoneCallback!();
     });
   }
 
@@ -53,11 +62,6 @@ class Report {
         if (status == 'OK') {
           var now = DateTime.now().toUtc();
           _reportingEvent.outcomes.lastUpload = now;
-          EventHistory
-              .save(); // It seems excessive to save the whole event history
-          // every check in, but this certainly does the job.
-          // The only time an event can change state is when
-          // activated or at a control checkin.
         } else {
           result = ('Did not receive OK response. Got: $status');
         }
@@ -74,9 +78,17 @@ class Report {
     } else {
       SnackbarGlobal.show("Failed to upload checkin: $result");
     }
+
+    // It may seem excessive to save the whole event history
+    // every check in, but this certainly does the job.
+    // The only time an event can change state is when
+    // activated or at a control checkin.
+    EventHistory.save();
+
     MyLogger.entry(result);
     MyLogger.entry(
         "POST Status: ${response.statusCode}; Body: ${response.body}");
+    if (_onUploadDoneCallback != null) _onUploadDoneCallback!();
   }
 
   static Map<String, dynamic> _constructReport(
