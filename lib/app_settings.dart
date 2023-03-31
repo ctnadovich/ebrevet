@@ -48,6 +48,8 @@ class AppSettings {
   static const int gpsRefreshPeriod = 20;
   static const int maxRUSAID = 99999;
 
+  static const bool autoFirstControlCheckIn = true;
+
   static Color get themeColor {
     var colorString =
         Settings.getValue('key-theme-color', defaultValue: '#0000FF00')!;

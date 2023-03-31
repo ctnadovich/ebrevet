@@ -18,7 +18,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:ebrevet_card/event_history.dart';
+import 'past_event.dart';
 import 'package:path_provider/path_provider.dart';
 import 'mylogger.dart';
 

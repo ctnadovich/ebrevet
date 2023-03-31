@@ -16,7 +16,7 @@
 
 import 'package:share_plus/share_plus.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:ebrevet_card/event_history.dart';
+import 'past_event.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'control.dart';

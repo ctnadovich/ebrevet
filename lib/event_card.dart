@@ -26,6 +26,7 @@ import 'outcome.dart';
 import 'ride_page.dart';
 import 'region.dart';
 import 'event_history.dart';
+import 'past_event.dart';
 import 'signature.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
@@ -205,6 +206,7 @@ class _EventCardState extends State<EventCard> {
     final isPreride = widget.event.isPreridable;
     final OverallOutcome overallOutcomeInHistory =
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
+    var controlState = context.read<ControlState>();
 
     return TextButton(
       style: TextButton.styleFrom(
@@ -226,7 +228,7 @@ class _EventCardState extends State<EventCard> {
           if (context.mounted) {
             if (overallOutcomeInHistory != OverallOutcome.finish) {
               pe = EventHistory.addActivate(widget.event, AppSettings.rusaID,
-                  isPreride: isPreride);
+                  isPreride: isPreride, controlState: controlState);
             }
             assert(pe != null);
             Navigator.of(context)

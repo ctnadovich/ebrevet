@@ -64,6 +64,10 @@ class _EventsPageState extends State<EventsPage> {
 
   @override
   Widget build(BuildContext context) {
+    var textTheme = Theme.of(context).textTheme;
+    var menuTitleStyle = textTheme.titleLarge;
+    var menuItemStyle = textTheme.titleMedium;
+
     var events = FutureEvents.events;
     var dayNight = context.watch<DayNight>();
     var ttLastRefreshed = FutureEvents.lastRefreshed != null
@@ -84,8 +88,6 @@ class _EventsPageState extends State<EventsPage> {
         ],
       ),
 
-// TODO Menu items should have bigger font and icons
-
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -94,10 +96,14 @@ class _EventsPageState extends State<EventsPage> {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primaryContainer,
               ),
-              child: const Text('eBrevet Main Menu'),
+              child: Text('eBrevet Main Menu', style: menuTitleStyle),
             ),
             ListTile(
-              title: const Text('Past Events'),
+              leading: const Icon(Icons.history),
+              title: Text(
+                'Past Events',
+                style: menuItemStyle,
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context)
@@ -112,7 +118,11 @@ class _EventsPageState extends State<EventsPage> {
               },
             ),
             ListTile(
-              title: const Text('Settings'),
+              leading: const Icon(Icons.settings),
+              title: Text(
+                'Settings',
+                style: menuItemStyle,
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context)
@@ -127,7 +137,11 @@ class _EventsPageState extends State<EventsPage> {
               },
             ),
             ListTile(
-              title: const Text('About eBrevet'),
+              leading: const Icon(Icons.info),
+              title: Text(
+                'About eBrevet',
+                style: menuItemStyle,
+              ),
               onTap: () {
                 Navigator.pop(context);
                 aboutDialog();

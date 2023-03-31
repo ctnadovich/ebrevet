@@ -22,7 +22,7 @@ import 'control.dart';
 import 'time_till.dart';
 import 'location.dart';
 import 'app_settings.dart';
-import 'event_history.dart';
+import 'past_event.dart';
 import 'control_state.dart';
 
 class ControlCard extends StatefulWidget {
@@ -220,32 +220,7 @@ class _ControlCardState extends State<ControlCard> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Check In to Control'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.control.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(controlStatusString(widget.control)),
-              Text(exactDistanceString(widget.control.cLoc)),
-              if (widget.control.cLoc.isNearControl)
-                const Text(
-                  'AT THIS CONTROL',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              TextField(
-                decoration:
-                    const InputDecoration(hintText: 'Comment (optional)'),
-                controller: controller,
-                onSubmitted: (_) => submitCheckInDialog(),
-              ),
-            ],
-          ),
+          content: checkInDIalogContent(widget.control),
           actions: [
             TextButton(
                 onPressed: () {
@@ -255,6 +230,34 @@ class _ControlCardState extends State<ControlCard> {
           ],
         ),
       );
+
+  Column checkInDIalogContent(Control control) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          control.name,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(controlStatusString(control)),
+        Text(exactDistanceString(control.cLoc)),
+        if (control.cLoc.isNearControl)
+          const Text(
+            'AT THIS CONTROL',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        TextField(
+          decoration: const InputDecoration(hintText: 'Comment (optional)'),
+          controller: controller,
+          onSubmitted: (_) => submitCheckInDialog(),
+        ),
+      ],
+    );
+  }
 
   void submitCheckInDialog() {
     var controlState = context.read<ControlState>();

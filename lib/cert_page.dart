@@ -20,7 +20,7 @@ import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'event_history.dart';
+import 'past_event.dart';
 import 'day_night.dart';
 import 'view_page.dart';
 import 'mylogger.dart';

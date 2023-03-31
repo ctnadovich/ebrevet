@@ -18,264 +18,40 @@ import 'package:ebrevet_card/files.dart';
 
 import 'event.dart';
 import 'outcome.dart';
-import 'control.dart';
-import 'app_settings.dart';
 import 'mylogger.dart';
-import 'snackbarglobal.dart';
-import 'report.dart';
+import 'past_event.dart';
+import 'app_settings.dart';
 import 'control_state.dart';
-
-// PastEvents are events with outcomes
-// when a plain Event is "activated" it becomes
-// a past event in the EventHistory map
-
-// TODO should probably be a child class of Event
-
-class PastEvent {
-  String riderID;
-  Event _event;
-  EventOutcomes outcomes;
-  bool isPreride;
-
-  PastEvent(this._event, this.riderID, this.outcomes, this.isPreride);
-
-  static Map<String, dynamic> toJson(PastEvent pe) => {
-        'event': pe._event.toMap,
-        'outcomes': pe.outcomes.toMap,
-        'preride': pe.isPreride,
-        'rider_id': pe.riderID,
-      };
-
-  factory PastEvent.fromJsonMap(Map<String, dynamic> jsonMap) {
-    var eventMap = jsonMap['event'];
-    var outcomeMap = jsonMap['outcomes'];
-    var isPreride = jsonMap['preride'];
-    var riderID = jsonMap['rider_id'];
-    var e = Event.fromMap(eventMap);
-    var o = EventOutcomes.fromMap(outcomeMap);
-    return PastEvent(e, riderID, o, isPreride);
-  }
-
-  void controlCheckIn(
-      {required Control control,
-      String? comment,
-      // Function? onUploadDone,
-      ControlState? controlState}) {
-    assert(isAvailable(
-        control.index)); // Trying to check into an unavailable control
-    var eventID = _event.eventID;
-    assert(null != EventHistory.lookupPastEvent(eventID));
-    // Trying to check into a never activated event
-
-    var now = DateTime.now().toUtc();
-    outcomes.setControlCheckInTime(control.index, now);
-    if (controlState != null) controlState.checkIn();
-    if (isAllChecked) {
-      if (isAllCheckedInOrder()) {
-        outcomes.overallOutcome = OverallOutcome.finish;
-        // Current.deactivate();
-        SnackbarGlobal.show(
-            'Congratulations! You have finished the ${_event.nameDist}. Your '
-            'elapsed time: $elapsedTimeString');
-      } else {
-        outcomes.overallOutcome = OverallOutcome.dnq;
-        // Current.deactivate();
-        SnackbarGlobal.show('Controls checked in wrong order. Disqualified!');
-      }
-    }
-
-    assert(controlCheckInTime(control) != null); // should have just set this
-
-    Report.constructReportAndSend(this, control: control, comment: comment,
-        onUploadDone: () {
-      if (controlState != null) controlState.reportUploaded();
-    });
-  }
-
-  bool get isFinalOutcomeFullyUploaded {
-    var lastUpload = outcomes.lastUpload;
-    var finishTime = outcomes.getControlCheckInTime(event.finishControlKey);
-    return finishTime != null &&
-        lastUpload != null &&
-        lastUpload.isAfter(finishTime);
-  }
-
-  int? get lastCheckInControlKey {
-    int k;
-    for (k = event.startControlKey; k <= event.finishControlKey; k++) {
-      if (outcomes.getControlCheckInTime(k) == null) {
-        break;
-      }
-    }
-    return k == event.startControlKey ? null : k - 1;
-  }
-
-  int get numberOfCheckIns {
-    var last = lastCheckInControlKey;
-    if (last == null) {
-      return 0;
-    } else {
-      return 1 + last - event.startControlKey;
-    }
-  }
-
-  int get numberOfControls =>
-      1 + event.finishControlKey - event.startControlKey;
-
-  bool get isCurrentOutcomeFullyUploaded {
-    var lastUpload = outcomes.lastUpload;
-    var k = lastCheckInControlKey;
-    if (k == null) return true;
-    var finishTime = outcomes.getControlCheckInTime(k);
-    return finishTime != null &&
-        lastUpload != null &&
-        lastUpload.isAfter(finishTime);
-  }
-
-  String get checkInFractionString {
-    return (outcomes.overallOutcome == OverallOutcome.dns)
-        ? ""
-        : "Checked into $numberOfCheckIns/$numberOfControls controls";
-  }
-
-  bool get isAllChecked {
-    for (var control in _event.controls) {
-      if (false == controlIsChecked(control)) return false;
-    }
-    return true;
-  }
-
-  bool controlIsChecked(Control control) {
-    return controlCheckInTime(control) != null;
-  }
-
-  DateTime? controlCheckInTime(Control control) {
-    return outcomes.getControlCheckInTime(control.index);
-  }
-
-  bool isAllCheckedInOrder() {
-    if (controlCheckInTime(_event.controls.first) == null) return false;
-    DateTime tLast = isPreride
-        ? controlCheckInTime(_event.controls.first)!
-        : _event.startDateTime;
-    for (var control in _event.controls) {
-      var tControl = controlCheckInTime(control);
-      if (tControl == null) return false;
-      if (tControl.isBefore(tLast)) return false;
-      tLast = tControl;
-    }
-
-    if (elapsedDuration == null) return false;
-
-    return true;
-  }
-
-  String get isFullyUploadedString => (numberOfCheckIns == 0)
-      ? 'Nothing to Upload'
-      : (isCurrentOutcomeFullyUploaded
-          ? 'Uploaded: ${outcomes.lastUploadString}'
-          : 'Not Fully Uploaded');
-
-  DateTime? get startDateTimeActual => (isPreride)
-      ? outcomes.getControlCheckInTime(_event.startControlKey)
-      : _event.startDateTime;
-
-  DateTime? get finishDateTimeActual =>
-      outcomes.getControlCheckInTime(_event.finishControlKey);
-
-  Duration? get elapsedDuration {
-    var s = startDateTimeActual;
-    var f = finishDateTimeActual;
-    if ((s ?? f) == null) return null;
-    return f!.difference(s!);
-  }
-
-  String get elapsedTimeString {
-    if (elapsedDuration == null) return "No Finish";
-    return "${elapsedDuration!.inHours}H ${elapsedDuration!.inMinutes % 60}M";
-  }
-
-  String get elapsedTimeStringhhmm {
-    if (elapsedDuration == null) return "No Finish";
-    return "${elapsedDuration!.inHours.toString().padLeft(2, '0')}"
-        "${(elapsedDuration!.inMinutes % 60).toString().padLeft(2, '0')}";
-  }
-
-  String get elapsedTimeStringVerbose {
-    if (elapsedDuration == null) return "No Finish";
-    return "${elapsedDuration!.inHours} hours, and  ${elapsedDuration!.inMinutes % 60} minutes";
-  }
-
-  DateTime? openActual(int controlKey) {
-    Control control = _event.controls[controlKey];
-    var openDur = control.openDuration(_event.startDateTime);
-    return startDateTimeActual?.add(openDur);
-  }
-
-  DateTime? closeActual(int controlKey) {
-    Control control = _event.controls[controlKey];
-    var closeDur = control.closeDuration(_event.startDateTime);
-    return startDateTimeActual?.add(closeDur);
-  }
-
-  String openActualString(int controlKey) =>
-      openActual(controlKey)?.toLocal().toString().substring(0, 16) ?? '';
-  String closeActualString(int controlKey) =>
-      closeActual(controlKey)?.toLocal().toString().substring(0, 16) ?? '';
-
-  bool isOpenControl(int controlKey) {
-    // can start preride any time
-    if (isPreride && controlKey == _event.startControlKey) return true;
-
-    // no controls are open till the first one is checked
-    if (startDateTimeActual == null) return false;
-
-    Control control = _event.controls[controlKey];
-
-    var openDur = control.openDuration(_event.startDateTime);
-    var closeDur = control.closeDuration(_event.startDateTime);
-    var openActual = startDateTimeActual!.add(openDur);
-    var closeActual = startDateTimeActual!.add(closeDur);
-
-    var now = DateTime.now();
-
-    return (openActual.isBefore(now) && closeActual.isAfter(now));
-  }
-
-  bool isNear(int controlKey) => _event.controls[controlKey].cLoc.isNearControl;
-
-  bool isAvailable(int controlKey) =>
-      (AppSettings.openTimeOverride || isOpenControl(controlKey)) &&
-      isNear(controlKey);
-
-  Event get event {
-    return _event;
-  }
-
-  set overallOutcome(OverallOutcome o) {
-    outcomes.overallOutcome = o;
-  }
-
-  String get overallOutcomeDescription {
-    return outcomes.overallOutcome.description ??
-        OverallOutcome.unknown.description;
-  }
-}
 
 class EventHistory {
   static Map<String, PastEvent> _pastEventMap = {}; // Key is EventID string
 
   static const pastEventsFileName = 'past_events.json';
 
-  static PastEvent addActivate(Event e, String r, {bool isPreride = false}) {
+  static PastEvent addActivate(Event e, String r,
+      {bool isPreride = false, ControlState? controlState}) {
     var pe = lookupPastEvent(e.eventID);
     if (pe != null) {
       pe.outcomes.overallOutcome = OverallOutcome.active;
     } else {
       pe = _add(e, r,
           overallOutcome: OverallOutcome.active, isPreride: isPreride);
-      // need to save EventHistory now
     }
+
+    // Auto first-control check in
+
+    if (AppSettings.autoFirstControlCheckIn &&
+        isPreride == false &&
+        pe.outcomes.checkInTimeList.isEmpty &&
+        pe.event.isStartable) {
+      pe.controlCheckIn(
+        control: pe.event.controls[pe.event.startControlKey],
+        comment: "Automatic Check In",
+        controlState: controlState,
+      );
+    }
+
+    // need to save EventHistory now
 
     save();
 
@@ -382,11 +158,8 @@ class EventHistory {
   }
 
   static deletePastEvent(PastEvent pe) {
-    if (_pastEventMap.containsKey(pe._event.eventID)) {
-      // if (Current.activatedEvent?._event.eventID == pe._event.eventID) {
-      //   Current.deactivate();
-      // }
-      _pastEventMap.remove(pe._event.eventID);
+    if (_pastEventMap.containsKey(pe.event.eventID)) {
+      _pastEventMap.remove(pe.event.eventID);
       save();
     }
   }

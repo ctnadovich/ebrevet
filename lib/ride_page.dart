@@ -25,7 +25,7 @@ import 'day_night.dart';
 import 'ticker.dart';
 import 'outcome.dart';
 import 'report.dart';
-import 'event_history.dart';
+import 'past_event.dart';
 import 'control_state.dart';
 
 class RidePage extends StatefulWidget {
