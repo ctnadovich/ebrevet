@@ -29,8 +29,6 @@ import 'day_night.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
 
-// TODO Control check-in code?
-
 // TODO Posting result and elapsed time to roster
 
 // TODO Convert some logger statements to exceptions -- in app notifications

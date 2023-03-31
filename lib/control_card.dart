@@ -15,6 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +25,7 @@ import 'location.dart';
 import 'app_settings.dart';
 import 'past_event.dart';
 import 'control_state.dart';
+import 'utility.dart';
 
 class ControlCard extends StatefulWidget {
   final Control control;
@@ -125,42 +127,78 @@ class _ControlCardState extends State<ControlCard> {
     );
   }
 
-  Future openControlNameDialog(Control control) => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(widget.control.name),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                  "Control: ${1 + widget.control.index} of ${widget.pastEvent.event.controls.length}"),
-              Text("Address: ${widget.control.address}"),
-              Text("Style: ${widget.control.style}"),
-              Text('Course distance: ${widget.control.distMi.toString()} mi'),
-              Text(exactDistanceString(widget.control.cLoc)),
-              Text(
-                  "Location: ${widget.control.lat} N;  ${widget.control.long}E"),
-              Text(controlStatusString(widget.control)),
-              Text(
-                  'Open Time: ${widget.pastEvent.openActualString(widget.control.index)}'),
-              Text(
-                  'Close Time: ${widget.pastEvent.closeActualString(widget.control.index)}'),
-            ],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'))
+  Future openControlNameDialog(Control control) {
+    var activeEvent = widget.pastEvent;
+    var checkInTime = activeEvent.controlCheckInTime(control);
+
+    Widget? checkInRow;
+
+    if (checkInTime != null) {
+      var checkInTimeString = checkInTime.toUtc().toIso8601String();
+
+      var checkInData = "C${control.index}-$checkInTimeString";
+
+      var checkInSignature = Signature(
+          data: checkInData,
+          event: activeEvent.event,
+          riderID: activeEvent.riderID,
+          codeLength: 4);
+      var checkInSignatureString =
+          Signature.substituteZeroOneXY(checkInSignature.text);
+
+      var lastUpload = activeEvent.outcomes.lastUpload;
+
+      var checkInIcon = (lastUpload != null && lastUpload.isAfter(checkInTime))
+          ? const Icon(Icons.check_circle, color: Colors.green)
+          : const Icon(Icons.pending_sharp, color: Colors.orangeAccent);
+      checkInRow = Row(
+        children: [
+          const Text('Check In: '),
+          checkInIcon,
+          Text(
+              " ${Utility.toBriefTimeString(checkInTime)} ($checkInSignatureString)"),
+        ],
+      );
+    }
+
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(widget.control.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+                "Control: ${1 + widget.control.index} of ${widget.pastEvent.event.controls.length}"),
+            Text("Address: ${widget.control.address}"),
+            Text("Style: ${widget.control.style}"),
+            Text('Course distance: ${widget.control.distMi.toString()} mi'),
+            Text(exactDistanceString(widget.control.cLoc)),
+            Text("Location: ${widget.control.lat} N;  ${widget.control.long}E"),
+            Text(controlStatusString(widget.control)),
+            Text(
+                'Open Time: ${widget.pastEvent.openActualString(widget.control.index)}'),
+            Text(
+                'Close Time: ${widget.pastEvent.closeActualString(widget.control.index)}'),
+            checkInRow ?? const Text('Not checked in.'),
           ],
         ),
-      );
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'))
+        ],
+      ),
+    );
+  }
 
   Widget checkInButton(Control c, DateTime? lastUpload) {
     var activeEvent = widget.pastEvent;
     var checkInTime = activeEvent.controlCheckInTime(c);
+
     // var lastUpload = Current.activatedEvent?.outcomes.lastUpload;
 
     if (checkInTime != null) {
@@ -170,7 +208,7 @@ class _ControlCardState extends State<ControlCard> {
       return Column(
         children: [
           checkInIcon,
-          Text(checkInTime.toLocal().toString().substring(11, 19)),
+          Text(Utility.toBriefTimeString(checkInTime)),
         ],
       );
     } else if (false == activeEvent.isAvailable(c.index)) {
