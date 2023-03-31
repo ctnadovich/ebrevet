@@ -16,6 +16,8 @@
 
 import 'package:share_plus/share_plus.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import 'past_event.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +26,8 @@ import 'report.dart';
 import 'control_state.dart';
 import 'utility.dart';
 import 'mylogger.dart';
+import 'app_settings.dart';
+import 'snackbarglobal.dart';
 
 class ControlDetailPage extends StatelessWidget {
   final PastEvent pastEvent;
@@ -34,6 +38,8 @@ class ControlDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var controlState = context.watch<ControlState>();
+    var fileName =
+        "Control-Detail-${AppSettings.rusaID}-${pastEvent.event.eventID}.png";
 
     return Scaffold(
         appBar: AppBar(
@@ -43,7 +49,7 @@ class ControlDetailPage extends StatelessWidget {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => _takeScreenshot(),
+          onPressed: () => takeScreenshot(fileName),
           child: const Icon(Icons.share),
         ),
         body: Container(
@@ -97,18 +103,32 @@ class ControlDetailPage extends StatelessWidget {
         ));
   }
 
-  void _takeScreenshot() async {
-    final imageData = await screenshotController.capture();
-    if (imageData != null) {
-      Share.shareXFiles([XFile.fromData(imageData)]);
-    } else {
-      MyLogger.entry('Could not take screenshot.', severity: Severity.warning);
+  void takeScreenshot(String fileName) async {
+    try {
+      await screenshotController
+          .capture(delay: const Duration(milliseconds: 10))
+          .then((image) async {
+        if (image != null) {
+          final directory = await getApplicationDocumentsDirectory();
+
+          final imagePath = await File('${directory.path}/$fileName').create();
+          await imagePath.writeAsBytes(image);
+
+          /// Share Plugin
+          await Share.shareXFiles([XFile(imagePath.path)]);
+        }
+      });
+    } catch (e) {
+      var message = "Failed to save screenshot: $e";
+      SnackbarGlobal.show(message);
+      MyLogger.entry(message, severity: Severity.error);
     }
   }
 
   // TODO Pretty this up and add more analytics
   // or maybe refactor/consolodate this with ControlCard
   // used by RidePage
+  /// should show the check in code for each control
 
   Widget checkInCard(List<String> checkIn) {
     var controlIndex = int.parse(checkIn[0]);

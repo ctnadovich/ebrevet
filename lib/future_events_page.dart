@@ -37,7 +37,8 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
-  late TextEditingController controller;
+  late TextEditingController fullNameController;
+  late TextEditingController rusaIDController;
 
   bool fetchingFromServerNow = false;
   Ticker ticker = Ticker();
@@ -45,7 +46,8 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController();
+    fullNameController = TextEditingController();
+    rusaIDController = TextEditingController();
 
     ticker.init(
       period: AppSettings.timeRefreshPeriod,
@@ -58,7 +60,8 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void dispose() {
     super.dispose();
-    controller.dispose();
+    rusaIDController.dispose();
+    fullNameController.dispose();
     ticker.dispose();
   }
 
@@ -271,16 +274,26 @@ class _EventsPageState extends State<EventsPage> {
           height: 10,
         ),
         const Text(
-            'Enter your RUSA number and select a Club/Region that supports eBrevet EPP:'),
+            'Enter your Full Name, RUSA number, and select a Club/Region that supports eBrevet EPP:'),
         const SizedBox(
           height: 10,
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextFormField(
+            decoration: const InputDecoration(hintText: 'Enter your Full Name'),
+            autofocus: true,
+            controller: fullNameController,
+            validator: (value) => AppSettings.rusaFieldValidator(value),
+            onChanged: (_) => submitFullName(),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextFormField(
             decoration: const InputDecoration(hintText: 'Enter your RUSA ID'),
             autofocus: true,
-            controller: controller,
+            controller: rusaIDController,
             validator: (value) => AppSettings.rusaFieldValidator(value),
             onChanged: (_) => submitRusaID(),
           ),
@@ -303,9 +316,17 @@ class _EventsPageState extends State<EventsPage> {
   }
 
   void submitRusaID() {
-    var rusaIDString = controller.text.trim();
+    var rusaIDString = rusaIDController.text.trim();
     if (AppSettings.isValidRusaID(rusaIDString)) {
       AppSettings.setRusaID(rusaIDString);
+      // controller.clear();
+    }
+  }
+
+  void submitFullName() {
+    var fullNameString = fullNameController.text.trim();
+    if (fullNameString.isNotEmpty) {
+      AppSettings.setFullName(fullNameString);
       // controller.clear();
     }
   }

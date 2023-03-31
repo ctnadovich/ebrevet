@@ -14,17 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/snackbarglobal.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 import 'past_event.dart';
 import 'day_night.dart';
 import 'view_page.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
+import 'app_settings.dart';
 
 class CertificatePage extends StatefulWidget {
   final PastEvent pastEvent;
@@ -41,6 +45,7 @@ class _CertificatePageState extends State<CertificatePage> {
     var dayNight = context.watch<DayNight>();
     var titleLarge = Theme.of(context).textTheme.titleLarge!;
     var titleMedium = Theme.of(context).textTheme.titleMedium!;
+    var titleSmall = Theme.of(context).textTheme.titleSmall!;
     const emStyle = TextStyle(fontStyle: FontStyle.italic);
 
     context.read<ControlState>();
@@ -59,6 +64,7 @@ class _CertificatePageState extends State<CertificatePage> {
             "${pastEvent.outcomes.overallOutcome.description}:${widget.pastEvent.elapsedTimeStringhhmm}",
         codeLength: 4);
     var certString = Signature.substituteZeroOneXY(certSignature.text);
+    var fileName = "Cert-${AppSettings.rusaID}-${event.eventID}.png";
 
     return Scaffold(
       appBar: AppBar(
@@ -74,11 +80,11 @@ class _CertificatePageState extends State<CertificatePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _takeScreenshot(),
+        onPressed: () => takeScreenshot(fileName),
         child: const Icon(Icons.share),
       ),
       body: Container(
-        color: Theme.of(context).colorScheme.primaryContainer,
+        color: Theme.of(context).colorScheme.inversePrimary,
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
         child: Center(
           child: SingleChildScrollView(
@@ -86,66 +92,78 @@ class _CertificatePageState extends State<CertificatePage> {
               children: [
                 Screenshot(
                   controller: screenshotController,
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/eBrevet-128.png',
-                        width: 64,
-                      ),
-                      Text('Electronic', style: titleLarge),
-                      Text('Proof of Passage', style: titleLarge),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      const Text(
-                        'The Randonneur',
-                        style: emStyle,
-                      ),
-                      Text('RUSA ID ${pastEvent.riderID}', style: titleMedium),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      const Text('Completed the', style: emStyle),
-                      Text(event.region.regionName, style: titleMedium),
-                      Text('${event.nameDist}', style: titleLarge),
-                      Text('${event.eventSanction} ${event.eventType}',
-                          style: titleMedium),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      const Text('Organized by', style: emStyle),
-                      Text(event.region.clubName, style: titleLarge),
-                      Text('On ${event.startDate}', style: titleMedium),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      const Text('This', style: emStyle),
-                      Text(
-                        (pastEvent.isPreride)
-                            ? 'Volunteer Preride'
-                            : 'Scheduled Brevet',
-                        style: emStyle,
-                      ),
-                      const Text('was completed in', style: emStyle),
-                      Text(pastEvent.elapsedTimeStringVerbose,
-                          style: titleLarge),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Column(
-                        children: [
-                          Text(pastEvent.checkInFractionString),
-                          Text(
-                            pastEvent.isFullyUploadedString,
-                            style: TextStyle(
-                                fontWeight: isOutcomeFullyUploaded
-                                    ? FontWeight.normal
-                                    : FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Text('Finish Code: $certString', style: emStyle),
-                    ],
+                  child: Container(
+                    padding: const EdgeInsetsDirectional.all(12),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(20))),
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/images/eBrevet-128.png',
+                          width: 64,
+                        ),
+                        Text('Electronic', style: titleLarge),
+                        Text('Proof of Passage', style: titleLarge),
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        const Text(
+                          'The Randonneur',
+                          style: emStyle,
+                        ),
+                        Text(
+                          AppSettings.fullName,
+                          style: titleMedium,
+                        ),
+                        Text('RUSA ID ${pastEvent.riderID}', style: titleSmall),
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        const Text('Completed the', style: emStyle),
+                        Text(event.region.regionName, style: titleMedium),
+                        Text('${event.nameDist}', style: titleLarge),
+                        Text(
+                            '${event.eventSanction} ${event.eventType[0].toUpperCase()}${event.eventType.substring(1).toLowerCase()}',
+                            style: titleMedium),
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        const Text('Organized by', style: emStyle),
+                        Text(event.region.clubName, style: titleMedium),
+                        Text('On ${event.startDate}', style: titleSmall),
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        const Text('This', style: emStyle),
+                        Text(
+                          (pastEvent.isPreride)
+                              ? 'Volunteer Preride'
+                              : 'Scheduled Brevet',
+                          style: emStyle,
+                        ),
+                        const Text('was completed in', style: emStyle),
+                        Text(pastEvent.elapsedTimeStringVerbose,
+                            style: titleMedium),
+                        const SizedBox(
+                          height: 4,
+                        ),
+                        Column(
+                          children: [
+                            Text(pastEvent.checkInFractionString),
+                            Text(
+                              pastEvent.isFullyUploadedString,
+                              style: TextStyle(
+                                  fontWeight: isOutcomeFullyUploaded
+                                      ? FontWeight.normal
+                                      : FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        Text('Finish Code: $certString', style: emStyle),
+                      ],
+                    ),
                   ),
                 ),
                 TextButton(
@@ -164,12 +182,25 @@ class _CertificatePageState extends State<CertificatePage> {
     );
   }
 
-  void _takeScreenshot() async {
-    final imageData = await screenshotController.capture();
-    if (imageData != null) {
-      Share.shareXFiles([XFile.fromData(imageData)]);
-    } else {
-      MyLogger.entry('Could not take screenshot.', severity: Severity.warning);
+  void takeScreenshot(String fileName) async {
+    try {
+      await screenshotController
+          .capture(delay: const Duration(milliseconds: 10))
+          .then((image) async {
+        if (image != null) {
+          final directory = await getApplicationDocumentsDirectory();
+
+          final imagePath = await File('${directory.path}/$fileName').create();
+          await imagePath.writeAsBytes(image);
+
+          /// Share Plugin
+          await Share.shareXFiles([XFile(imagePath.path)]);
+        }
+      });
+    } catch (e) {
+      var message = "Failed to save screenshot: $e";
+      SnackbarGlobal.show(message);
+      MyLogger.entry(message, severity: Severity.error);
     }
   }
 }

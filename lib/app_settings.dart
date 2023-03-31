@@ -47,6 +47,7 @@ class AppSettings {
   static const int timeRefreshPeriod = 60;
   static const int gpsRefreshPeriod = 20;
   static const int maxRUSAID = 99999;
+  static const String magicStartCodeDefault = "XYZZY";
 
   static const bool autoFirstControlCheckIn = true;
 
@@ -61,11 +62,9 @@ class AppSettings {
     return Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
   }
 
-  // static const magicStartCode = "XYZZY";
-
   static String get magicStartCode {
     return Settings.getValue<String>('key-magic-start-code',
-        defaultValue: 'XYZZY')!;
+        defaultValue: magicStartCodeDefault)!;
   }
 
   static double get proximityRadius {
@@ -93,9 +92,15 @@ class AppSettings {
   static String get rusaID =>
       Settings.getValue<String>('key-rusa-id', defaultValue: '')!;
 
+  static String get fullName =>
+      Settings.getValue<String>('key-full-name', defaultValue: '')!;
+
   static bool get isRusaIDSet => rusaID.isNotEmpty;
 
   static setRusaID(String r) async => await Settings.setValue('key-rusa-id', r);
+
+  static setFullName(String r) async =>
+      await Settings.setValue('key-full-name', r);
 
   static String? urlFieldValidator(String? value) {
     if (value == null || value.isEmpty) {
@@ -161,6 +166,17 @@ class SettingsPageState extends State<SettingsPage> {
         child: Center(
           child: ListView(
             children: [
+              TextInputSettingsTile(
+                settingKey: 'key-full-name',
+                title: 'Full Name',
+                initialValue: '',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your full name';
+                  }
+                  return null;
+                },
+              ),
               TextInputSettingsTile(
                 settingKey: 'key-rusa-id',
                 title: 'RUSA ID Number',
