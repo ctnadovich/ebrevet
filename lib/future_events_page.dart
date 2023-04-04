@@ -304,7 +304,7 @@ class _EventsPageState extends State<EventsPage> {
             selected: Region.defaultRegion,
             values: <int, String>{
               for (var k in Region.regionMap.keys)
-                k: Region.regionMap[k]!['clubName']!
+                k: Region.regionMap[k]!['club_name']!
             }),
         const SizedBox(
           height: 15,

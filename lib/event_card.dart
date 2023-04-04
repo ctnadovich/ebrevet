@@ -360,7 +360,7 @@ class _EventCardState extends State<EventCard> {
                   flex: 1,
                 ),
                 ElevatedButton(
-                    onPressed: () => we.eventURL.isEmpty
+                    onPressed: () => we.eventInfoUrl.isEmpty
                         ? null
                         : launchUrl(Uri.parse(we.eventInfoUrl)),
                     child: const Text("Event Website")),

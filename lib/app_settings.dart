@@ -22,7 +22,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 import 'region.dart';
-import 'region_data.dart';
 import 'day_night.dart';
 
 class AppSettings {
@@ -86,8 +85,8 @@ class AppSettings {
         defaultValue: false)!;
   }
 
-  static int get regionID => Settings.getValue<int>('key-region',
-      defaultValue: RegionData.defaultRegion)!;
+  static int get regionID =>
+      Settings.getValue<int>('key-region', defaultValue: Region.defaultRegion)!;
 
   static String get rusaID =>
       Settings.getValue<String>('key-rusa-id', defaultValue: '')!;
@@ -188,7 +187,7 @@ class SettingsPageState extends State<SettingsPage> {
                 settingKey: 'key-region',
                 values: <int, String>{
                   for (var k in Region.regionMap.keys)
-                    k: Region.regionMap[k]!['clubName']!
+                    k: Region.regionMap[k]!['club_name']!
                 },
                 selected: Region.defaultRegion,
                 onChange: (value) {

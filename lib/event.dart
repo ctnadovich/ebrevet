@@ -167,8 +167,8 @@ class Event {
   }
 
   Region get region => Region(regionID: regionID);
-  String get eventURL => region.eventURL;
-  String get secret => region.secret;
+  // String get ebrevetServerURL => region.ebrevetServerURL;
+  // String get secret => region.secret;
 
   // Time window +/- from the official start time that
   // starts will be allowed. In minutes.

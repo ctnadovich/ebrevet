@@ -130,8 +130,7 @@ class Report {
   static Future<http.Response> _sendReportToServer(Map report) {
     // assert(null != activatedEvent); // Never call this without activated event
 
-    var eventURL = _reportingEvent.event.eventURL;
-    var url = "$eventURL/post_checkin";
+    var url = _reportingEvent.event.region.checkInURL;
     var reportJSON = jsonEncode(report,
         toEncodable: (Object? value) => value is EventOutcomes
             ? EventOutcomes.toJson(value)

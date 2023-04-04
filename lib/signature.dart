@@ -39,7 +39,7 @@ class Signature {
       event
           .eventID, // regionID not needed because eventID is sufficient for world uniqueness, as "acp_club_code-pa_event"
       riderID,
-      event.secret,
+      event.region.secret,
     ].join('-');
     var plaintext = utf8.encode(plainString);
     var ciphertext = sha256.convert(plaintext);

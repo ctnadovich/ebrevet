@@ -29,9 +29,13 @@ import 'day_night.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
 
-// TODO Posting result and elapsed time to roster
+// TODO support for other regions that doesn't require rebuilding app
 
-// TODO Convert some logger statements to exceptions -- in app notifications
+// TODO Server side support for other regions
+
+// TODO Server side posting result and elapsed time to roster
+
+// TODO proper logging framework
 
 void main() {
   initSettings().then((_) {

@@ -146,9 +146,7 @@ class FutureEvents {
 
   static Future<Map<String, dynamic>?> fetchFutureEventsFromServer(
       Region rgn) async {
-    var futureEventsURL = rgn.eventURL;
-
-    String url = '$futureEventsURL/future_events';
+    String url = rgn.futureEventsURL;
     MyLogger.entry('Fetching future event data from $url');
 
     Map<String, dynamic> decodedResponse;
