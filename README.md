@@ -36,7 +36,7 @@ Also when you open eBrevet for the first time, you will be able to select the Cl
 for the events you want to ride. Only regions that have support for eBrevet will appear on
 the selection list. You will only see events from the Club/Region you select.
 
-![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/required_settings.png)
+<img src="https://parando.org/ebrevet/v19/ScreenShots/required_settings.png" width=33% align=right/>
 
 Once you've set your RUSA number and region, press "Continue". This will take
 you to the main eBrevet screen. 
