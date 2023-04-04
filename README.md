@@ -48,7 +48,7 @@ you run the app, this page will be blank. If the page is blank, or it's been sev
 access. If you don't do this, the event data on your phone may be invalid and you won't 
 be able to ride.*
 
-![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/updating_events_sequence.png)
+![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/updating_events_process.png)
 
 Once the latest future events are downloaded to your phone, you should see cards describing each
 upcoming event. If the event may be pre-ridden, a "PRERIDE" button will appear on the lower right of the event card. On the scheduled day of the event a "RIDE" button will appear. Press this button to RIDE or PRERIDE the event. 
