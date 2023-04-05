@@ -84,20 +84,19 @@ After your complete an event, the results will be visible on the "Past Events" p
 ## Club/Region Webserver Support
 
 In order to support the eBrevet app for your Club/Region/Organization, you will need to configure your webserver to provide event details in JSON format on a public URL, and to accept JSON formatted results on
-another URL. Send these two URLs to the eBrevet author and your URL will be compiled into the next version of eBrevet. 
+another URL. Alternatively, you could use the [Cue Wizard](https://parando.org/cue_wizard.html)  system developed by PA Randonneurs to 
+manage your routes, cue sheets, etc... 
 
 The event details provided in JSON format by the Club/Region server must contain several requierd fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
 
 The JSON record can be produced in a variety of ways, including manually, cutting and pasting it from the RWGPS route and other data. Alternatively, the required information can be extracted automatically from the RWGPS data by means of a computer program. If your club uses RWGPS cue markup as described in 
 the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, automatic control info extraction is facilitated. See the Cue Wizard source code for example methods that are free to copy and use. 
 
-However generated, the future event details must be provided as a JSON encoded list of events on a URL of the form 
+However generated, the future event details must be provided as a JSON encoded list of events, with each 
+event having a sublist defining controls. 
 
-```
-https://<yourdomain.com/your_base_path>/future_events
-```
-
-An example of the JSON data that must be returned for future_events is show [in this file](examples/future_events.json).
+An approximate example of the JSON data that must be returned for future_events is show [in this file](examples/future_events.json). Be aware that this example may not be up to date with the latest version 
+of the app. More fields are supported in newer versions of the app. 
 
 When riders check into a control, if internet is available the eBrevet app will attempt to POST a JSON checkin record to a different URL of the form 
 
