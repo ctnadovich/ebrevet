@@ -78,6 +78,9 @@ On the main eBrevet page you will see three horizontal lines in the upper left c
 
 After your complete an event, the results will be visible on the "Past Events" page accessible from the drawer menu. Past events are stored on your phone. Should the app be uninstalled, Past Events will be erased. Of course, your results are also stored in Le Grand Livre for posterity, so no worries. 
 
+![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/finish_sequence.png)
+
+
 ## Club/Region Webserver Support
 
 In order to support the eBrevet app for your Club/Region/Organization, you will need to configure your webserver to provide event details in JSON format on a public URL, and to accept JSON formatted results on
