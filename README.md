@@ -67,6 +67,9 @@ Airplane Mode or if there is no data service on your phone. At some point in the
 
 **IMPORTANT:** *Be sure all your controls show green checks at the end of the event. When all your controls are green you have officially completed the event and your results have been recorded at the Club/Region. If you still have some red marks next to controls, you need to find working Internet service and upload your results ASAP.*
 
+<div style="text-align: center;">
+<img src="https://parando.org/ebrevet/v19/ScreenShots/no_yes_upload.png" width=67%/>
+</div>
 
 While you are riding an event, you can hit the exit arrow on the upper left, returning 
 to the main eBrevet Events page. To go back to riding and checking into controls, hit the CONTINUE RIDE button on the event card. Should you want to abandon an event, click the black X button next to the Riding Now indicator. It's possible to "Un-abandon" by hitting "RIDE" again. 
