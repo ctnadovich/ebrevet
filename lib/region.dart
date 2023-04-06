@@ -36,8 +36,7 @@ import 'region_data.dart';
 
 class Region {
   static const int defaultRegion = 938017; // PA Rando
-  static const String defaultEbrevetBaseURL =
-      "https://randonneuring.org/ebrevet";
+  static const String defaultEbrevetBaseURL = "https://parando.org/ebrevet";
 
   late int regionID;
   late String clubName;
@@ -48,7 +47,7 @@ class Region {
   late String stateName;
   late String _ebrevetServerURL;
 
-  Region({int regionID = defaultRegion}) {
+  Region({this.regionID = defaultRegion}) {
     int rid = (regionMap.containsKey(regionID)) ? regionID : defaultRegion;
     regionID = rid;
 
@@ -64,30 +63,25 @@ class Region {
 
     // If a region specifies a server URL, use it verbatim.
     // Otherwise create it from a default basename and region ID
-    _ebrevetServerURL = regionMap[rid]!['ebrevet_url'] ??
-        "$defaultEbrevetBaseURL/${rid.toString()}";
+    _ebrevetServerURL = regionMap[rid]!['ebrevet_url'] ?? defaultEbrevetBaseURL;
   }
 
   String get regionName => "$regionSubName $stateName";
 
-  // getters that add ebrevet function suffixes
-  String get futureEventsURL => "$_ebrevetServerURL/future_events";
-  String get checkInURL => "$_ebrevetServerURL/post_checkin";
+  // getters that add ebrevet function suffixes and
+  // regionID parameter
 
-  Region.fromSettings() : this(regionID: AppSettings.regionID);
+  String get futureEventsURL =>
+      "$_ebrevetServerURL/future_events/${regionID.toString()}";
+  String get checkInURL =>
+      "$_ebrevetServerURL/post_checkin/${regionID.toString()}";
+
+  factory Region.fromSettings() {
+    var rid = AppSettings.regionID;
+    return Region(regionID: rid);
+  }
 
   static const Map<int, Map<String, String>> regionMap = {
-    938017: {
-      'state_code': 'PA',
-      'state_name': 'Pennsylvania',
-      'region_name': 'Eastern',
-      'club_name': 'Pennsylvania Randonneurs',
-      'website_url': 'http://www.parandonneurs.com',
-      'ebrevet_url': 'https://parando.org/ebrevet'
-    },
-  };
-
-  static const Map<int, Map<String, String>> fullRegionMap = {
     902007: {
       'state_code': 'AK',
       'state_name': 'Alaska',

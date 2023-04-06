@@ -29,13 +29,11 @@ import 'day_night.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
 
-// TODO support for other regions that doesn't require rebuilding app
-
-// TODO Server side support for other regions
-
 // TODO Server side posting result and elapsed time to roster
 
 // TODO proper logging framework
+
+// TODO Support for Perms
 
 void main() {
   initSettings().then((_) {

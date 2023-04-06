@@ -183,11 +183,11 @@ class SettingsPageState extends State<SettingsPage> {
                 validator: AppSettings.rusaFieldValidator,
               ),
               DropDownSettingsTile<int>(
-                title: 'Events Club',
+                title: 'Region',
                 settingKey: 'key-region',
                 values: <int, String>{
                   for (var k in Region.regionMap.keys)
-                    k: Region.regionMap[k]!['club_name']!
+                    k: "${Region.regionMap[k]!['state_code']!}: ${Region.regionMap[k]!['region_name']!}"
                 },
                 selected: Region.defaultRegion,
                 onChange: (value) {
