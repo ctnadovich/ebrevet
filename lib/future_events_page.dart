@@ -278,26 +278,45 @@ class _EventsPageState extends State<EventsPage> {
         const SizedBox(
           height: 10,
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextFormField(
-            decoration: const InputDecoration(hintText: 'Enter your Full Name'),
-            autofocus: true,
-            controller: fullNameController,
-            validator: (value) => AppSettings.rusaFieldValidator(value),
-            onChanged: (_) => submitFullName(),
-          ),
+
+        TextInputSettingsTile(
+          settingKey: 'key-full-name',
+          title: 'Full Name',
+          initialValue: '',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your full name';
+            }
+            return null;
+          },
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextFormField(
-            decoration: const InputDecoration(hintText: 'Enter your RUSA ID'),
-            autofocus: true,
-            controller: rusaIDController,
-            validator: (value) => AppSettings.rusaFieldValidator(value),
-            onChanged: (_) => submitRusaID(),
-          ),
+        TextInputSettingsTile(
+          settingKey: 'key-rusa-id',
+          title: 'RUSA ID Number',
+          initialValue: '',
+          validator: AppSettings.rusaFieldValidator,
         ),
+
+        // Padding(
+        //   padding: const EdgeInsets.all(8.0),
+        //   child: TextFormField(
+        //     decoration: const InputDecoration(hintText: 'Enter your Full Name'),
+        //     autofocus: true,
+        //     controller: fullNameController,
+        //     validator: (value) => AppSettings.rusaFieldValidator(value),
+        //     onChanged: (_) => submitFullName(),
+        //   ),
+        // ),
+        // Padding(
+        //   padding: const EdgeInsets.all(8.0),
+        //   child: TextFormField(
+        //     decoration: const InputDecoration(hintText: 'Enter your RUSA ID'),
+        //     autofocus: true,
+        //     controller: rusaIDController,
+        //     validator: (value) => AppSettings.rusaFieldValidator(value),
+        //     onChanged: (_) => submitRusaID(),
+        //   ),
+        // ),
         DropDownSettingsTile<int>(
             title: 'Events Club',
             settingKey: 'key-region',

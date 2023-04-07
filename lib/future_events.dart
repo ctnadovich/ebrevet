@@ -158,7 +158,7 @@ class FutureEvents {
           .timeout(const Duration(seconds: AppSettings.httpGetTimeoutSeconds));
     } on TimeoutException {
       throw ServerException(
-          'No response from server (${AppSettings.httpGetTimeoutSeconds} sec timeout).');
+          'No response from $url after (${AppSettings.httpGetTimeoutSeconds} sec timeout).');
     } catch (e) {
       throw NoInternetException('Network error: $e');
     }

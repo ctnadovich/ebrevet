@@ -36,7 +36,8 @@ import 'region_data.dart';
 
 class Region {
   static const int defaultRegion = 938017; // PA Rando
-  static const String defaultEbrevetBaseURL = "https://parando.org/ebrevet";
+  static const String defaultEbrevetBaseURL =
+      "https://randonneuring.org/ebrevet";
 
   late int regionID;
   late String clubName;
