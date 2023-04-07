@@ -21,6 +21,8 @@ import 'region_data.dart';
 // Example here:
 //
 // class RegionData {
+//  static const String magicRUSAID = '9999';
+//  static const String magicStartCode = "XXXX";
 //  static const String defaultSecret = 'foobarbaz'; // secret if not set by region
 //  static const Map<int, String> regionSecret = {
 //    938017: 'bizzbuzz',  // set for specific region
@@ -74,8 +76,11 @@ class Region {
 
   String get futureEventsURL =>
       "$_ebrevetServerURL/future_events/${regionID.toString()}";
-  String get checkInURL =>
-      "$_ebrevetServerURL/post_checkin/${regionID.toString()}";
+
+  // This should be overriden by checkin_post_url from future_events data
+
+  // String get fallbackCheckInURL =>
+  //    "$_ebrevetServerURL/post_checkin/${regionID.toString()}";
 
   factory Region.fromSettings() {
     var rid = AppSettings.regionID;

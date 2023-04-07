@@ -22,6 +22,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 import 'region.dart';
+import 'region_data.dart';
 import 'day_night.dart';
 
 class AppSettings {
@@ -42,11 +43,10 @@ class AppSettings {
   static const int infiniteDistance = 9999999;
   static const int startableTimeWindowMinutes = 60;
   static const int prerideTimeWindowDays = 15;
-  static const int httpGetTimeoutSeconds = 15;
+  static const int httpGetTimeoutSeconds = 30;
   static const int timeRefreshPeriod = 60;
   static const int gpsRefreshPeriod = 20;
-  static const int maxRUSAID = 99999;
-  static const String magicStartCodeDefault = "XYZZY";
+  static const int maxRUSAID = 999999;
 
   static const bool autoFirstControlCheckIn = true;
 
@@ -61,10 +61,8 @@ class AppSettings {
     return Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
   }
 
-  static String get magicStartCode {
-    return Settings.getValue<String>('key-magic-start-code',
-        defaultValue: magicStartCodeDefault)!;
-  }
+  static String get magicStartCode => RegionData.magicStartCode;
+  static String get magicRUSAID => RegionData.magicRUSAID;
 
   static double get proximityRadius {
     var d = Settings.getValue<int>('key-control-proximity-thresh',
@@ -194,12 +192,23 @@ class SettingsPageState extends State<SettingsPage> {
                   FutureEvents.clear();
                 },
               ),
+              const SizedBox(
+                height: 16,
+              ),
+              ColorPickerSettingsTile(
+                title: 'Theme Color',
+                settingKey: 'key-theme-color',
+                onChange: (p0) {
+                  dayNight.color = p0;
+                },
+              ),
+
               //   ],
               // ),
               const SizedBox(
                 height: 25,
               ),
-              AppSettings.rusaID == AppSettings.maxRUSAID.toString()
+              AppSettings.rusaID.trim() == AppSettings.magicRUSAID.trim()
                   ? advancedSettings()
                   : const SizedBox.shrink(),
             ],
@@ -210,25 +219,11 @@ class SettingsPageState extends State<SettingsPage> {
   }
 
   ExpandableSettingsTile advancedSettings() {
-    var dayNight = context.watch<DayNight>();
+    // var dayNight = context.watch<DayNight>();
 
     return ExpandableSettingsTile(
       title: 'Advanced Options',
       children: <Widget>[
-        ColorPickerSettingsTile(
-          title: 'Theme Color',
-          settingKey: 'key-theme-color',
-          onChange: (p0) {
-            dayNight.color = p0;
-          },
-        ),
-        TextInputSettingsTile(
-          settingKey: 'key-magic-start_code',
-          title: 'Magic Start Code',
-          // subtitle: 'Cheat code for starting any event',
-          initialValue: 'XYZZY',
-          validator: textFieldValidator,
-        ),
         RadioSettingsTile<int>(
           leading: const Icon(Icons.social_distance),
           title: 'Control Proximity Radius',

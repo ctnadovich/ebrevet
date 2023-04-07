@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/exception.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
 
 import 'control.dart';
 import 'snackbarglobal.dart';
@@ -30,6 +32,7 @@ import 'signature.dart';
 class Report {
   static late PastEvent _reportingEvent;
   static Function? _onUploadDoneCallback;
+  static String? reportURL;
 
   static void constructReportAndSend(
     PastEvent pe, {
@@ -46,8 +49,12 @@ class Report {
     _sendReportToServer(report)
         .then((response) => _recordReportResponse(response))
         .catchError((e) {
-      SnackbarGlobal.show("No Internet. "
-          "Cannot upload results now. Try later");
+      if (e is NoPreviousDataException) {
+        SnackbarGlobal.show("Invalid event data: ${e.toString()}");
+      } else {
+        SnackbarGlobal.show("No Internet. "
+            "Cannot upload results now. Try later.");
+      }
       // Save the event history even if the upload was unsuccessful.
       EventHistory.save();
       if (_onUploadDoneCallback != null) _onUploadDoneCallback!();
@@ -70,7 +77,8 @@ class Report {
         result = ("Couldn't decode server response to report.");
       }
     } else {
-      result = ("Error response from server when sending report.");
+      result =
+          ("Error code ${response.statusCode} to URL: ${reportURL ?? 'null'}.");
     }
 
     if (result == null) {
@@ -127,10 +135,15 @@ class Report {
     return report;
   }
 
-  static Future<http.Response> _sendReportToServer(Map report) {
+  static Future<http.Response> _sendReportToServer(Map report) async {
     // assert(null != activatedEvent); // Never call this without activated event
 
-    var url = _reportingEvent.event.region.checkInURL;
+    reportURL = _reportingEvent.event.checkinPostURL;
+
+    if (reportURL == null || reportURL!.isEmpty) {
+      throw NoPreviousDataException('No URL specified for upload');
+    }
+
     var reportJSON = jsonEncode(report,
         toEncodable: (Object? value) => value is EventOutcomes
             ? EventOutcomes.toJson(value)
@@ -139,7 +152,7 @@ class Report {
     MyLogger.entry("Sending JSON: $reportJSON");
 
     return http.post(
-      Uri.parse(url),
+      Uri.parse(reportURL!),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

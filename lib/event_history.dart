@@ -34,8 +34,12 @@ class EventHistory {
     if (pe != null) {
       pe.outcomes.overallOutcome = OverallOutcome.active;
     } else {
-      pe = _add(e, r,
-          overallOutcome: OverallOutcome.active, isPreride: isPreride);
+      pe = _add(
+        e,
+        r,
+        overallOutcome: OverallOutcome.active,
+        isPreride: isPreride,
+      );
     }
 
     // Auto first-control check in

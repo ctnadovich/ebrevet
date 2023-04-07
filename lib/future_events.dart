@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
+// import 'package:ebrevet_card/report.dart';
 import 'package:http/http.dart' as http;
 
 import 'snackbarglobal.dart';
@@ -30,24 +31,24 @@ import 'mylogger.dart';
 // import 'current.dart';
 
 class FutureEvents {
-  static var events = <Event>[];
-  // static Rider? rider; // Rider associated with the event download
+  static var events = <Event>[]; // List of events
   static Region? region; // Region associated with the event download
-  static DateTime? lastRefreshed;
-  static ValueNotifier<int> refreshCount = ValueNotifier(0);
-  static const futureEventsFileName = 'future_events.json';
+  static DateTime? lastRefreshed; // Time when last refreshed from server
+  // static ValueNotifier<int> refreshCount = ValueNotifier(0);
+  static const futureEventsFileName =
+      'future_events.json'; // File to save events locally
   static var storedEvents = FileStorage(futureEventsFileName);
 
   static void clear() {
     events.clear();
     lastRefreshed = null;
-    refreshCount.value = 0;
+    // refreshCount.value = 0;
     //   rider = null;
     region = null;
     storedEvents.clear();
   }
 
-  static Future<int> refreshEventsFromDisk(Region rgn) async {
+  static Future<String> refreshEventsFromDisk(Region rgn) async {
     Map<String, dynamic> eventMapFromFile;
     try {
       MyLogger.entry("** Refreshing events from DISK for ${rgn.clubName}");
@@ -70,17 +71,19 @@ class FutureEvents {
           lastRefreshed = null;
           lrs = "Unkown";
         }
-        refreshCount.value++;
+
+        // refreshCount.value++;
         MyLogger.entry(
             "Successfully restored ${events.length} events from disk. Last Refreshed = $lrs");
-        return refreshCount.value;
+        return lrs;
+        //refreshCount.value;
       } else {
         throw NoPreviousDataException("Future events file read was empty.");
       }
     } catch (error) {
       events.clear();
       MyLogger.entry("Couldn't refresh future events from FILE: $error");
-      return 0;
+      return 'unknown'; // 0;
     }
   }
 
@@ -97,7 +100,8 @@ class FutureEvents {
       var writeStatus = await storedEvents.writeJSON(
           eventMapFromServer); // Save what we just downloaded to disk
       lastRefreshed = now;
-      refreshCount.value++;
+
+      // refreshCount.value++;
       MyLogger.entry("Refresh complete. Write status: $writeStatus");
     } catch (error) {
       // events.clear();

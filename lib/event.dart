@@ -48,6 +48,11 @@ class Event {
 // Maybe the eventID needs to be wrapped in a class
 
   late int regionID; // Numeric ACP Club Code
+
+// This should originate from the future_events top level tag checkin_post_url
+
+  late String checkinPostURL;
+
   final List<Control> controls = [];
 
   Map<String, dynamic> get toMap => {
@@ -65,50 +70,58 @@ class Event {
         'event_info_url': eventInfoUrl,
         'event_id': eventID,
         'club_acp_code': regionID,
+        'checkin_post_url': checkinPostURL,
         'controls': [for (var cntrl in controls) cntrl.toMap],
       };
 
   Event.fromMap(Map<String, dynamic> json) {
-    try {
-      name = json['name'];
-      String startDateTimeUTCString = json['start_datetime_utc'];
-      String endDateTimeUTCString = json['end_datetime_utc'];
-      startDateTime = DateTime.parse(startDateTimeUTCString);
-      endDateTime = DateTime.parse(endDateTimeUTCString);
-      distance = json['distance'];
-      startCity = json['start_city'];
-      startState = json['start_state'];
-      eventSanction = json['sanction'] ?? "?";
-      eventType = json['type'] ?? "?";
-      organizerName = json['organizer_name'] ?? "?";
-      organizerPhone = json['organizer_phone'] ?? "?";
-      eventInfoUrl = json['event_info_url'] ?? "";
-      cueVersion = (json['cue_version'] is int)
-          ? json['cue_version']
-          : int.tryParse(json['cue_version'])!;
-      eventID = json['event_id'];
-      regionID = (json['club_acp_code'] is int)
-          ? json['club_acp_code']
-          : int.tryParse(json['club_acp_code'])!;
-      List<dynamic> controlsListMap = json['controls'];
-      MyLogger.entry(
-          'Event.fromMap() restored $name from JSON. Found ${controlsListMap.length} controls.');
-      controls.clear();
-      for (var i = 0; i < controlsListMap.length; i++) {
-        var controlMap = controlsListMap[i];
-        var c = Control.fromMap(i, controlMap);
-        if (c.valid) {
-          controls.add(c);
-        } else {
-          break;
-        }
-      }
-      valid = true;
-    } catch (error) {
-      var etxt = "Error converting JSON future event response: $error";
-      SnackbarGlobal.show(etxt);
-      MyLogger.entry(etxt);
+    // try {
+    name = json['name'];
+    String startDateTimeUTCString = json['start_datetime_utc'];
+    String endDateTimeUTCString = json['end_datetime_utc'];
+    startDateTime = DateTime.parse(startDateTimeUTCString);
+    endDateTime = DateTime.parse(endDateTimeUTCString);
+    distance = json['distance'];
+    startCity = json['start_city'];
+    startState = json['start_state'];
+    eventSanction = json['sanction'] ?? "?";
+    eventType = json['type'] ?? "?";
+    organizerName = json['organizer_name'] ?? "?";
+    organizerPhone = json['organizer_phone'] ?? "?";
+    eventInfoUrl = json['event_info_url'] ?? "";
+    cueVersion = (json['cue_version'] is int)
+        ? json['cue_version']
+        : int.tryParse(json['cue_version'])!;
+    eventID = json['event_id'];
+    regionID = (json['club_acp_code'] is int)
+        ? json['club_acp_code']
+        : int.tryParse(json['club_acp_code'])!;
+
+    if (false == json.containsKey('checkin_post_url') ||
+        json['checkin_post_url']!.isEmpty) {
+      throw const FormatException('No URL specified for upload');
     }
+    checkinPostURL = json['checkin_post_url']!;
+
+    List<dynamic> controlsListMap = json['controls'];
+    MyLogger.entry(
+        'Event.fromMap() restored $name from JSON. Found ${controlsListMap.length} controls.');
+    controls.clear();
+    for (var i = 0; i < controlsListMap.length; i++) {
+      var controlMap = controlsListMap[i];
+      var c = Control.fromMap(i, controlMap);
+      if (c.valid) {
+        controls.add(c);
+      } else {
+        break;
+      }
+    }
+    valid = true;
+    // } catch (error) {
+    //   var etxt = "Error converting JSON future event response: $error";
+    //   SnackbarGlobal.show(etxt);
+    //   MyLogger.entry(etxt);
+    // }
   }
 
   get nameDist {
