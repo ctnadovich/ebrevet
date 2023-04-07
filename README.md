@@ -83,26 +83,32 @@ After your complete an event, the results will be visible on the "Past Events" p
 
 ## Club/Region Webserver Support
 
-In order to support the eBrevet app for your Club/Region/Organization, you will need to configure your webserver to provide event details in JSON format on a public URL, and to accept JSON formatted results on
-another URL. Alternatively, you could use the [Cue Wizard](https://parando.org/cue_wizard.html)  system developed by PA Randonneurs to 
-manage your routes, cue sheets, etc... 
+In order to support the eBrevet app for your Club/Region/Organization, you will need to configure a webserver to provide event details in JSON format on a public URL, and to accept JSON formatted results on
+another URL. 
 
-The event details provided in JSON format by the Club/Region server must contain several requierd fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
+### Future Events JSON
 
-The JSON record can be produced in a variety of ways, including manually, cutting and pasting it from the RWGPS route and other data. Alternatively, the required information can be extracted automatically from the RWGPS data by means of a computer program. If your club uses RWGPS cue markup as described in 
-the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, automatic control info extraction is facilitated. See the Cue Wizard source code for example methods that are free to copy and use. 
+By default, eBrevet will attempt to download future event JSON data from the URL
 
-However generated, the future event details must be provided as a JSON encoded list of events, with each 
-event having a sublist defining controls. 
+  https://randonneuring.org/ebrevet/future_events/XXXXXX
 
-An approximate example of the JSON data that must be returned for future_events is show [in this file](examples/future_events.json). Be aware that this example may not be up to date with the latest version 
-of the app. More fields are supported in newer versions of the app. 
+Where XXXXXX represents the ACP club code of the region's controlling club. The randonneuring.org
+server can redirect that request to the desired club webserver.  
 
-When riders check into a control, if internet is available the eBrevet app will attempt to POST a JSON checkin record to a different URL of the form 
+The future_events details provided in JSON format by the Club/Region server must contain several requierd fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
 
-```
-https://<yourdomain.com/your_base_path>/post_checkin
-```
+To see an example future_events JSON object, visit the PA Rando (ACP club 938017) implementation
+
+  https://randonneuring.org/ebrevet/future_events/938017
+
+The future_events JSON record can be produced in a variety of ways, including manually, cutting and pasting it from the RWGPS route and other data. Alternatively, the required information can be extracted automatically from the RWGPS data by means of a computer program. If your club uses RWGPS cue markup as described in 
+the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, automatic control info extraction is facilitated. See the Cue Wizard documentation source code for example methods that are free to copy and use. 
+
+### Control Check In JSON
+
+When riders check into a control, if internet is available the eBrevet app will attempt to POST a JSON checkin record to a post_checkin URL of the form 
+
+https://<yourdomain.com/your_base_path>/post_checkin/XXXXXX
 
 The checkin record will include all control checkins that have occured up to the current time, every time. The server should record the first checkin for each control and is free to ignore the rest. 
 
@@ -126,12 +132,12 @@ Additionally, the Club/Region server can internally record and display checkin i
 
 Explanations of the checkin fields are as follows:
 
-- `event_id` A unique string that identifies the event. It must be unique worldwide making it impossible for there to ever be two events with the same ID. Recommended is to use the ACP club code and the club-specific unique event ID separated by
+- `event_id` A unique string that identifies the event. It must be unique worldwide making it impossible for there to ever be two events with the same ID. This must consist of the ACP club code and the club-specific unique event ID separated by
 a dash. 
 
 - `rider_id` The rider's RUSA ID number
 
-- `control_index` If the rider is currently checking in to a control, this field will appear giving the control number corresponding to the numbering used in the future_events control list for this control. If a rider is not at a control, this field will be absent. 
+- `control_index` If the rider is currently checking in to a control, this field will appear giving the control number corresponding to the numbering used in the future_events control list for this control. If a rider is not at a control, this field will be absent. The index numbering system corresponds to however the controls were numbered in the future_events object. Typically the start control index is zero. 
 
 - `comment` A text comment provided by the rider
 
@@ -155,6 +161,11 @@ club/region secret separated by dashes. In the hex result,
 a "X" is substituted for the digit "0" and
 a "Y" is substituted for the digit "1" to avoid confusion with "O" and "I". Start code
 comparisons should be case insensitive. 
+
+### Secrets
+
+Club/region secrets are compiled into eBrevet. There is a general secret that will be used
+in case a club hasn't selected their own unique secret. Refer to the file [region.dart](lib/region.dart) for details of how the secret is set for a region.
 
 ## Randonneuring Resources:
 
