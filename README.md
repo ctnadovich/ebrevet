@@ -93,7 +93,7 @@ By default, eBrevet will attempt to download future event JSON data from the URL
 &nbsp;&nbsp;&nbsp;  `https://randonneuring.org/ebrevet/future_events/XXXXXX`
 
 Where XXXXXX represents the ACP club code of the region's controlling club. The randonneuring.org
-server can redirect that request to the desired club webserver.  
+server can either handle that request (assuming it has info on the club's events), or redirect that request to the desired club webserver.  
 
 The future_events details provided in JSON format by the Club/Region server must contain several requierd fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
 
@@ -106,11 +106,7 @@ the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, automa
 
 ### Control Check In JSON
 
-When riders check into a control, if internet is available the eBrevet app will attempt to POST a JSON checkin record to a post_checkin URL of the form 
-
-&nbsp;&nbsp;&nbsp;  `https://randonneuring.org/ebrevet/post_checkin/XXXXXX`
-
-where XXXXXX is replaced by the numeric ACP code for the club. The checkin record will include all control checkins that have occured up to the current time, every time. The server should record the first checkin for each control and is free to ignore the rest. 
+When riders check into a control, if internet is available the eBrevet app will attempt to POST a JSON checkin record to a URL specified by the `checkin_post_url` field in the future_events JSON data. The checkin record will include all control checkins that have occured up to the current time, every time. The server should record the first checkin for each control and is free to ignore the rest. 
 
 The checkin will also include an overall outcome determination that will say "finish" when all the controls have been checked, otherwise it will say "active" if the rider is still riding, or "dnf" or "dnq" if the rider has failed to complete the brevet. 
 
