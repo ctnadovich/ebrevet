@@ -90,7 +90,7 @@ another URL.
 
 By default, eBrevet will attempt to download future event JSON data from the URL
 
-  https://randonneuring.org/ebrevet/future_events/XXXXXX
+&nbsp;&nbsp;&nbsp;  `https://randonneuring.org/ebrevet/future_events/XXXXXX`
 
 Where XXXXXX represents the ACP club code of the region's controlling club. The randonneuring.org
 server can redirect that request to the desired club webserver.  
@@ -99,7 +99,7 @@ The future_events details provided in JSON format by the Club/Region server must
 
 To see an example future_events JSON object, visit the PA Rando (ACP club 938017) implementation
 
-  https://randonneuring.org/ebrevet/future_events/938017
+&nbsp;&nbsp;&nbsp;  https://randonneuring.org/ebrevet/future_events/938017
 
 The future_events JSON record can be produced in a variety of ways, including manually, cutting and pasting it from the RWGPS route and other data. Alternatively, the required information can be extracted automatically from the RWGPS data by means of a computer program. If your club uses RWGPS cue markup as described in 
 the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, automatic control info extraction is facilitated. See the Cue Wizard documentation source code for example methods that are free to copy and use. 
@@ -108,9 +108,9 @@ the [Cue Wizard](https://parando.org/cue_wizard.html) system, or similar, automa
 
 When riders check into a control, if internet is available the eBrevet app will attempt to POST a JSON checkin record to a post_checkin URL of the form 
 
-https://<yourdomain.com/your_base_path>/post_checkin/XXXXXX
+&nbsp;&nbsp;&nbsp;  `https://randonneuring.org/ebrevet/post_checkin/XXXXXX`
 
-The checkin record will include all control checkins that have occured up to the current time, every time. The server should record the first checkin for each control and is free to ignore the rest. 
+where XXXXXX is replaced by the numeric ACP code for the club. The checkin record will include all control checkins that have occured up to the current time, every time. The server should record the first checkin for each control and is free to ignore the rest. 
 
 The checkin will also include an overall outcome determination that will say "finish" when all the controls have been checked, otherwise it will say "active" if the rider is still riding, or "dnf" or "dnq" if the rider has failed to complete the brevet. 
 
