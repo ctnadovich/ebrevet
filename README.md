@@ -103,7 +103,7 @@ By default, eBrevet will attempt to download future event JSON data from the URL
 Where XXXXXX represents the ACP club code of the region's controlling club. The randonneuring.org
 server can either handle that request (assuming it has info on the club's events), or redirect that request to the desired club webserver.  
 
-The future_events details provided in JSON format by the Club/Region server must contain several requierd fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
+The future_events details provided in JSON format by the Club/Region server must contain several required fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
 
 To see an example future_events JSON object, visit the PA Rando (ACP club 938017) implementation
 
