@@ -102,25 +102,6 @@ class _EventsPageState extends State<EventsPage> {
               child: Text('eBrevet Main Menu', style: menuTitleStyle),
             ),
             ListTile(
-              leading: const Icon(Icons.history),
-              title: Text(
-                'Past Events',
-                style: menuItemStyle,
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context)
-                    .push(MaterialPageRoute(
-                  builder: (context) => const PastEventsPage(),
-                ))
-                    .then((value) {
-                  setState(
-                    () {},
-                  );
-                });
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.settings),
               title: Text(
                 'Settings',
@@ -131,6 +112,25 @@ class _EventsPageState extends State<EventsPage> {
                 Navigator.of(context)
                     .push(MaterialPageRoute(
                   builder: (context) => const SettingsPage(),
+                ))
+                    .then((value) {
+                  setState(
+                    () {},
+                  );
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: Text(
+                'Past Events',
+                style: menuItemStyle,
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context)
+                    .push(MaterialPageRoute(
+                  builder: (context) => const PastEventsPage(),
                 ))
                     .then((value) {
                   setState(

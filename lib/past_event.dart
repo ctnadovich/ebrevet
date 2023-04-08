@@ -22,6 +22,8 @@ import 'snackbarglobal.dart';
 import 'report.dart';
 import 'control_state.dart';
 import 'event_history.dart';
+import 'signature.dart';
+import 'mylogger.dart';
 
 // PastEvents are events with outcomes
 // when a plain Event is "activated" it becomes
@@ -89,6 +91,24 @@ class PastEvent {
         onUploadDone: () {
       if (controlState != null) controlState.reportUploaded();
     });
+
+    // return outcomes.overallOutcome;
+  }
+
+  String makeCheckInSignature(Control ctrl) {
+    var checkInSignatureString = '';
+    var checkInTime = controlCheckInTime(ctrl);
+    if (checkInTime != null) {
+      var checkInTimeString = checkInTime.toUtc().toString().substring(0, 16);
+      var checkInData = "C${ctrl.index} $checkInTimeString";
+      var checkInSignature = Signature(
+          data: checkInData, event: event, riderID: riderID, codeLength: 4);
+      checkInSignatureString =
+          Signature.substituteZeroOneXY(checkInSignature.text);
+      // MyLogger.entry("checkInData: $checkInData; "
+      //     "checkInSignature: $checkInSignatureString");
+    }
+    return checkInSignatureString;
   }
 
   bool get isFinalOutcomeFullyUploaded {

@@ -15,6 +15,8 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'package:ebrevet_card/mylogger.dart';
+import 'package:ebrevet_card/outcome.dart';
 import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +57,16 @@ class _ControlCardState extends State<ControlCard> {
   @override
   Widget build(BuildContext context) {
     context.watch<ControlState>();
+    var activeEvent = widget.pastEvent;
+    var checkInTime = activeEvent.controlCheckInTime(widget.control);
+
+    String? checkInSignatureString;
+    // String? checkInTimeString;
+
+    if (checkInTime != null) {
+      checkInSignatureString = activeEvent.makeCheckInSignature(widget.control);
+      // checkInTimeString = Utility.toBriefDateTimeString(checkInTime);
+    }
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -71,6 +83,9 @@ class _ControlCardState extends State<ControlCard> {
               children: [
                 Text(exactDistanceString(widget.control.cLoc)),
                 Text(controlStatusString(widget.control)),
+                (checkInTime != null)
+                    ? Text("Check In: ($checkInSignatureString)")
+                    : const SizedBox.shrink(),
               ],
             ),
             trailing: checkInButton(
@@ -134,17 +149,7 @@ class _ControlCardState extends State<ControlCard> {
     Widget? checkInRow;
 
     if (checkInTime != null) {
-      var checkInTimeString = checkInTime.toUtc().toIso8601String();
-
-      var checkInData = "C${control.index}-$checkInTimeString";
-
-      var checkInSignature = Signature(
-          data: checkInData,
-          event: activeEvent.event,
-          riderID: activeEvent.riderID,
-          codeLength: 4);
-      var checkInSignatureString =
-          Signature.substituteZeroOneXY(checkInSignature.text);
+      var checkInSignatureString = activeEvent.makeCheckInSignature(control);
 
       var lastUpload = activeEvent.outcomes.lastUpload;
 
@@ -307,5 +312,72 @@ class _ControlCardState extends State<ControlCard> {
     );
     controller.clear();
     Navigator.of(context).pop();
+
+    openPostCheckInDialog();
   }
+
+  Future openPostCheckInDialog() => showDialog(
+        context: context,
+        builder: (context) {
+          var activeEvent = widget.pastEvent;
+          var control = widget.control;
+          var textTheme = Theme.of(context).textTheme;
+          var signatureStyle = textTheme.headlineLarge;
+          var signatureColor = Theme.of(context).colorScheme.onError;
+          var titleStyle = textTheme.headlineMedium;
+          var smallPrint = textTheme.bodySmall;
+          var overallOutcome = activeEvent.outcomes.overallOutcome;
+          var checkInSignatureString =
+              activeEvent.makeCheckInSignature(control);
+          var spaceBox = const SizedBox(
+            height: 16,
+          );
+          return AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Check In Recorded',
+                  style: titleStyle,
+                ),
+                const Text('Control Check-In Code'),
+                spaceBox,
+                Container(
+                  color: signatureColor,
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    checkInSignatureString,
+                    style: signatureStyle,
+                  ),
+                ),
+                spaceBox,
+                Text(
+                  'Write on Brevet Card',
+                  style: smallPrint,
+                ),
+                Text(
+                  'as EPP backup!',
+                  style: smallPrint,
+                ),
+                spaceBox,
+                Text(activeEvent.checkInFractionString),
+                Text(
+                  (overallOutcome == OverallOutcome.finish)
+                      ? "Congratulations! You have finished the ${activeEvent.event.nameDist}."
+                      : "Ride On!",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('CONTINUE'))
+            ],
+          );
+        },
+      );
 }
