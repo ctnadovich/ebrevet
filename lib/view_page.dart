@@ -125,10 +125,11 @@ class ControlDetailPage extends StatelessWidget {
     }
   }
 
-  // TODO Pretty this up and add more analytics
-  // or maybe refactor/consolodate this with ControlCard
-  // used by RidePage
-  /// should show the check in code for each control
+  // TODO Consider Refactor/consolodating this with ControlCard
+  // used by RidePage. Silly to maintain two similar views of the same thing.
+  // On the other hand, there are some differences between the preferred
+  // view during the ride, vs after the ride. Perhaps these could be
+  // child classes of a common control card view class.
 
   Widget checkInCard(List<String> checkIn) {
     var controlIndex = int.parse(checkIn[0]);

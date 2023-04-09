@@ -30,10 +30,11 @@ import 'mylogger.dart';
 import 'control_state.dart';
 
 // TODO Server side posting result and elapsed time to roster
+// Not really an app to-do, but this is a good reminder.
 
 // TODO proper logging framework
 
-// TODO Support for Perms
+// TODO Support for Perms  -- IMPORTANT!
 
 void main() {
   initSettings().then((_) {
