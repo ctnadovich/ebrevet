@@ -11,18 +11,20 @@ app serves as an automated brevet card that can provide Electronic Proof of Pass
 on a randonneuring brevet, while maintaining some of the "feel" of the traditional paper brevet card process.  The app only needs to be activated at controls. If network access is available,
 the app will report control check in times for the rider to a central server. 
 
+You can find the app on both the Apple Store and the Google Play Store. Search for "eBrevet".
+
 ## Features include
 
 - Provides electronic proof of passage with a brevet card process requiring "check in" at controls.
 - Monitors distance to controls with GPS and open/close times versus clock time.  
 - Only allows control check in when near (500m) a control, and the control is open.
-- Requires a "start code" so riders can't start without organizer's permission
-- Does not require anything physically at the subsequent controls (eg QR code, volunteer, etc...)
+- Does not require anything physically at controls (eg QR code, volunteer, etc...)
 - Pre-ride mode allows "free" start-time and  "relative" control open/close times.
 - The app can be used effectively during an event without  Cellular service or Internet access.
 - The phone can be turned off or rebooted and the app will continue to work. 
 - Low power use. Does not run in background. 
 - Needs network access initially to download event details, and finally to upload results. 
+- Requires a "start code" so riders must be registerd for event to use the app
 - Check-in signature "codes" available for your paper brevet card as backup proof of passage.
 - Finish certificate sharable on social media.
 - Reports control check ins back to server allowing rider progess monitoring.
