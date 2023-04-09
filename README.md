@@ -11,7 +11,7 @@ app serves as an automated brevet card that can provide Electronic Proof of Pass
 on a randonneuring brevet, while maintaining some of the "feel" of the traditional paper brevet card process.  The app only needs to be activated at controls. If network access is available,
 the app will report control check in times for the rider to a central server. 
 
-You can find the app on both the Apple Store and the Google Play Store. Search for "eBrevet".
+You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet".
 
 ## Features include
 
