@@ -14,13 +14,17 @@ the app will report control check in times for the rider to a central server.
 ## Features include
 
 - Provides electronic proof of passage with a brevet card process requiring "check in" at controls.
-- Needs network access initially to download event details, and finally to upload results. The app can be used effectively without continous Cellular service or Internet access.
-- The phone can be turned off or rebooted and the app will continue to work. 
 - Monitors distance to controls and open/close times, and only allows control check in when appropriate.
-- Reports control check ins back to the region's web server to allow a real time rider progess page to be generated.
-- Can be used by any club that implements support for downloading event details in JSON format
-from their web site. 
-- Pre-ride mode allows for "relative" control open/close times.
+- Does not require anything physical at the controls (eg QR code, volunteer, etc...)
+- Pre-ride mode allows "free" start-time and  "relative" control open/close times.
+- The app can be used effectively during an event without  Cellular service or Internet access.
+- The phone can be turned off or rebooted and the app will continue to work. 
+- Low power use. Does not run in background. 
+- Needs network access initially to download event details, and finally to upload results. 
+- Check-in signature "codes" available for your paper brevet card as backup proof of passage.
+- Finish certificate sharable on social media.
+- Reports control check ins back to server allowing rider progess monitoring.
+- Can be used by any club publishing event details in specified JSON format. 
 - Free, open source software.
 
 ## Rider Instructions
@@ -28,9 +32,11 @@ from their web site.
 Install the app on your phone from the Google Play or Apple App stores, as appropriate
 for your phone. The name of the app is "ebrevet" with the bundle ID "com.nadovich.ebrevet". 
 
-When you first open the app, you will need to enter your RUSA ID number. Please make sure you
+When you first open the app, you will need to enter your Name and RUSA ID number. Please make sure you
 do this correctly. If you enter the wrong RUSA number, you wll not be able to use
-the app till this is corrected. 
+the app till this is corrected. On the other hand, your full name is not critical. Youn name is only used 
+to print a name on the finish
+certificates. It can be any name. 
 
 Also when you open eBrevet for the first time, you will be able to select the Club/Region
 for the events you want to ride. Only regions that have support for eBrevet will appear on
@@ -91,8 +97,9 @@ After your complete an event, the results will be visible on the "Past Events" p
 
 ## Club/Region Webserver Support
 
-In order to support the eBrevet app for your Club/Region/Organization, you will need to configure a webserver to provide event details in JSON format on a public URL, and to accept JSON formatted results on
-another URL. 
+In order to support the eBrevet app for your Club/Region/Organization, you will need to configure a webserver to provide event details in JSON format on a public URL, and to accept JSON formatted check-in results on
+another URL. This can be as simple as a static JSON file, or a dynamic database. The randonneuring.org webserver can provide
+proxy eBrevet web support for any club, or it can forward to the club webserver.
 
 ### Future Events JSON
 
@@ -102,8 +109,9 @@ By default, eBrevet will attempt to download future event JSON data from the URL
 
 Where XXXXXX represents the ACP club code of the region's controlling club. The randonneuring.org
 server can either handle that request (assuming it has info on the club's events), or redirect that request to the desired club webserver.  
+Alternatively, clubs can have their server URL compiled into eBrevet to avoid the redirect.
 
-The future_events details provided in JSON format by the Club/Region server must contain several required fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
+The future_events details provided in JSON format by the server must contain several required fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
 
 To see an example future_events JSON object, visit the PA Rando (ACP club 938017) implementation
 
@@ -170,6 +178,10 @@ comparisons should be case insensitive.
 
 Club/region secrets are compiled into eBrevet. There is a general secret that will be used
 in case a club hasn't selected their own unique secret. Refer to the file [region.dart](lib/region.dart) for details of how the secret is set for a region.
+
+## Privacy Policy
+
+See the [Privacy Policy document](PRIVACY)
 
 ## Randonneuring Resources:
 
