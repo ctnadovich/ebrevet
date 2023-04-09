@@ -15,9 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'dart:async';
-import 'package:ebrevet_card/mylogger.dart';
 import 'package:ebrevet_card/outcome.dart';
-import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

@@ -17,7 +17,6 @@
 import 'package:ebrevet_card/exception.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:io';
 
 import 'control.dart';
 import 'snackbarglobal.dart';
@@ -117,6 +116,7 @@ class Report {
 
     report['app_version'] = AppSettings.version;
     report['proximity_radius'] = AppSettings.proximityRadius;
+
     report['open_override'] = AppSettings.openTimeOverride ? "YES" : "NO";
     report['preride'] = (_reportingEvent.isPreride) ? "YES" : "NO";
 

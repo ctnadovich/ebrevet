@@ -23,7 +23,6 @@ import 'report.dart';
 import 'control_state.dart';
 import 'event_history.dart';
 import 'signature.dart';
-import 'mylogger.dart';
 
 // PastEvents are events with outcomes
 // when a plain Event is "activated" it becomes
@@ -177,7 +176,10 @@ class PastEvent {
     DateTime tLast = isPreride
         ? controlCheckInTime(_event.controls.first)!
         : _event.startDateTime;
-    for (var control in _event.controls) {
+    var nControls = _event.controls.length;
+    for (var i = 1; i < nControls; i++) {
+      // skip the first
+      var control = _event.controls[i];
       var tControl = controlCheckInTime(control);
       if (tControl == null) return false;
       if (tControl.isBefore(tLast)) return false;
