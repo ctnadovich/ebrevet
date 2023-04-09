@@ -14,8 +14,10 @@ the app will report control check in times for the rider to a central server.
 ## Features include
 
 - Provides electronic proof of passage with a brevet card process requiring "check in" at controls.
-- Monitors distance to controls and open/close times, and only allows control check in when appropriate.
-- Does not require anything physical at the controls (eg QR code, volunteer, etc...)
+- Monitors distance to controls with GPS and open/close times versus clock time.  
+- Only allows control check in when near (500m) a control, and the control is open.
+- Requires a "start code" so riders can't start without organizer's permission
+- Does not require anything physically at the subsequent controls (eg QR code, volunteer, etc...)
 - Pre-ride mode allows "free" start-time and  "relative" control open/close times.
 - The app can be used effectively during an event without  Cellular service or Internet access.
 - The phone can be turned off or rebooted and the app will continue to work. 
