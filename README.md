@@ -33,12 +33,12 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 
 ## Rider Instructions
 
-Install the app on your phone from the Google Play or Apple App stores, as appropriate
-for your phone. The name of the app is "ebrevet" with the bundle ID "com.nadovich.ebrevet". 
+Install the app on your phone.
+You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet".
 
 When you first open the app, you will need to enter your Name and RUSA ID number. Please make sure you
 do this correctly. If you enter the wrong RUSA number, you wll not be able to use
-the app till this is corrected. On the other hand, your full name is not critical. Youn name is only used 
+the app till this is corrected. On the other hand, your full name is not critical. Your full name is only used 
 to print a name on the finish
 certificates. It can be any name. 
 
