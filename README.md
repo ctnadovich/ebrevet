@@ -102,8 +102,7 @@ After your complete an event, the results will be visible on the "Past Events" p
 ## Club/Region Webserver Support
 
 In order to support the eBrevet app for your Club/Region/Organization, you will need to configure a webserver to provide event details in JSON format on a public URL, and to accept JSON formatted check-in results on
-another URL. This can be as simple as a static JSON file, or a dynamic database. The randonneuring.org webserver can provide
-proxy eBrevet web support for any club, or it can forward to the club webserver.
+another URL. This can be as simple as a static JSON file, or a dynamic database. The randonneuring.org webserver can provide proxy eBrevet web support for any club, or it can forward to the club webserver.
 
 ### Future Events JSON
 
@@ -112,8 +111,7 @@ By default, eBrevet will attempt to download future event JSON data from the URL
 &nbsp;&nbsp;&nbsp;  `https://randonneuring.org/ebrevet/future_events/XXXXXX`
 
 Where XXXXXX represents the ACP club code of the region's controlling club. The randonneuring.org
-server can either handle that request (assuming it has info on the club's events), or redirect that request to the desired club webserver.  
-Alternatively, clubs can have their server URL compiled into eBrevet to avoid the redirect.
+server can either handle that request (assuming it has info on the club's events), or redirect that request to the desired club webserver. Alternatively, clubs can have their server URL compiled into eBrevet to avoid the redirect.
 
 The future_events details provided in JSON format by the server must contain several required fields, including the name of the event, the start location, start date/time, and a list of control locations with open/close times. All times are ISO 8601 timestamps in UTC. All locations are RWGPS compatibile decimal N Lattitude and E Longitude. Distances in decimal miles. 
 
