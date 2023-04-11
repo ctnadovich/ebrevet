@@ -84,7 +84,9 @@ this and the Check In dialog will open. To actually check in, press the "CHECK I
 ![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/check_in_sequence.png)
 
 When you press the "CHECK IN NOW" button, your check-in is recorded on your phone and the app will attempt 
-to report the check-in to your Club/Region's server. After you dismiss the check-in dialogs and return to the ride page, you will see either a orange three-dots icon, or a green check next to the control. The green check means you've checked in and your check-in time has been uploaded to the Club/Region server. If you see an orange three-dots icon, that means the app itself has recorded your check-in, but your check-in has not been uploaded to the Club/Region yet. This will occur if your phone is in 
+to report the check-in to your Club/Region's server. After you dismiss the check-in dialogs and return to the ride page, you will see either a orange three-dots icon, or a green check next to the control. The green check means you've checked in and your check-in time has been uploaded to the Club/Region server. Ride on with confidence that your proof of passage by that control is solid.
+
+On the other hand, if you see an orange three-dots icon, that means the app itself has recorded your check-in, but your check-in has not yet been uploaded to the Club/Region. This will occur if your phone is in 
 Airplane Mode or if there is no data service on your phone. At some point in the future when your phone has internet service again, press the "Upload Results" button and you should see all your orange marks turn into green checks. 
 
 **IMPORTANT:** *Be sure all your controls show green checks at the end of the event. When all your controls are green you have officially completed the event and your results have been recorded at the Club/Region. If you still have some red marks next to controls, you need to find working Internet service and upload your results ASAP.*
@@ -101,12 +103,12 @@ On the main eBrevet page you will see three horizontal lines in the upper left c
 ### Check-In Codes
 
 A check-in confirmation dialog appers with an official check in "signature" code. It's 
-wise to write this code on your paper brevet card as proof of passage. Should something happen to your 
-phone (eg dead battery) this check in signature code is proof you were at the control at the required time. 
+wise to write this code on your paper brevet card as proof of passage, particularly if you see orange dots indicating that your proof of passage hasn't been uploaded and backed up at the Club/Region. 
+Should something happen to your phone (eg dead battery) writing down the check in signature code is proof you were at the control at the required time. 
 
 <img src="https://parando.org/ebrevet/v19/ScreenShots/check_in_code.png" width=33%/>
 
-If you don't have green checks on all your controls when you've finished an event, now it's *really* a good idea to write those check-in codes onto your paper brevet card. 
+If for some reason uploads fail and you don't have green checks on all your controls when you've finished an event, now it's *really* a good idea to write those check-in codes onto your paper brevet card. There will also be an event completion code that certifies you checked into all the controls at the proper times and in the right order!
 
 
 ### Past Events
