@@ -36,7 +36,8 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 ### Installation
 
 Install the app on your phone.
-You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet".
+You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet".  *Make sure you have the latest version of the app installed in your phone before you start riding an event.  If your app version is too old, you may not be able to start
+an event.*
 
 ### Settings
 
