@@ -118,7 +118,7 @@ After your complete an event, the results will be visible on the "Past Events" p
 ![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/finish_sequence.png)
 
 A good way to finalize your proof of passage for a past event and make sure your results are also stored in Le Grand Livre for posterity is to share your certificate of completion. Each event you've finished will show a CERTIFICATE button. If you press this button, a certificate of completion will appear. On 
-the lower right of the certificate, there will be a round "share" icon. Press this and your phone's share media page will open. You can use this to save the certificate to photos, google or dropbox, or to attach it to an email or social media post. 
+the lower right of the certificate, there will be a "share" icon. Press this and your phone's share media page will open. You can use this to save the certificate to photos, google or dropbox, or to attach it to an email or social media post. 
 
 
 ## Club/Region Webserver Support
