@@ -19,7 +19,7 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 - Monitors distance to controls with GPS and open/close times versus clock time.  
 - Only allows control check in when near (500m) a control, and the control is open.
 - Does not require anything physically at controls (eg QR code, volunteer, etc...)
-- Pre-ride mode allows "free" start-time and  "relative" control open/close times.
+- Pre-ride / permanent mode allows "free" start-time and  "relative" control open/close times.
 - The app can be used effectively during an event without  Cellular service or Internet access.
 - The phone can be turned off or rebooted and the app will continue to work. 
 - Low power use. Does not run in background. 
@@ -37,14 +37,14 @@ Install the app on your phone.
 You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet".
 
 When you first open the app, you will need to enter your Name and RUSA ID number. Please make sure you
-do this correctly. If you enter the wrong RUSA number, you wll not be able to use
-the app till this is corrected. On the other hand, your full name is not critical. Your full name is only used 
-to print a name on the finish
-certificates. It can be any name. 
+you enter your RUSA ID correctly. If you enter the wrong RUSA number, you wll not be able to use
+the app till this is corrected. 
 
 Also when you open eBrevet for the first time, you will be able to select the Club/Region
-for the events you want to ride. Only regions that have support for eBrevet will appear on
-the selection list. You will only see events from the Club/Region you select.
+for the events you want to ride. 
+You will only see events from the Club/Region you select. Please only select regions
+that support eBrevet.  If your region does 
+not support eBrevet, you will not be able to use eBrevet for their events. 
 
 <img src="https://parando.org/ebrevet/v19/ScreenShots/required_settings.png" width=33%/>
 
