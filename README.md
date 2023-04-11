@@ -33,8 +33,12 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 
 ## Rider Instructions
 
+### Installation
+
 Install the app on your phone.
 You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet".
+
+### Settings
 
 When you first open the app, you will need to enter your Name and RUSA ID number. Please make sure you
 you enter your RUSA ID correctly. If you enter the wrong RUSA number, you wll not be able to use
@@ -51,6 +55,8 @@ not support eBrevet, you will not be able to use eBrevet for their events.
 Once you've set your RUSA number and region, press "Continue". This will take
 you to the main eBrevet screen. 
 
+### Downloading Events
+
 The main screen will show you future events for your selected Club/Region. The first time
 you run the app, this page will be blank. If the page is blank, or it's been several days since the last time you updated the page, hit the "Refresh Events from Server" button. If you have Internet service, in a few seconds the available events from your chosen Club/Region will appear. 
 
@@ -63,25 +69,22 @@ be able to ride.*
 Once the latest future events are downloaded to your phone, you should see cards describing each
 upcoming event. If the event may be pre-ridden, a "PRERIDE" button will appear on the lower right of the event card. On the scheduled day of the event a "RIDE" button will appear. Press this button to RIDE or PRERIDE the event. 
 
+### Start Code
+
 The first time you choose RIDE/PRERIDE, you will need to enter your Start Code to start the event. The start code is a four character code printed on your brevet card, and also is available from the event organizer. Every rider has a different start code.  If your Start Code isn't working, make sure you have
 the latest version of the events Refreshed from the Server, and that you have the latest
 version of the eBrevet app. 
+
+### Control Check In
 
 Once you have started the event you need to check in to every control, including the start control. To be able to check in to a control, you need to be physically near the control and the time of day must be within the open/close interval of that control. When you are eligible to check in, a "Check In" button will appear. Click
 this and the Check In dialog will open. To actually check in, press the "CHECK IN NOW" button. You can enter an optional check-in comment that will be posted to the event chat channel. 
 
 ![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/check_in_sequence.png)
 
-When you press the "CHECK IN NOW" button, your check-in is recorded on your phone, but not necessarily
-anywhere else. A check-in confirmation dialog appers with an official check in "signature" code. It's 
-wise to write this code on your paper brevet card as proof of passage. Should something happen to your 
-phone (eg dead battery) this check in signature code is proof you were at the control at the required time. 
-
-<img src="https://parando.org/ebrevet/v19/ScreenShots/check_in_code.png" width=33%/>
-
-
-After you dismiss the check-in dialogs and return to the ride page, you will see either a orange three-dots icon, or a green check. The green check means you've checked in and your check-in time has been uploaded to the Club/Region server. If you see an orange three-dots icon, that means the app itself has recorded your check-in, but your check-in has not been uploaded to the Club/Region yet. This will occur if your phone is in 
-Airplane Mode or if there is no data service on your phone. At some point in the future when your phone has internet service again, press the "Upload Results" button and you should see all your orange marks turn into green checks. If you don't, now it's *really* a good idea to write those check-in codes onto your paper brevet card. 
+When you press the "CHECK IN NOW" button, your check-in is recorded on your phone and the app will attempt 
+to report the check-in to your Club/Region's server. After you dismiss the check-in dialogs and return to the ride page, you will see either a orange three-dots icon, or a green check next to the control. The green check means you've checked in and your check-in time has been uploaded to the Club/Region server. If you see an orange three-dots icon, that means the app itself has recorded your check-in, but your check-in has not been uploaded to the Club/Region yet. This will occur if your phone is in 
+Airplane Mode or if there is no data service on your phone. At some point in the future when your phone has internet service again, press the "Upload Results" button and you should see all your orange marks turn into green checks. 
 
 **IMPORTANT:** *Be sure all your controls show green checks at the end of the event. When all your controls are green you have officially completed the event and your results have been recorded at the Club/Region. If you still have some red marks next to controls, you need to find working Internet service and upload your results ASAP.*
 
@@ -93,6 +96,19 @@ While you are riding an event, you can hit the exit arrow on the upper left, ret
 to the main eBrevet Events page. To go back to riding and checking into controls, hit the CONTINUE RIDE button on the event card. Should you want to abandon an event, click the black X button next to the Riding Now indicator. It's possible to "Un-abandon" by hitting "RIDE" again. 
 
 On the main eBrevet page you will see three horizontal lines in the upper left corner (the so called hamburger icon). Clicking this will open the side drawer menu. 
+
+### Check-In Codes
+
+A check-in confirmation dialog appers with an official check in "signature" code. It's 
+wise to write this code on your paper brevet card as proof of passage. Should something happen to your 
+phone (eg dead battery) this check in signature code is proof you were at the control at the required time. 
+
+<img src="https://parando.org/ebrevet/v19/ScreenShots/check_in_code.png" width=33%/>
+
+If you don't have green checks on all your controls when you've finished an event, now it's *really* a good idea to write those check-in codes onto your paper brevet card. 
+
+
+### Past Events
 
 After your complete an event, the results will be visible on the "Past Events" page accessible from the drawer menu. Past events are stored on your phone. Should the app be uninstalled, Past Events will be erased. Of course, your results are also stored in Le Grand Livre for posterity, so no worries. 
 
