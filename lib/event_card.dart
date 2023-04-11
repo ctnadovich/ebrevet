@@ -275,7 +275,7 @@ class _EventCardState extends State<EventCard> {
 
     if (validCode != startCode) {
       MyLogger.entry(
-          "Invalid Start Code $startCode; Valid code is '$validCode'");
+          "Invalid Start Code $startCode; Valid code is '$validCode'; ");
       return "Invalid Start Code.";
     }
 

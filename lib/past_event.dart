@@ -24,6 +24,8 @@ import 'control_state.dart';
 import 'event_history.dart';
 import 'signature.dart';
 
+import 'mylogger.dart';
+
 // PastEvents are events with outcomes
 // when a plain Event is "activated" it becomes
 // a past event in the EventHistory map
@@ -104,8 +106,8 @@ class PastEvent {
           data: checkInData, event: event, riderID: riderID, codeLength: 4);
       checkInSignatureString =
           Signature.substituteZeroOneXY(checkInSignature.text);
-      // MyLogger.entry("checkInData: $checkInData; "
-      //     "checkInSignature: $checkInSignatureString");
+      MyLogger.entry("checkInData: $checkInData; "
+          "checkInSignature: $checkInSignatureString");
     }
     return checkInSignatureString;
   }

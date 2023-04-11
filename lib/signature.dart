@@ -15,6 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:crypto/crypto.dart';
+// import 'package:ebrevet_card/mylogger.dart';
 import 'dart:convert';
 
 import 'event.dart';
@@ -45,6 +46,10 @@ class Signature {
     var ciphertext = sha256.convert(plaintext);
     var startCode =
         ciphertext.toString().substring(0, codeLength).toUpperCase();
+
+    // MyLogger.entry(
+    //     "Generated Start Code. Plaintext: $plainString; Code: $startCode");
+
     return startCode;
   }
 
