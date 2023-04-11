@@ -47,7 +47,7 @@ the app till this is corrected.
 Also when you open eBrevet for the first time, you will be able to select the Club/Region
 for the events you want to ride. 
 You will only see events from the Club/Region you select. Please only select regions
-that support eBrevet.  If your region does 
+that support eBrevet.  If a region does 
 not support eBrevet, you will not be able to use eBrevet for their events. 
 
 <img src="https://parando.org/ebrevet/v19/ScreenShots/required_settings.png" width=33%/>
