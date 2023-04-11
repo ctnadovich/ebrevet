@@ -100,7 +100,7 @@ to the main eBrevet Events page. To go back to riding and checking into controls
 
 On the main eBrevet page you will see three horizontal lines in the upper left corner (the so called hamburger icon). Clicking this will open the side drawer menu. 
 
-### Check-In Codes
+### Check-In and Finish Codes
 
 A check-in confirmation dialog appers with an official check in "signature" code. It's 
 wise to write this code on your paper brevet card as proof of passage, particularly if you see orange dots indicating that your proof of passage hasn't been uploaded and backed up at the Club/Region. 
@@ -108,14 +108,17 @@ Should something happen to your phone (eg dead battery) writing down the check i
 
 <img src="https://parando.org/ebrevet/v19/ScreenShots/check_in_code.png" width=33%/>
 
-If for some reason uploads fail and you don't have green checks on all your controls when you've finished an event, now it's *really* a good idea to write those check-in codes onto your paper brevet card. There will also be an event completion code that certifies you checked into all the controls at the proper times and in the right order!
+If for some reason uploads fail and you don't have green checks on all your controls when you've finished an event, now it's *really* a good idea to write those check-in codes onto your paper brevet card. There will also be an event Finish Code that certifies you checked into all the controls at the proper times and in the right order! 
 
 
 ### Past Events
 
-After your complete an event, the results will be visible on the "Past Events" page accessible from the drawer menu. Past events are stored on your phone. Should the app be uninstalled, Past Events will be erased. Of course, your results are also stored in Le Grand Livre for posterity, so no worries. 
+After your complete an event, the results will be visible on the "Past Events" page accessible from the drawer menu. Past events are stored on your phone. Should the app be uninstalled, Past Events will be erased.
 
 ![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/finish_sequence.png)
+
+A good way to finalize your proof of passage for a past event and make sure your results are also stored in Le Grand Livre for posterity is to share your certificate of completion. Each event you've finished will show a CERTIFICATE button. If you press this button, a certificate of completion will appear. On 
+the lower right of the certificate, there will be a round "share" icon. Press this and your phone's share media page will open. You can use this to save the certificate to photos, google or dropbox, or to attach it to an email or social media post. 
 
 
 ## Club/Region Webserver Support
