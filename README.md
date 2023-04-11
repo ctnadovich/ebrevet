@@ -18,7 +18,9 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 - Provides electronic proof of passage with a brevet card process requiring "check in" at controls.
 - Monitors distance to controls with GPS and open/close times versus clock time.  
 - Only allows control check in when near (500m) a control, and the control is open.
-- Does not require anything physically at controls (eg QR code, volunteer, etc...)
+- Does not require anything physically at controls (eg no QR code, volunteer, etc... needed)
+- Does not require any third party service (eg no Strava, Spot, RWGPS, Garmin... needed)
+- Does not require photographs or any other media or service result to be reviewed by the organizer
 - Pre-ride / permanent mode allows "free" start-time and  "relative" control open/close times.
 - The app can be used effectively during an event without  Cellular service or Internet access.
 - The phone can be turned off or rebooted and the app will continue to work. 
