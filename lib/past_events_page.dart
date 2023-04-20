@@ -65,7 +65,7 @@ class _PastEventsPageState extends State<PastEventsPage> {
                 for (var pe in EventHistory.pastEventList)
                   EventCard(
                     pe.event,
-                    hasDelete: AppSettings.canDeletePastEvents,
+                    hasDelete: AppSettings.canDeletePastEvents.value,
                     onDelete: () => setState(() {}),
                   ),
               ],

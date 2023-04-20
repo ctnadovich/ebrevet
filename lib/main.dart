@@ -15,26 +15,30 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 
 import 'package:ebrevet_card/event_history.dart';
 import 'package:ebrevet_card/app_settings.dart';
 import 'package:provider/provider.dart';
 
 import 'snackbarglobal.dart';
-import 'future_events_page.dart';
+import 'event_list_page.dart';
 import 'future_events.dart';
 import 'region.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
+import 'my_settings.dart';
 
 // TODO Server side posting result and elapsed time to roster
 // Not really an app to-do, but this is a good reminder.
 
 // TODO proper logging framework
 
-// TODO Support for Perms  -- IMPORTANT!
+// TODO Support for Perms  -- IMPORTANT!  -- Enter RUSA Perm ID
+
+// TODO Support for Card-O-Matic?
+
+// TODO Support for non-US regions -- Enter any ACP club code
 
 void main() {
   initSettings().then((_) {
@@ -57,11 +61,12 @@ void main() {
 }
 
 Future<void> initSettings() async {
+  WidgetsFlutterBinding.ensureInitialized();
   MyLogger.entry('Init settings start...');
-  await Settings.init(
-    cacheProvider: SharePreferenceCache(),
-  );
+
+  await MySetting.initSharedPreferences();
   await AppSettings.initializePackageInfo();
+  await AppSettings.initializeMySettings();
   await FutureEvents.refreshEventsFromDisk(Region.fromSettings());
   // .then((_) =>
   await EventHistory.load();
@@ -80,7 +85,7 @@ class MyApp extends StatelessWidget {
         theme: dayNight.dayTheme,
         darkTheme: dayNight.nightTheme,
         themeMode: dayNight.mode,
-        home: const EventsPage(),
+        home: const EventListPage(),
       );
     });
   }

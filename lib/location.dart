@@ -167,7 +167,7 @@ class ControlLocation {
 
   bool get isNearControl {
     if (crowDistMeters == null) return false;
-    var d = AppSettings.proximityRadius;
+    var d = AppSettings.proximityRadius.value;
     var closeEnough = crowDistMeters! < d;
     return closeEnough;
   }

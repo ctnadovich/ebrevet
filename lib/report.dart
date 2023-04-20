@@ -117,7 +117,7 @@ class Report {
     report['app_version'] = AppSettings.version;
     report['proximity_radius'] = AppSettings.proximityRadius;
 
-    report['open_override'] = AppSettings.openTimeOverride ? "YES" : "NO";
+    report['open_override'] = AppSettings.openTimeOverride.value ? "YES" : "NO";
     report['preride'] = (_reportingEvent.isPreride) ? "YES" : "NO";
 
     report['rider_location'] = RiderLocation.latLongFullString;

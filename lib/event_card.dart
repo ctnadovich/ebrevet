@@ -227,7 +227,8 @@ class _EventCardState extends State<EventCard> {
 
           if (context.mounted) {
             if (overallOutcomeInHistory != OverallOutcome.finish) {
-              pe = EventHistory.addActivate(widget.event, AppSettings.rusaID,
+              pe = EventHistory.addActivate(
+                  widget.event, AppSettings.rusaID.value,
                   isPreride: isPreride, controlState: controlState);
             }
             assert(pe != null);
@@ -269,7 +270,7 @@ class _EventCardState extends State<EventCard> {
     var cueVersion = event.cueVersion.toString();
 
     var signature = Signature(
-        data: cueVersion, riderID: rusaID, event: event, codeLength: 4);
+        data: cueVersion, riderID: rusaID.value, event: event, codeLength: 4);
 
     var validCode = Signature.substituteZeroOneXY(signature.text.toUpperCase());
 

@@ -83,8 +83,8 @@ class Region {
   //    "$_ebrevetServerURL/post_checkin/${regionID.toString()}";
 
   factory Region.fromSettings() {
-    var rid = AppSettings.regionID;
-    return Region(regionID: rid);
+    var rid = AppSettings.regionID.value;
+    return Region(regionID: rid as int);
   }
 
   static const Map<int, Map<String, String>> regionMap = {

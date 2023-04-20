@@ -218,17 +218,17 @@ class _ControlCardState extends State<ControlCard> {
       var open = activeEvent.isOpenControl(c.index);
       var near = activeEvent.isNear(c.index);
       var openTimeOverride = AppSettings.openTimeOverride;
-      var proximityRadiusInfinite = AppSettings.proximityRadius ==
+      var proximityRadiusInfinite = AppSettings.proximityRadius.value ==
           AppSettings.infiniteDistance.toDouble();
 
       return Text.rich(
           TextSpan(style: const TextStyle(fontSize: 12), children: [
-        if (open || openTimeOverride)
+        if (open || openTimeOverride.value)
           TextSpan(
-            text: 'Open now${openTimeOverride ? "*" : ""}',
+            text: 'Open now${openTimeOverride.value ? "*" : ""}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-        if (!open && !openTimeOverride)
+        if (!open && !openTimeOverride.value)
           const TextSpan(
             text: 'Not open',
           ),

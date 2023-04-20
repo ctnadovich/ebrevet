@@ -14,31 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-// import 'package:ebrevet_card/day_night.dart';
-import 'package:ebrevet_card/future_events.dart';
+import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:provider/provider.dart';
 
 import 'region.dart';
 import 'region_data.dart';
-import 'day_night.dart';
+import 'my_settings.dart';
+
+enum EventInfoSource {
+  rusaRegion,
+  rusaPerm,
+  clubACPCode,
+  eventInfoURL;
+
+  static Map<EventInfoSource, String> descriptionMap = {
+    rusaRegion: 'RUSA Region',
+    rusaPerm: 'Permanent ID Number',
+    clubACPCode: 'Club ACP Code',
+    eventInfoURL: 'Event Info URL',
+  };
+
+  String get description => descriptionMap[this]!;
+}
 
 class AppSettings {
-  static String? appName;
-  static String? packageName;
-  static String? version;
-  static String? buildNumber;
-
-  static Future<void> initializePackageInfo() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-
-    appName = packageInfo.appName;
-    packageName = packageInfo.packageName;
-    version = packageInfo.version;
-    buildNumber = packageInfo.buildNumber;
-  }
+  ////////////////////
+  // Constant settings
 
   static const int infiniteDistance = 9999999;
   static const int startableTimeWindowMinutes = 60;
@@ -47,57 +49,127 @@ class AppSettings {
   static const int timeRefreshPeriod = 60;
   static const int gpsRefreshPeriod = 20;
   static const int maxRUSAID = 999999;
-
+  static const int maxACPCODE = 999999;
+  static const int maxPERMID = 9999;
   static const bool autoFirstControlCheckIn = true;
+  static const double defaultProximityRadius = 500.0; // meters
 
-  static Color get themeColor {
-    var colorString =
-        Settings.getValue('key-theme-color', defaultValue: '#0000FF00')!;
-    var colorColor = hexToColor(colorString);
-    return colorColor;
-  }
-
-  static Color hexToColor(String code) {
-    return Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
-  }
+  //////////
+  // Secrets
 
   static String get magicStartCode => RegionData.magicStartCode;
   static String get magicRUSAID => RegionData.magicRUSAID;
 
-  static double get proximityRadius {
-    var d = Settings.getValue<int>('key-control-proximity-thresh',
-        defaultValue: 500)!;
-    return d.toDouble();
+  ////////////////////////
+  // Package Info Settings
+
+  static String? appName;
+  static String? packageName;
+  static String? version;
+  static String? buildNumber;
+
+  static Future<void> initializePackageInfo() async {
+    MyLogger.entry('Init package info start');
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    appName = packageInfo.appName;
+    packageName = packageInfo.packageName;
+    version = packageInfo.version;
+    buildNumber = packageInfo.buildNumber;
+    MyLogger.entry('Init package info end');
   }
 
-  static bool get openTimeOverride {
-    return Settings.getValue('key-open-time-override', defaultValue: false)!;
+  //////////////////////////////
+  // Persistent Settings getters
+
+  // Basic ID
+  static late MySetting<String> firstName;
+  static late MySetting<String> lastName;
+  static late MySetting<String> rusaID;
+
+  // Event Info
+  static late MySetting<Enum> eventInfoSource;
+  static late MySetting<int> regionID;
+  static late MySetting<String> eventInfoURL;
+
+  // Other
+  static late MySetting<Color> themeColor;
+
+  // Advanced
+
+  static late MySetting<double> proximityRadius;
+  static late MySetting<bool> openTimeOverride;
+  static late MySetting<bool> controlProximityOverride;
+  static late MySetting<bool> canDeletePastEvents;
+  static late MySetting<bool> prerideDateWindowOverride;
+
+  static initializeMySettings() {
+    firstName = MySetting<String>(
+        key: 'key-first-name', defaultValue: '', title: 'First Name');
+
+    lastName = MySetting<String>(
+        key: 'key-last-name', defaultValue: '', title: 'Last Name');
+
+    rusaID = MySetting<String>(
+        key: 'key-rusa-id', defaultValue: '', title: 'RUSA ID');
+
+    eventInfoSource = MySetting<EventInfoSource>(
+        key: 'key-event-info-source',
+        defaultValue: EventInfoSource.rusaRegion,
+        title: 'Event Info Source');
+    regionID = MySetting<int>(
+        key: 'key-region-id',
+        defaultValue: Region.defaultRegion,
+        title: 'ACP Club Code');
+
+    var rgn = Region.fromSettings();
+    var url = rgn.futureEventsURL;
+    eventInfoURL = MySetting<String>(
+        key: 'key-event-info-url',
+        defaultValue: url,
+        title: 'Future Event Info URL');
+
+    themeColor = MySetting(
+        key: 'key-theme-color',
+        defaultValue: Colors.blue,
+        title: 'Theme Color');
+
+    proximityRadius = MySetting(
+        key: 'key-control-proximity-threshold',
+        defaultValue: defaultProximityRadius,
+        title: 'Control Proximity Radius');
+    openTimeOverride = MySetting(
+        key: 'key-open-time-override',
+        defaultValue: false,
+        title: 'Open Time Override');
+    controlProximityOverride = MySetting(
+        key: 'key-control-proximity-override',
+        defaultValue: false,
+        title: 'Control Proximity Override');
+    canDeletePastEvents = MySetting(
+        key: 'key-delete-past-events',
+        defaultValue: false,
+        title: 'Can Delete Past Events');
+    prerideDateWindowOverride = MySetting(
+        key: 'key-preride-date-window-override',
+        defaultValue: false,
+        title: 'Pre-ride Date Window Override');
   }
 
-  static bool get canDeletePastEvents {
-    return Settings.getValue('key-delete-past-events', defaultValue: false)!;
-  }
+  ///////////////////
+  // Sugared Settings
 
-  static bool get prerideDateWindowOverride {
-    return Settings.getValue('key-preride-date-window-override',
-        defaultValue: false)!;
-  }
+  static String get fullName => "${firstName.value} ${lastName.value}";
 
-  static int get regionID =>
-      Settings.getValue<int>('key-region', defaultValue: Region.defaultRegion)!;
+  static bool get isRusaIDSet => rusaID.value.isNotEmpty;
 
-  static String get rusaID =>
-      Settings.getValue<String>('key-rusa-id', defaultValue: '')!;
+  static bool get areRequiredSettingsSet =>
+      rusaID.value.isNotEmpty &&
+      (firstName.value.isNotEmpty || lastName.value.isNotEmpty);
 
-  static String get fullName =>
-      Settings.getValue<String>('key-full-name', defaultValue: '')!;
+  static bool get isMagicRusaID => rusaID.value.trim() == magicRUSAID.trim();
 
-  static bool get isRusaIDSet => rusaID.isNotEmpty;
-
-  static setRusaID(String r) async => await Settings.setValue('key-rusa-id', r);
-
-  static setFullName(String r) async =>
-      await Settings.setValue('key-full-name', r);
+  //////////////
+  // Validators
 
   static String? urlFieldValidator(String? value) {
     if (value == null || value.isEmpty) {
@@ -118,152 +190,32 @@ class AppSettings {
     return null;
   }
 
-  static bool isValidRusaID(String? value) {
+  static String? rusaPermIDValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a Permanent ID';
+    }
+    if (false == isValidRusaID(value, maxValue: maxPERMID)) {
+      return 'Invalid Permanent ID number';
+    }
+    return null;
+  }
+
+  static String? acpCodeValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter an ACP Club Code';
+    }
+    if (false == isValidRusaID(value, maxValue: maxACPCODE)) {
+      return 'Invalid ACP Club Code';
+    }
+    return null;
+  }
+
+  static bool isValidRusaID(String? value, {int maxValue = maxRUSAID}) {
     if (value == null) return false;
     final rusaid = num.tryParse(value);
     if (rusaid == null || rusaid is! int || rusaid < 1 || rusaid > maxRUSAID) {
       return false;
     }
     return true;
-  }
-}
-
-// SETTINGS PAGE
-
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
-  @override
-  SettingsPageState createState() {
-    return SettingsPageState();
-  }
-}
-
-class SettingsPageState extends State<SettingsPage> {
-  @override
-  Widget build(BuildContext context) {
-    var dayNight = context.watch<DayNight>();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Settings',
-          //style: TextStyle(fontSize: 14),
-        ),
-        actions: [
-          IconButton(
-              icon: dayNight.icon,
-              onPressed: () {
-                dayNight.toggleMode();
-              })
-        ],
-      ),
-      body: Container(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        child: Center(
-          child: ListView(
-            children: [
-              TextInputSettingsTile(
-                settingKey: 'key-full-name',
-                title: 'Full Name',
-                initialValue: '',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your full name';
-                  }
-                  return null;
-                },
-              ),
-              TextInputSettingsTile(
-                settingKey: 'key-rusa-id',
-                title: 'RUSA ID Number',
-                initialValue: '',
-                validator: AppSettings.rusaFieldValidator,
-              ),
-              DropDownSettingsTile<int>(
-                title: 'Region',
-                settingKey: 'key-region',
-                values: <int, String>{
-                  for (var k in Region.regionMap.keys)
-                    k: "${Region.regionMap[k]!['state_code']!}: ${Region.regionMap[k]!['region_name']!}"
-                },
-                selected: Region.defaultRegion,
-                onChange: (value) {
-                  FutureEvents.clear();
-                },
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              ColorPickerSettingsTile(
-                title: 'Theme Color',
-                settingKey: 'key-theme-color',
-                onChange: (p0) {
-                  dayNight.color = p0;
-                },
-              ),
-
-              //   ],
-              // ),
-              const SizedBox(
-                height: 25,
-              ),
-              AppSettings.rusaID.trim() == AppSettings.magicRUSAID.trim()
-                  ? advancedSettings()
-                  : const SizedBox.shrink(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  ExpandableSettingsTile advancedSettings() {
-    // var dayNight = context.watch<DayNight>();
-
-    return ExpandableSettingsTile(
-      title: 'Advanced Options',
-      children: <Widget>[
-        RadioSettingsTile<int>(
-          leading: const Icon(Icons.social_distance),
-          title: 'Control Proximity Radius',
-          subtitle: 'Distance from control that allows check-in',
-          settingKey: 'key-control-proximity-thresh',
-          values: const <int, String>{
-            100: '100 m',
-            500: '500 m',
-            2500: '2.5 km',
-            12500: '12.5 km',
-            AppSettings.infiniteDistance: 'Infinite',
-          },
-          selected: 500,
-        ),
-        SwitchSettingsTile(
-          title: "Open Time Override",
-          settingKey: "key-open-time-override",
-          subtitle: "Ignore control open/close time.",
-          leading: const Icon(Icons.free_cancellation),
-        ),
-        SwitchSettingsTile(
-          title: "Preride Date Window Override",
-          settingKey: "key-preride-date-window-override",
-          subtitle: "Preride any time.",
-          leading: const Icon(Icons.free_cancellation),
-        ),
-        SwitchSettingsTile(
-          title: "Delete Past Events",
-          settingKey: "key-delete-past-events",
-          subtitle: "Can delete events from past events page.",
-          leading: const Icon(Icons.delete),
-        ),
-      ],
-    );
-  }
-
-  String? textFieldValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter something';
-    }
-    return null;
   }
 }

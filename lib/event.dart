@@ -196,7 +196,7 @@ class Event {
     var now = DateTime.now();
     var difference = startDateTime.difference(now);
     return difference.inMinutes > AppSettings.startableTimeWindowMinutes &&
-        (AppSettings.prerideDateWindowOverride ||
+        (AppSettings.prerideDateWindowOverride.value ||
             difference.inDays <= AppSettings.prerideTimeWindowDays);
   }
 }

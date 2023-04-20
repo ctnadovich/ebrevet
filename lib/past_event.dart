@@ -268,7 +268,7 @@ class PastEvent {
   bool isNear(int controlKey) => _event.controls[controlKey].cLoc.isNearControl;
 
   bool isAvailable(int controlKey) =>
-      (AppSettings.openTimeOverride || isOpenControl(controlKey)) &&
+      (AppSettings.openTimeOverride.value || isOpenControl(controlKey)) &&
       isNear(controlKey);
 
   Event get event {

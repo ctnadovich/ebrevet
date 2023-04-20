@@ -15,6 +15,8 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+import 'package:flutter/material.dart';
+
 class Utility {
   static String toBriefDateTimeString(DateTime? dt) {
     var timestamp = dt?.toLocal().toIso8601String();
@@ -42,5 +44,13 @@ class Utility {
     return (d.toStringAsFixed(2).endsWith('.000000000000'.substring(0, n)))
         ? d.toStringAsFixed(n)
         : d.toStringAsFixed(n);
+  }
+
+  static Color hexToColor(String code) {
+    return Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
+  }
+
+  static String colorToHex(Color color) {
+    return '#${(color.value & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
   }
 }
