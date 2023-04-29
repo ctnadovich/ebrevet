@@ -18,7 +18,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'past_event.dart';
 import 'package:path_provider/path_provider.dart';
 import 'mylogger.dart';
 
@@ -63,11 +62,11 @@ class FileStorage {
     try {
       final file = await _localFile;
 
-      var jsonData = jsonEncode(contents,
-          toEncodable: (Object? value) => (value is PastEvent)
-              ? PastEvent.toJson(value)
-              : throw FormatException(
-                  'In FileStorage.writeJSON() Cannot convert to JSON: $value'));
+      var jsonData = jsonEncode(contents); //,
+      // toEncodable: (Object? value) => (value is PastEvent)
+      //     ? PastEvent.toJson(value)
+      //     : throw FormatException(
+      //         'In FileStorage.writeJSON() Cannot convert to JSON: $value'));
 
       await file.writeAsString(jsonData);
 

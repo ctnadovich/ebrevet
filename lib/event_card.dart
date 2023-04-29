@@ -257,7 +257,7 @@ class _EventCardState extends State<EventCard> {
   String? validateStartCode(String? s, Event event) {
     if (s == null || s.isEmpty) return "Missing start code";
     if (false == AppSettings.isRusaIDSet) return "Rider not set.";
-    if (FutureEvents.region == null) return "No region. ";
+    if (FutureEvents.eventInfoSource == null) return "No event authority. ";
 
     var startCode = Signature.substituteZeroOneXY(s.toUpperCase());
     var magicCode =

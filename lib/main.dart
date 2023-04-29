@@ -21,13 +21,12 @@ import 'package:ebrevet_card/app_settings.dart';
 import 'package:provider/provider.dart';
 
 import 'snackbarglobal.dart';
-import 'event_list_page.dart';
 import 'future_events.dart';
-import 'region.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
 import 'my_settings.dart';
+import 'event_list_page.dart';
 
 // TODO Server side posting result and elapsed time to roster
 // Not really an app to-do, but this is a good reminder.
@@ -48,14 +47,10 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (context) => DayNight()),
           ChangeNotifierProvider(create: (context) => ControlState()),
+          ChangeNotifierProvider(create: (context) => SourceSelection()),
         ],
         child: const MyApp(),
       ),
-
-      // ChangeNotifierProvider(
-      //   create: (context) => DayNight(),
-      //   child: const MyApp(),
-      // ),
     );
   });
 }
@@ -66,8 +61,8 @@ Future<void> initSettings() async {
 
   await MySetting.initSharedPreferences();
   await AppSettings.initializePackageInfo();
-  await AppSettings.initializeMySettings();
-  await FutureEvents.refreshEventsFromDisk(Region.fromSettings());
+  // await AppSettings.initializeMySettings();
+  await FutureEvents.refreshEventsFromDisk();
   // .then((_) =>
   await EventHistory.load();
   MyLogger.entry('...Init settings end');

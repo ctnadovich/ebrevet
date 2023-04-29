@@ -14,20 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:ebrevet_card/event.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'snackbarglobal.dart';
 import 'future_events.dart';
 import 'event_card.dart';
-import 'region.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
 import 'ticker.dart';
 import 'time_till.dart';
-import 'required_settings.dart';
 import 'side_menu.dart';
+import 'settings_page.dart';
 
 class EventListPage extends StatefulWidget {
   const EventListPage({super.key});
@@ -36,7 +34,6 @@ class EventListPage extends StatefulWidget {
 }
 
 class _EventListPageState extends State<EventListPage> {
-  bool fetchingFromServerNow = false;
   Ticker ticker = Ticker();
 
   @override
@@ -59,16 +56,12 @@ class _EventListPageState extends State<EventListPage> {
 
   @override
   Widget build(BuildContext context) {
-    var events = FutureEvents.events;
     var dayNight = context.watch<DayNight>();
-    var ttLastRefreshed = FutureEvents.lastRefreshed != null
-        ? TimeTill(FutureEvents.lastRefreshed!)
-        : null;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'eBrevet',
+          'eBrevet Events',
         ),
         actions: [
           IconButton(
@@ -84,57 +77,41 @@ class _EventListPageState extends State<EventListPage> {
       body: Container(
         color: Theme.of(context).colorScheme.primaryContainer,
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        child: Center(
-          child: ( // false &&
-                  AppSettings
-                      .areRequiredSettingsSet) //  && AppSettings.rusaID!='99999')
-              ? mainEventsPage(context, ttLastRefreshed, events)
-              : const RequiredAppSettings(
-                  isExpandable: false,
-                ),
-        ),
+        child: (AppSettings.areRequiredSettingsSet)
+            ? const LatestEventList()
+            : RequiredAppSettings(
+                collapsed: false,
+                onContinue: () => setState(() {}),
+              ),
       ),
     );
   }
+}
 
-  Stack mainEventsPage(
-      BuildContext context, TimeTill? ttLastRefreshed, List<Event> events) {
+class LatestEventList extends StatefulWidget {
+  const LatestEventList({
+    super.key,
+  });
+
+  @override
+  State<LatestEventList> createState() => _LatestEventListState();
+}
+
+class _LatestEventListState extends State<LatestEventList> {
+  bool fetchingFromServerNow = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // BuildContext context) {
+    var events = FutureEvents.events;
+    var sourceSelection = context.watch<SourceSelection>();
+
     return Stack(children: [
       ListView(
-        // mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // SizedBox(height: 2),
-          ElevatedButton.icon(
-            onPressed: () {
-              SnackbarGlobal.show(
-                  'Updating events from server... (This may take a few seconds.)');
-              setState(() {
-                fetchingFromServerNow = true;
-              });
-              FutureEvents.refreshEventsFromServer(Region.fromSettings())
-                  // Future.delayed(const Duration(seconds: 5))
-                  .then(
-                      (value) => setState(() => fetchingFromServerNow = false));
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Update event data from Server'),
-          ),
-          Text(
-            // TODO needs to be actual source of events -- not necessarily region
-
-            'Future events for: ${Region.fromSettings().clubName}',
-            textAlign: TextAlign.center,
-          ),
-          Text(
-            ttLastRefreshed != null
-                ? 'Event data updated: ${ttLastRefreshed.interval} ${ttLastRefreshed.unit}${ttLastRefreshed.ago}'
-                : 'Update Event Data Now!',
-            textAlign: TextAlign.center,
-          ),
-          const Text(
-            'Update event data before you ride!',
-            style: TextStyle(fontStyle: FontStyle.italic),
-            textAlign: TextAlign.center,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: eventListHeader(sourceSelection),
           ),
           ...events.map((e) => EventCard(e)), // All the Event Cards
         ],
@@ -157,9 +134,65 @@ class _EventListPageState extends State<EventListPage> {
               value: value,
             ),
           ),
-
-          //CircularProgressIndicator(),
         ),
     ]);
+  }
+
+  List<Widget> eventListHeader(SourceSelection sourceSelection) {
+    var ttLastRefreshed = FutureEvents.lastRefreshed != null
+        ? TimeTill(FutureEvents.lastRefreshed!)
+        : null;
+
+    return [
+      ElevatedButton.icon(
+        onPressed: () {
+          SnackbarGlobal.show(
+              'Updating events for ${sourceSelection.eventInfoSource.fullDescription}... (This may take a few seconds.)');
+          setState(() {
+            fetchingFromServerNow = true;
+          });
+
+          FutureEvents.refreshEventsFromServer(sourceSelection.eventInfoSource)
+              .then((value) => setState(() => fetchingFromServerNow = false));
+
+          //Future.delayed(const Duration(seconds: 5))
+        },
+        icon: const Icon(Icons.refresh),
+        label: const Text('Update event data'),
+      ),
+
+      //Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      // const Spacer(),
+      //Expanded(
+      //flex: 20,
+      //  child:
+      if (sourceSelection.eventInfoSource != FutureEvents.eventInfoSource)
+        Text(
+          "Next update from "
+          "${sourceSelection.eventInfoSource.fullDescription}",
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      //),
+      // const Spacer()
+      //]),
+      // if (FutureEvents.eventInfoSource != null) ...[
+      //   const Text('List of events for:'),
+      //   Text('${FutureEvents.eventInfoSource!.description}'),
+      //   Text(
+      //     '${FutureEvents.eventInfoSource!.subDescription}',
+      //     style: Theme.of(context).textTheme.bodySmall,
+      //   ),
+      // ],
+      Text(
+        ttLastRefreshed != null
+            ? 'Event data updated: ${ttLastRefreshed.interval} ${ttLastRefreshed.unit}${ttLastRefreshed.ago}'
+            : 'No event data. Update Now!',
+      ),
+      const Text(
+        'Update event data before you ride!',
+        style: TextStyle(fontStyle: FontStyle.italic),
+      ),
+    ];
   }
 }

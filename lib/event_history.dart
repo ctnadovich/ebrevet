@@ -71,8 +71,8 @@ class EventHistory {
   }
 
   static Map<String, PastEvent> fromJsonMap(Map<String, dynamic> jsonMap) {
-    var m = jsonMap
-        .map((key, value) => MapEntry(key, PastEvent.fromJsonMap(value)));
+    var m =
+        jsonMap.map((key, value) => MapEntry(key, PastEvent.fromJson(value)));
     return m;
   }
 

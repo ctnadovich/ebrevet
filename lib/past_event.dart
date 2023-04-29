@@ -47,7 +47,7 @@ class PastEvent {
         'rider_id': pe.riderID,
       };
 
-  factory PastEvent.fromJsonMap(Map<String, dynamic> jsonMap) {
+  factory PastEvent.fromJson(Map<String, dynamic> jsonMap) {
     var eventMap = jsonMap['event'];
     var outcomeMap = jsonMap['outcomes'];
     var isPreride = jsonMap['preride'];

@@ -17,24 +17,118 @@
 // import 'package:flutter/material.dart';
 // import 'package:ebrevet_card/report.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
 import 'snackbarglobal.dart';
 import 'event.dart';
-import 'region.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'files.dart';
 import 'exception.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
+import 'region.dart';
 
 // import 'current.dart';
 
+enum FutureEventsSourceID {
+  fromRegion('Brevet Region'),
+  fromURL('Custom Event Data URL');
+
+  final String description;
+  const FutureEventsSourceID(this.description);
+
+  String toJson() => name;
+  static FutureEventsSourceID fromJson(String json) => values.byName(json);
+}
+
+class FutureEventsSource {
+  final FutureEventsSourceID id;
+  final String url;
+
+  String get description => id.description;
+
+  String get fullDescription {
+    return "${id.description}: $subDescription";
+  }
+
+  String get subDescription {
+    String d;
+    switch (id) {
+      case FutureEventsSourceID.fromRegion:
+        var rgn = Region.fromSettings();
+        d = "${rgn.stateCode} (${rgn.regionSubName})";
+        break;
+      case FutureEventsSourceID.fromURL:
+        d = "($url)";
+        break;
+    }
+    return d;
+  }
+
+  factory FutureEventsSource.fromSettingsSourceID() {
+    var sourceID = AppSettings.futureEventsSourceID.value;
+    String eventsURL;
+    switch (sourceID) {
+      case FutureEventsSourceID.fromRegion:
+        var rgn = Region.fromSettings();
+        eventsURL = rgn.futureEventsURL;
+        break;
+      case FutureEventsSourceID.fromURL:
+        eventsURL = AppSettings.eventInfoURL.value;
+        break;
+    }
+    return FutureEventsSource(sourceID, eventsURL);
+  }
+
+  // factory FutureEventsSource.fromSelectedRegion() {
+  //   var rgn = Region.fromSettings();
+  //   var eventsURL = rgn.futureEventsURL;
+  //   return FutureEventsSource(FutureEventsSourceID.fromRegion, eventsURL);
+  // }
+
+  // factory FutureEventsSource.fromCustomURL() {
+  //   var eventsURL = AppSettings.eventInfoURL;
+  //   return FutureEventsSource(FutureEventsSourceID.fromURL, eventsURL);
+  // }
+
+  FutureEventsSource(this.id, this.url);
+
+  FutureEventsSource.fromJson(Map<String, dynamic> json)
+      : id = FutureEventsSourceID.fromJson(json['id']),
+        url = json['url'];
+
+  Map<String, dynamic> toJson() => {
+        'id': id.toJson(),
+        'url': url,
+      };
+}
+
+// This class stores the currently selected event info source
+// and provides change notification to anything that cares
+
+class SourceSelection extends ChangeNotifier {
+  FutureEventsSource eventInfoSource;
+
+  SourceSelection()
+      : eventInfoSource = FutureEventsSource.fromSettingsSourceID();
+
+  updateFromSettings() {
+    eventInfoSource = FutureEventsSource.fromSettingsSourceID();
+    notifyListeners();
+  }
+}
+
 class FutureEvents {
   static var events = <Event>[]; // List of events
-  static Region? region; // Region associated with the event download
+
+  static FutureEventsSource?
+      eventInfoSource; // where did the above list of events come from
+  static const eventInfoSourceFieldName = 'event_info_source';
+
   static DateTime? lastRefreshed; // Time when last refreshed from server
-  // static ValueNotifier<int> refreshCount = ValueNotifier(0);
+  static const lastRefreshedFieldName = 'last_refreshed';
+
   static const futureEventsFileName =
       'future_events.json'; // File to save events locally
   static var storedEvents = FileStorage(futureEventsFileName);
@@ -44,14 +138,14 @@ class FutureEvents {
     lastRefreshed = null;
     // refreshCount.value = 0;
     //   rider = null;
-    region = null;
+    eventInfoSource = null;
     storedEvents.clear();
   }
 
-  static Future<String> refreshEventsFromDisk(Region rgn) async {
+  static Future<String> refreshEventsFromDisk() async {
     Map<String, dynamic> eventMapFromFile;
     try {
-      MyLogger.entry("** Refreshing events from DISK for ${rgn.clubName}");
+      MyLogger.entry("** Refreshing events from DISK ");
 
       try {
         eventMapFromFile = await storedEvents.readJSON();
@@ -62,14 +156,23 @@ class FutureEvents {
 
       var lrs = '';
       if (eventMapFromFile.isNotEmpty) {
-        rebuildEventList(eventMapFromFile, rgn);
-        if (eventMapFromFile.containsKey('lastRefreshed')) {
-          var timestamp = eventMapFromFile['lastRefreshed'];
+        rebuildEventList(eventMapFromFile);
+
+        if (eventMapFromFile.containsKey(lastRefreshedFieldName)) {
+          var timestamp = eventMapFromFile[lastRefreshedFieldName];
           lrs = "lastRefreshed = $timestamp";
           lastRefreshed = DateTime.tryParse(timestamp)?.toLocal();
         } else {
           lastRefreshed = null;
           lrs = "Unkown";
+        }
+
+        if (eventMapFromFile.containsKey(eventInfoSourceFieldName)) {
+          eventInfoSource = FutureEventsSource.fromJson(
+              eventMapFromFile[eventInfoSourceFieldName]);
+        } else {
+          eventInfoSource = FutureEventsSource(FutureEventsSourceID.fromRegion,
+              Region.fromSettings().futureEventsURL);
         }
 
         // refreshCount.value++;
@@ -87,19 +190,26 @@ class FutureEvents {
     }
   }
 
-  static Future<bool> refreshEventsFromServer(Region rgn) async {
+  static Future<bool> refreshEventsFromServer(
+      FutureEventsSource futureEventsSource) async {
     try {
-      MyLogger.entry("Refreshing events from SERVER for ${rgn.clubName}");
+      MyLogger.entry(
+          "Refreshing events from SERVER for ${futureEventsSource.description} with"
+          " URL ${futureEventsSource.url}");
 
       // Then try to fetch from the server in background with callback to process
-      var eventMapFromServer = await fetchFutureEventsFromServer(rgn);
+      var eventMapFromServer =
+          await fetchFutureEventsFromServer(futureEventsSource.url);
       if (null == eventMapFromServer) return false;
-      rebuildEventList(eventMapFromServer, rgn);
+      rebuildEventList(eventMapFromServer);
       var now = DateTime.now();
-      eventMapFromServer['lastRefreshed'] = now.toUtc().toIso8601String();
+      eventMapFromServer[lastRefreshedFieldName] =
+          now.toUtc().toIso8601String();
+      eventMapFromServer[eventInfoSourceFieldName] = futureEventsSource;
       var writeStatus = await storedEvents.writeJSON(
           eventMapFromServer); // Save what we just downloaded to disk
       lastRefreshed = now;
+      eventInfoSource = futureEventsSource;
 
       // refreshCount.value++;
       MyLogger.entry("Refresh complete. Write status: $writeStatus");
@@ -124,7 +234,7 @@ class FutureEvents {
 
   static const futureEventGraceTime = 12; // hours
 
-  static void rebuildEventList(Map eventMap, Region g) {
+  static void rebuildEventList(Map eventMap) {
     List el = eventMap['event_list'];
     MyLogger.entry("rebuildEventList() from ${el.length} events in Map");
     events.clear();
@@ -143,14 +253,13 @@ class FutureEvents {
         ? -1
         : (a.startDateTime.isAfter(b.startDateTime) ? 1 : 0));
     // rider = r;
-    region = g;
     var n = events.length;
-    MyLogger.entry("Event List rebuilt with $n events in ${region!.clubName}.");
+    MyLogger.entry(
+        "Event List rebuilt with $n events in ${eventInfoSource?.description ?? '<unknown>'}.");
   }
 
   static Future<Map<String, dynamic>?> fetchFutureEventsFromServer(
-      Region rgn) async {
-    String url = rgn.futureEventsURL;
+      String url) async {
     MyLogger.entry('Fetching future event data from $url');
 
     Map<String, dynamic> decodedResponse;

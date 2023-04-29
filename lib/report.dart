@@ -115,7 +115,9 @@ class Report {
     report['outcome'] = _reportingEvent.outcomes;
 
     report['app_version'] = AppSettings.version;
-    report['proximity_radius'] = AppSettings.proximityRadius;
+    report['proximity_radius'] = AppSettings.proximityRadius.toString();
+    report['proximity_override'] =
+        AppSettings.controlProximityOverride.toString();
 
     report['open_override'] = AppSettings.openTimeOverride.value ? "YES" : "NO";
     report['preride'] = (_reportingEvent.isPreride) ? "YES" : "NO";

@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/future_events.dart';
 import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,8 +24,9 @@ class MySetting<T> {
   final String key;
   final T defaultValue;
   final String title;
-
-  // TODO icon, validator
+  final String? Function(String? value)? validator;
+  final Icon? icon;
+  final void Function()? onChanged;
 
   static final Map<String, dynamic> _settingMap = <String, MySetting>{};
 
@@ -40,11 +42,15 @@ class MySetting<T> {
     required String key,
     required T defaultValue,
     required String title,
+    String? Function(String? value)? validator,
+    void Function()? onChanged,
+    Icon? icon,
   }) {
     if (_settingMap.containsKey(key)) {
       return _settingMap[key]!;
     } else {
-      var setting = MySetting._generate(key, defaultValue, title);
+      var setting = MySetting._generate(
+          key, defaultValue, title, validator, onChanged, icon);
       _settingMap[key] = setting;
       MyLogger.entry(
           'Added setting $key; Map now contains ${_settingMap.length} entries.');
@@ -52,35 +58,13 @@ class MySetting<T> {
     }
   }
 
-  MySetting._generate(this.key, this.defaultValue, this.title);
+  MySetting._generate(this.key, this.defaultValue, this.title, this.validator,
+      this.onChanged, this.icon);
 
   @override
   String toString() {
     return this.value.toString();
   }
-
-  // T get value {
-  //   if (T == String) {
-  //     return prefs.getString(key) as T? ?? defaultValue;
-  //   } else if (T == bool) {
-  //     return prefs.getBool(key) as T? ?? defaultValue;
-  //   } else if (T == int) {
-  //     return prefs.getInt(key) as T? ?? defaultValue;
-  //   } else if (T == double) {
-  //     return prefs.getDouble(key) as T? ?? defaultValue;
-  //   } else if (T == Color) {
-  //     var i = prefs.getString(key);
-  //     if (i == null || i.isEmpty) return defaultValue;
-  //     return Utility.hexToColor(i) as T;
-  //   } else if (T == Enum) {
-  //     var i = prefs.getInt(key);
-  //     var e = _settingMap[key];
-  //     if (i == null || i < 0 || i > e.length) return defaultValue;
-  //     return (e[i] ?? defaultValue);
-  //   } else {
-  //     throw Exception('No Implementation for getting MySetting type.');
-  //   }
-  // }
 
   T get value {
     var s = prefs.getString(key);
@@ -97,19 +81,15 @@ class MySetting<T> {
         return double.parse(s) as T;
       } else if (T == Color) {
         return Utility.hexToColor(s) as T;
-      } else if (T == Enum) {
+      } else if (T == FutureEventsSourceID) {
         var i = int.parse(s);
-        var e = _settingMap[key];
-        if (i < 0 || i >= e.length) {
-          throw const FormatException('Invalid enum index');
-        }
-        return e[i];
+        return FutureEventsSourceID.values[i] as T;
       } else {
         throw TypeError();
       }
     } catch (e) {
       prefs.setString(key, '');
-      MyLogger.entry('Invalid data "$s" for key "$key" erased',
+      MyLogger.entry('Error $e. Invalid data "$s" for key "$key" erased',
           severity: Severity.warning);
       return defaultValue;
     }
@@ -137,8 +117,15 @@ class MySetting<T> {
   // }
 
   setValue(T val) async {
-    MyLogger.entry('Setting $key to ${val.toString()}');
-    await prefs.setString(key, val.toString());
+    String s;
+    if (this.defaultValue is Enum) {
+      s = (val as Enum).index.toString();
+    } else {
+      s = val.toString();
+    }
+    MyLogger.entry('Setting $key to $s');
+    await prefs.setString(key, s);
+    this.onChanged?.call();
   }
 
   setValueFromString(String val) async {

@@ -218,8 +218,7 @@ class _ControlCardState extends State<ControlCard> {
       var open = activeEvent.isOpenControl(c.index);
       var near = activeEvent.isNear(c.index);
       var openTimeOverride = AppSettings.openTimeOverride;
-      var proximityRadiusInfinite = AppSettings.proximityRadius.value ==
-          AppSettings.infiniteDistance.toDouble();
+      var proximityRadiusInfinite = AppSettings.controlProximityOverride.value;
 
       return Text.rich(
           TextSpan(style: const TextStyle(fontSize: 12), children: [

@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/future_events.dart';
 import 'package:flutter/material.dart';
-
 import 'my_settings.dart';
 
 class StyledListTile extends StatelessWidget {
@@ -65,18 +65,22 @@ class StyledListTile extends StatelessWidget {
 
 class DialogInputSettingsTile extends StatefulWidget {
   final MySetting mySetting;
-  const DialogInputSettingsTile(this.mySetting, {super.key});
+  final void Function()? onChanged;
+
+  const DialogInputSettingsTile(this.mySetting, {super.key, this.onChanged});
   @override
   DialogInputSettingsTileState createState() => DialogInputSettingsTileState();
 }
 
 class DialogInputSettingsTileState extends State<DialogInputSettingsTile> {
   late TextEditingController controller;
+//  String? errorText;
 
   @override
   void initState() {
     super.initState();
     controller = TextEditingController();
+    controller.text = widget.mySetting.toString();
   }
 
   @override
@@ -89,7 +93,8 @@ class DialogInputSettingsTileState extends State<DialogInputSettingsTile> {
   Widget build(BuildContext context) {
     return StyledListTile(
       widget.mySetting,
-      leading: const Icon(Icons.person),
+      leading: widget.mySetting.icon ??
+          const Visibility(visible: false, child: Icon(Icons.person)),
       trailing: const Icon(Icons.edit),
       title: Text(widget.mySetting.title),
       subtitle: Container(
@@ -106,9 +111,10 @@ class DialogInputSettingsTileState extends State<DialogInputSettingsTile> {
       onTap: () async {
         final stringEntered = await openEditDialog();
         if (stringEntered != null) {
-          widget.mySetting
-              .setValueFromString(stringEntered)
-              .then((_) => setState(() {}));
+          widget.mySetting.setValueFromString(stringEntered).then((_) {
+            widget.onChanged?.call();
+            setState(() {});
+          });
         }
       },
     );
@@ -118,70 +124,40 @@ class DialogInputSettingsTileState extends State<DialogInputSettingsTile> {
         context: context,
         builder: (context) => AlertDialog(
           title: Text('Enter ${widget.mySetting.title}'),
-          content: TextField(
-            decoration:
-                InputDecoration(hintText: 'Enter ${widget.mySetting.title}'),
+          content: TextFormField(
+            decoration: InputDecoration(
+              hintText: 'Enter ${widget.mySetting.title}',
+              // errorText: errorText,
+            ),
             autofocus: true,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             controller: controller,
-            onSubmitted: (_) => submitEditDialog(),
+            onFieldSubmitted: (text) => submitEditDialog(text),
+            onSaved: (text) => submitEditDialog(text),
+            validator: (val) => widget.mySetting.validator?.call(val),
           ),
           actions: [
             TextButton(
                 onPressed: () {
-                  return submitEditDialog();
+                  return submitEditDialog(controller.text);
                 },
                 child: const Text('SUBMIT'))
           ],
         ),
       );
 
-  void submitEditDialog() {
-    // widget.mySetting.setValue(controller.value);
-    Navigator.of(context).pop(controller.text);
-    controller.clear();
-  }
-}
-
-class DropDownSettingsTile extends StatefulWidget {
-  /// Settings Key string for storing the text in cache (assumed to be unique)
-  final MySetting mySetting;
-
-  const DropDownSettingsTile(this.mySetting, {super.key});
-
-  @override
-  DropDownSettingsTileState createState() => DropDownSettingsTileState();
-}
-
-class DropDownSettingsTileState extends State<DropDownSettingsTile> {
-  @override
-  Widget build(BuildContext context) {
-    return const Text('Implementation goes here');
-  }
-}
-
-class RadioSettingsTile extends StatefulWidget {
-  /// Settings Key string for storing the text in cache (assumed to be unique)
-  final MySetting mySetting;
-
-  const RadioSettingsTile(this.mySetting, {super.key});
-
-  @override
-  RadioSettingsTileState createState() => RadioSettingsTileState();
-}
-
-class RadioSettingsTileState extends State<RadioSettingsTile> {
-  @override
-  Widget build(BuildContext context) {
-    return const Text('Implementation goes here');
+  void submitEditDialog(String? text) {
+    if (text != null) {
+      Navigator.of(context).pop(text);
+      //controller.clear();
+    }
   }
 }
 
 class SwitchSettingsTile extends StatefulWidget {
   /// Settings Key string for storing the text in cache (assumed to be unique)
   final MySetting mySetting;
-
   const SwitchSettingsTile(this.mySetting, {super.key});
-
   @override
   SwitchSettingsTileState createState() => SwitchSettingsTileState();
 }
@@ -191,7 +167,8 @@ class SwitchSettingsTileState extends State<SwitchSettingsTile> {
   Widget build(BuildContext context) {
     return StyledListTile(
       widget.mySetting,
-      leading: const Icon(Icons.person),
+      leading: widget.mySetting.icon ??
+          const Visibility(visible: false, child: Icon(Icons.person)),
       title: Text(widget.mySetting.title),
       trailing: Switch(
         // This bool value toggles the switch.
@@ -204,6 +181,94 @@ class SwitchSettingsTileState extends State<SwitchSettingsTile> {
           });
         },
       ),
+    );
+  }
+}
+
+class DropDownSettingsTile extends StatefulWidget {
+  /// Settings Key string for storing the text in cache (assumed to be unique)
+  final MySetting mySetting;
+  final List<DropdownMenuItem<int>> itemList;
+  final void Function()? onChanged;
+
+  const DropDownSettingsTile(this.mySetting,
+      {required this.itemList, super.key, this.onChanged});
+
+  @override
+  DropDownSettingsTileState createState() => DropDownSettingsTileState();
+}
+
+class DropDownSettingsTileState extends State<DropDownSettingsTile> {
+  @override
+  Widget build(BuildContext context) {
+    return StyledListTile(
+      widget.mySetting,
+      leading: widget.mySetting.icon ??
+          const Visibility(visible: false, child: Icon(Icons.person)),
+      trailing: const Icon(Icons.edit),
+      title: Text(
+        widget.mySetting.title,
+      ),
+      subtitle: styledDropDownButton(context),
+    );
+  }
+
+  Widget styledDropDownButton(BuildContext context) {
+    return Material(
+      color: Theme.of(context).colorScheme.secondaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        child: DropdownButton<int>(
+          value: widget.mySetting.value,
+          isExpanded: true,
+          isDense: true,
+          items: widget.itemList,
+          onChanged: (Object? value) {
+            widget.mySetting.setValue(value);
+            widget.onChanged?.call();
+            setState(() {});
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class RadioButtonSettingsTile extends StatefulWidget {
+  /// Settings Key string for storing the text in cache (assumed to be unique)
+  final MySetting mySetting;
+  final void Function()? onChanged;
+
+  const RadioButtonSettingsTile(this.mySetting, {super.key, this.onChanged});
+
+  @override
+  RadioButtonSettingsTileState createState() => RadioButtonSettingsTileState();
+}
+
+class RadioButtonSettingsTileState extends State<RadioButtonSettingsTile> {
+  FutureEventsSourceID? selectedSourceId;
+  @override
+  Widget build(BuildContext context) {
+    selectedSourceId = widget.mySetting.value;
+
+    return Column(
+      children: [
+        for (var sourceID in FutureEventsSourceID.values)
+          ListTile(
+            title: Text(sourceID.description),
+            leading: Radio<FutureEventsSourceID>(
+              value: sourceID,
+              groupValue: selectedSourceId,
+              onChanged: (FutureEventsSourceID? v) {
+                widget.mySetting.setValue(v);
+                widget.onChanged?.call();
+                setState(() {
+                  selectedSourceId = v;
+                });
+              },
+            ),
+          ),
+      ],
     );
   }
 }

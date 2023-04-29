@@ -14,18 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:ebrevet_card/required_settings.dart';
+import 'package:ebrevet_card/future_events.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:provider/provider.dart';
 
 import 'day_night.dart';
 import 'app_settings.dart';
 import 'settings_tiles.dart';
 import 'my_settings.dart';
+import 'region.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  const SettingsPage({
+    super.key,
+  });
   @override
   SettingsPageState createState() {
     return SettingsPageState();
@@ -33,11 +35,21 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
+  final regionList = [
+    for (var k in Region.regionMap.keys)
+      DropdownMenuItem(
+        value: k,
+        child: Text(
+            "${Region.regionMap[k]!['state_code']!}: ${Region.regionMap[k]!['region_name']!}"),
+      )
+  ];
+
   @override
   Widget build(BuildContext context) {
     var dayNight = context.watch<DayNight>();
+    var sourceSelection = context.watch<SourceSelection>();
     var spacerBox = const SizedBox(
-      height: 24,
+      height: 16,
     );
     return Scaffold(
       appBar: AppBar(
@@ -56,40 +68,57 @@ class SettingsPageState extends State<SettingsPage> {
       body: Container(
         color: Theme.of(context).colorScheme.primaryContainer,
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        child: Center(
-          child: ListView(
-            children: [
-              const RequiredAppSettings(
-                isExpandable: true,
-              ),
-              spacerBox,
-              // eventInfoDownloadSettings(),
-              // spacerBox,
-              // ColorPickerSettingsTile(
-              //   title: 'Theme Color',
-              //   settingKey: 'key-theme-color',
-              //   onChange: (p0) {
-              //     dayNight.color = p0;
-              //   },
-              // ),
-              spacerBox,
-              AppSettings.isMagicRusaID
-                  ? advancedSettings()
-                  : const SizedBox.shrink(),
-              spacerBox,
-              ElevatedButton(
-                onPressed: () =>
-                    MySetting.clear().then((_) => setState(() => {})),
-                child: const Text('Clear All Settings'),
-              ),
-            ],
-          ),
+        child: ListView(
+          children: [
+            Column(
+              children: [
+                RequiredAppSettings(
+                  collapsed: true,
+                  onContinue: () => {},
+                ),
+                spacerBox,
+                Material(
+                  color: Colors.transparent,
+                  child: ExpansionTile(
+                    title: const Text('Event Info Source'),
+                    subtitle: const Text('Where to download event info'),
+                    children: [
+                      RadioButtonSettingsTile(
+                        AppSettings.futureEventsSourceID,
+                        onChanged: sourceSelection.updateFromSettings,
+                      ),
+                      if (AppSettings.futureEventsSourceID.value ==
+                          FutureEventsSourceID.fromRegion)
+                        DropDownSettingsTile(
+                          AppSettings.regionID,
+                          itemList: regionList,
+                          onChanged: sourceSelection.updateFromSettings,
+                        ),
+                      if (AppSettings.futureEventsSourceID.value ==
+                          FutureEventsSourceID.fromURL)
+                        DialogInputSettingsTile(
+                          AppSettings.eventInfoURL,
+                          onChanged: sourceSelection.updateFromSettings,
+                        ),
+                      spacerBox
+                    ],
+                  ),
+                ),
+                spacerBox,
+                if (AppSettings.isMagicRusaID)
+                  AdvancedSettings(
+                    onClear: () => setState(() {}),
+                  ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  ExpansionTile eventInfoDownloadSettings() {
+/*   ExpansionTile eventInfoDownloadSettings() {
     var spacerBox = const SizedBox(
       height: 8,
     );
@@ -107,9 +136,21 @@ class SettingsPageState extends State<SettingsPage> {
   }
 
   Widget infoSourceParameterEntry(EventInfoSource s) {
+    final regionList = [
+      for (var k in Region.regionMap.keys)
+        DropdownMenuItem(
+          value: k,
+          child: Text(
+              "${Region.regionMap[k]!['state_code']!}: ${Region.regionMap[k]!['region_name']!}"),
+        )
+    ];
+
     switch (s) {
       case EventInfoSource.rusaRegion:
-        return DropDownSettingsTile(AppSettings.regionID);
+        return DropDownSettingsTile(
+          AppSettings.regionID,
+          itemList: regionList,
+        );
 
       // break;
 
@@ -120,40 +161,115 @@ class SettingsPageState extends State<SettingsPage> {
       // break;
     }
   }
+}
+ */
+class AdvancedSettings extends StatefulWidget {
+  final void Function() onClear;
 
-  ExpansionTile advancedSettings() {
-    // var dayNight = context.watch<DayNight>();
+  const AdvancedSettings({
+    super.key,
+    required this.onClear,
+  });
 
-    return ExpansionTile(
-      title: const Text('Advanced Options'),
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 8, 8),
-          child: Container(
-              padding: const EdgeInsets.all(16),
-              color: Theme.of(context).colorScheme.secondaryContainer,
-              child: Column(
-                children: advancedSettingsList,
-              )),
-        ),
-      ],
+  @override
+  State<AdvancedSettings> createState() => _AdvancedSettingsState();
+}
+
+class _AdvancedSettingsState extends State<AdvancedSettings> {
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: ExpansionTile(
+        title: const Text('Developer Options'),
+        subtitle: const Text("Using these may disqualify your ride."),
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 8, 8),
+            child: Container(
+                padding: const EdgeInsets.all(16),
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                child: Column(children: [
+                  SwitchSettingsTile(AppSettings.openTimeOverride),
+                  SwitchSettingsTile(AppSettings.prerideDateWindowOverride),
+                  SwitchSettingsTile(AppSettings.canDeletePastEvents),
+                  SwitchSettingsTile(AppSettings.controlProximityOverride),
+                  DialogInputSettingsTile(AppSettings.proximityRadius),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  ElevatedButton(
+                    onPressed: () =>
+                        MySetting.clear().then((_) => widget.onClear()),
+                    child: const Text('Clear All Settings'),
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  ElevatedButton(
+                    onPressed: () => FutureEvents.clear(),
+                    child: const Text('Clear Event List'),
+                  ),
+                ])),
+          ),
+        ],
+      ),
     );
   }
+}
 
-  List<Widget> get advancedSettingsList {
-    return <Widget>[
-      SwitchSettingsTile(AppSettings.openTimeOverride),
-      SwitchSettingsTile(AppSettings.prerideDateWindowOverride),
-      SwitchSettingsTile(AppSettings.canDeletePastEvents),
-      SwitchSettingsTile(AppSettings.controlProximityOverride),
-      DialogInputSettingsTile(AppSettings.proximityRadius),
-    ];
+class RequiredAppSettings extends StatelessWidget {
+  final void Function()? onContinue;
+  final bool collapsed;
+
+  const RequiredAppSettings({
+    super.key,
+    this.onContinue,
+    this.collapsed = true,
+  });
+  final spacerBox = const SizedBox(
+    height: 10,
+  );
+  @override
+  Widget build(BuildContext context) {
+    if (collapsed) {
+      return Material(
+        color: Colors.transparent,
+        child: ExpansionTile(
+          title: const Text('Rider Settings'),
+          subtitle: const Text('Name and ID'),
+          children: requiredSettingsList(),
+        ),
+      );
+    } else {
+      return ListView(
+        children: [
+          Text(
+            'Required Settings',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          Text(
+            'Enter your First Name, Last Name, and Rider ID',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          // Text(
+          //   'and the Region for downloading future events',
+          //   style: Theme.of(context).textTheme.bodySmall,
+          // ),
+          spacerBox,
+          ...requiredSettingsList(),
+          spacerBox,
+          ElevatedButton(onPressed: onContinue, child: const Text('Continue')),
+        ],
+      );
+    }
   }
 
-  String? textFieldValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter something';
-    }
-    return null;
+  List<Widget> requiredSettingsList() {
+    return [
+      DialogInputSettingsTile(AppSettings.firstName),
+      DialogInputSettingsTile(AppSettings.lastName),
+      DialogInputSettingsTile(AppSettings.rusaID),
+    ];
   }
 }

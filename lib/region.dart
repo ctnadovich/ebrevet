@@ -84,7 +84,7 @@ class Region {
 
   factory Region.fromSettings() {
     var rid = AppSettings.regionID.value;
-    return Region(regionID: rid as int);
+    return Region(regionID: rid);
   }
 
   static const Map<int, Map<String, String>> regionMap = {

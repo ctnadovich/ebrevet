@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/future_events.dart';
 import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -22,35 +23,20 @@ import 'region.dart';
 import 'region_data.dart';
 import 'my_settings.dart';
 
-enum EventInfoSource {
-  rusaRegion,
-  rusaPerm,
-  clubACPCode,
-  eventInfoURL;
-
-  static Map<EventInfoSource, String> descriptionMap = {
-    rusaRegion: 'RUSA Region',
-    rusaPerm: 'Permanent ID Number',
-    clubACPCode: 'Club ACP Code',
-    eventInfoURL: 'Event Info URL',
-  };
-
-  String get description => descriptionMap[this]!;
-}
-
 class AppSettings {
   ////////////////////
   // Constant settings
 
-  static const int infiniteDistance = 9999999;
+  static const int infinity = 9999999;
+  static const int infiniteDistance = infinity;
   static const int startableTimeWindowMinutes = 60;
   static const int prerideTimeWindowDays = 15;
   static const int httpGetTimeoutSeconds = 30;
   static const int timeRefreshPeriod = 60;
   static const int gpsRefreshPeriod = 20;
-  static const int maxRUSAID = 999999;
-  static const int maxACPCODE = 999999;
-  static const int maxPERMID = 9999;
+  static const int maxRUSAID = infinity;
+  static const int maxACPCODE = infinity;
+  static const int maxPERMID = infinity;
   static const bool autoFirstControlCheckIn = true;
   static const double defaultProximityRadius = 500.0; // meters
 
@@ -79,81 +65,101 @@ class AppSettings {
   }
 
   //////////////////////////////
-  // Persistent Settings getters
-
+  // Persistent Settings
+  //
   // Basic ID
-  static late MySetting<String> firstName;
-  static late MySetting<String> lastName;
-  static late MySetting<String> rusaID;
+
+  static MySetting<String> firstName = MySetting<String>(
+      key: 'key-first-name',
+      defaultValue: '',
+      title: 'First Name',
+      validator: notEmptyValidator,
+      icon: const Icon(Icons.person));
+
+  static MySetting<String> lastName = MySetting<String>(
+      key: 'key-last-name',
+      defaultValue: '',
+      title: 'Last Name',
+      validator: notEmptyValidator,
+      icon: const Icon(Icons.person));
+
+  static MySetting<String> rusaID = MySetting<String>(
+    key: 'key-rusa-id',
+    defaultValue: '',
+    title: 'Rider ID',
+    validator: numericIDValidator,
+    icon: const Icon(Icons.numbers),
+  );
 
   // Event Info
-  static late MySetting<Enum> eventInfoSource;
-  static late MySetting<int> regionID;
-  static late MySetting<String> eventInfoURL;
+
+  static MySetting<int> regionID = MySetting<int>(
+    key: 'key-region-id',
+    defaultValue: Region.defaultRegion,
+    title: FutureEventsSourceID.fromRegion.description,
+    icon: const Icon(Icons.map),
+  );
+
+  static MySetting<String> eventInfoURL = MySetting<String>(
+    key: 'key-event-info-url',
+    defaultValue: '',
+    title: FutureEventsSourceID.fromURL.description,
+    validator: urlFieldValidator,
+    icon: const Icon(Icons.web_asset),
+  );
+
+  static MySetting<FutureEventsSourceID> futureEventsSourceID =
+      MySetting<FutureEventsSourceID>(
+          key: 'key-event-info-source-id',
+          defaultValue: FutureEventsSourceID.fromRegion,
+          title: 'Event Information Source');
 
   // Other
-  static late MySetting<Color> themeColor;
+  static MySetting<Color> themeColor = MySetting(
+      key: 'key-theme-color', defaultValue: Colors.blue, title: 'Theme Color');
 
   // Advanced
 
-  static late MySetting<double> proximityRadius;
-  static late MySetting<bool> openTimeOverride;
-  static late MySetting<bool> controlProximityOverride;
-  static late MySetting<bool> canDeletePastEvents;
-  static late MySetting<bool> prerideDateWindowOverride;
+  static MySetting<double> proximityRadius = MySetting(
+    key: 'key-control-proximity-threshold',
+    defaultValue: defaultProximityRadius,
+    title: 'Control Proximity Radius',
+    validator: doubleValidator,
+    icon: const Icon(Icons.radar),
+  );
 
-  static initializeMySettings() {
-    firstName = MySetting<String>(
-        key: 'key-first-name', defaultValue: '', title: 'First Name');
+  static MySetting<bool> openTimeOverride = MySetting(
+    key: 'key-open-time-override',
+    defaultValue: false,
+    title: 'Open Time Override',
+    icon: const Icon(Icons.settings),
+  );
 
-    lastName = MySetting<String>(
-        key: 'key-last-name', defaultValue: '', title: 'Last Name');
+  static MySetting<bool> controlProximityOverride = MySetting(
+      key: 'key-control-proximity-override',
+      defaultValue: false,
+      title: 'Control Proximity Override',
+      icon: const Icon(Icons.settings));
 
-    rusaID = MySetting<String>(
-        key: 'key-rusa-id', defaultValue: '', title: 'RUSA ID');
+  static MySetting<bool> canDeletePastEvents = MySetting(
+      key: 'key-delete-past-events',
+      defaultValue: false,
+      title: 'Can Delete Past Events',
+      icon: const Icon(Icons.settings));
 
-    eventInfoSource = MySetting<EventInfoSource>(
-        key: 'key-event-info-source',
-        defaultValue: EventInfoSource.rusaRegion,
-        title: 'Event Info Source');
-    regionID = MySetting<int>(
-        key: 'key-region-id',
-        defaultValue: Region.defaultRegion,
-        title: 'ACP Club Code');
+  static MySetting<bool> prerideDateWindowOverride = MySetting(
+      key: 'key-preride-date-window-override',
+      defaultValue: false,
+      title: 'Pre-ride Date Window Override',
+      icon: const Icon(Icons.settings));
 
-    var rgn = Region.fromSettings();
-    var url = rgn.futureEventsURL;
-    eventInfoURL = MySetting<String>(
-        key: 'key-event-info-url',
-        defaultValue: url,
-        title: 'Future Event Info URL');
+  //static iinitializeMySettings() {
+  // eventInfoSource = MySetting<EventInfoSource>(
+  //     key: 'key-event-info-source',
+  //     defaultValue: EventInfoSource.rusaRegion,
+  //     title: 'Event Info Source');
 
-    themeColor = MySetting(
-        key: 'key-theme-color',
-        defaultValue: Colors.blue,
-        title: 'Theme Color');
-
-    proximityRadius = MySetting(
-        key: 'key-control-proximity-threshold',
-        defaultValue: defaultProximityRadius,
-        title: 'Control Proximity Radius');
-    openTimeOverride = MySetting(
-        key: 'key-open-time-override',
-        defaultValue: false,
-        title: 'Open Time Override');
-    controlProximityOverride = MySetting(
-        key: 'key-control-proximity-override',
-        defaultValue: false,
-        title: 'Control Proximity Override');
-    canDeletePastEvents = MySetting(
-        key: 'key-delete-past-events',
-        defaultValue: false,
-        title: 'Can Delete Past Events');
-    prerideDateWindowOverride = MySetting(
-        key: 'key-preride-date-window-override',
-        defaultValue: false,
-        title: 'Pre-ride Date Window Override');
-  }
+  // }
 
   ///////////////////
   // Sugared Settings
@@ -171,6 +177,14 @@ class AppSettings {
   //////////////
   // Validators
 
+  static String? notEmptyValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter something';
+    } else {
+      return null;
+    }
+  }
+
   static String? urlFieldValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter something';
@@ -182,38 +196,38 @@ class AppSettings {
     }
   }
 
-  static String? rusaFieldValidator(String? value) {
+  static String? numericIDValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your RUSA ID';
+      return 'Please enter a numeric ID';
     }
-    if (false == isValidRusaID(value)) return 'Invalid RUSA ID';
+    if (false == isValidNumericID(value)) return 'Invalid numeric ID';
     return null;
   }
 
-  static String? rusaPermIDValidator(String? value) {
+  static String? doubleValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter a Permanent ID';
+      return 'Please enter a decimal number';
     }
-    if (false == isValidRusaID(value, maxValue: maxPERMID)) {
-      return 'Invalid Permanent ID number';
-    }
+    if (false == isPositiveReal(value)) return 'Not a positive real number';
     return null;
   }
 
-  static String? acpCodeValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter an ACP Club Code';
-    }
-    if (false == isValidRusaID(value, maxValue: maxACPCODE)) {
-      return 'Invalid ACP Club Code';
-    }
-    return null;
-  }
-
-  static bool isValidRusaID(String? value, {int maxValue = maxRUSAID}) {
+  static bool isValidNumericID(String? value, {int maxValue = infinity}) {
     if (value == null) return false;
-    final rusaid = num.tryParse(value);
-    if (rusaid == null || rusaid is! int || rusaid < 1 || rusaid > maxRUSAID) {
+    final numericID = num.tryParse(value);
+    if (numericID == null ||
+        numericID is! int ||
+        numericID < 1 ||
+        numericID > maxValue) {
+      return false;
+    }
+    return true;
+  }
+
+  static bool isPositiveReal(String? value) {
+    if (value == null) return false;
+    final numericID = double.tryParse(value);
+    if (numericID == null || numericID < 0) {
       return false;
     }
     return true;
