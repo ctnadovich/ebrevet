@@ -22,6 +22,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'region.dart';
 import 'region_data.dart';
 import 'my_settings.dart';
+import 'permanent.dart';
 
 class AppSettings {
   ////////////////////
@@ -97,6 +98,23 @@ class AppSettings {
     key: 'key-region-id',
     defaultValue: Region.defaultRegion,
     title: FutureEventsSourceID.fromRegion.description,
+    validator: numericIDValidator,
+    icon: const Icon(Icons.map),
+  );
+
+  static MySetting<String> permSearchLocation = MySetting<String>(
+    key: 'key-perm-search-location',
+    defaultValue: Permanent.defaultSearch,
+    title: '${FutureEventsSourceID.fromPerm.description} Location',
+    validator: notEmptyValidator,
+    icon: const Icon(Icons.map),
+  );
+
+  static MySetting<double> permSearchRadius = MySetting<double>(
+    key: 'key-perm-search-radius',
+    defaultValue: 50,
+    title: '${FutureEventsSourceID.fromPerm.description} Radius (mi)',
+    validator: doubleValidator,
     icon: const Icon(Icons.map),
   );
 

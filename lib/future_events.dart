@@ -28,11 +28,13 @@ import 'exception.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
 import 'region.dart';
+import 'permanent.dart';
 
 // import 'current.dart';
 
 enum FutureEventsSourceID {
   fromRegion('Brevet Region'),
+  fromPerm('RUSA Permanent Search'),
   fromURL('Custom Event Data URL');
 
   final String description;
@@ -62,6 +64,9 @@ class FutureEventsSource {
       case FutureEventsSourceID.fromURL:
         d = "($url)";
         break;
+      case FutureEventsSourceID.fromPerm:
+        d = "($url)";
+        break;
     }
     return d;
   }
@@ -73,6 +78,10 @@ class FutureEventsSource {
       case FutureEventsSourceID.fromRegion:
         var rgn = Region.fromSettings();
         eventsURL = rgn.futureEventsURL;
+        break;
+      case FutureEventsSourceID.fromPerm:
+        var perm = Permanent.fromSettings();
+        eventsURL = perm.futureEventsURL;
         break;
       case FutureEventsSourceID.fromURL:
         eventsURL = AppSettings.eventInfoURL.value;

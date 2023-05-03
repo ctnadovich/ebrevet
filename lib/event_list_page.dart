@@ -144,21 +144,41 @@ class _LatestEventListState extends State<LatestEventList> {
         : null;
 
     return [
-      ElevatedButton.icon(
-        onPressed: () {
-          SnackbarGlobal.show(
-              'Updating events for ${sourceSelection.eventInfoSource.fullDescription}... (This may take a few seconds.)');
-          setState(() {
-            fetchingFromServerNow = true;
-          });
+      Row(
+        children: [
+          const Spacer(
+            flex: 5,
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              SnackbarGlobal.show(
+                  'Updating events for ${sourceSelection.eventInfoSource.fullDescription}... (This may take a few seconds.)');
+              setState(() {
+                fetchingFromServerNow = true;
+              });
 
-          FutureEvents.refreshEventsFromServer(sourceSelection.eventInfoSource)
-              .then((value) => setState(() => fetchingFromServerNow = false));
+              FutureEvents.refreshEventsFromServer(
+                      sourceSelection.eventInfoSource)
+                  .then(
+                      (value) => setState(() => fetchingFromServerNow = false));
 
-          //Future.delayed(const Duration(seconds: 5))
-        },
-        icon: const Icon(Icons.refresh),
-        label: const Text('Update event data'),
+              //Future.delayed(const Duration(seconds: 5))
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Update event data'),
+          ),
+          const Spacer(),
+          IconButton(
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(
+                    builder: (context) => const EventSearchSettingsPage(),
+                  ))
+                  .then((value) => setState(() {})),
+              icon: const Icon(Icons.manage_search)),
+          const Spacer(
+            flex: 5,
+          ),
+        ],
       ),
 
       //Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -194,5 +214,44 @@ class _LatestEventListState extends State<LatestEventList> {
         style: TextStyle(fontStyle: FontStyle.italic),
       ),
     ];
+  }
+}
+
+class EventSearchSettingsPage extends StatefulWidget {
+  const EventSearchSettingsPage({
+    super.key,
+  });
+
+  @override
+  State<EventSearchSettingsPage> createState() =>
+      _EventSearchSettingsPageState();
+}
+
+class _EventSearchSettingsPageState extends State<EventSearchSettingsPage> {
+  @override
+  Widget build(BuildContext context) {
+    var dayNight = context.watch<DayNight>();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Info Source',
+          //style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          IconButton(
+              tooltip: 'Event Info Source',
+              icon: dayNight.icon,
+              onPressed: () {
+                dayNight.toggleMode();
+              })
+        ],
+      ),
+      body: Container(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        child: const EventSearchSettings(),
+      ),
+    );
   }
 }

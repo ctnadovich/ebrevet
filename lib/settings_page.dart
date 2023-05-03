@@ -35,22 +35,14 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
-  final regionList = [
-    for (var k in Region.regionMap.keys)
-      DropdownMenuItem(
-        value: k,
-        child: Text(
-            "${Region.regionMap[k]!['state_code']!}: ${Region.regionMap[k]!['region_name']!}"),
-      )
-  ];
+  final spacerBox = const SizedBox(
+    height: 16,
+  );
 
   @override
   Widget build(BuildContext context) {
     var dayNight = context.watch<DayNight>();
-    var sourceSelection = context.watch<SourceSelection>();
-    var spacerBox = const SizedBox(
-      height: 16,
-    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -77,33 +69,7 @@ class SettingsPageState extends State<SettingsPage> {
                   onContinue: () => {},
                 ),
                 spacerBox,
-                Material(
-                  color: Colors.transparent,
-                  child: ExpansionTile(
-                    title: const Text('Event Info Source'),
-                    subtitle: const Text('Where to download event info'),
-                    children: [
-                      RadioButtonSettingsTile(
-                        AppSettings.futureEventsSourceID,
-                        onChanged: sourceSelection.updateFromSettings,
-                      ),
-                      if (AppSettings.futureEventsSourceID.value ==
-                          FutureEventsSourceID.fromRegion)
-                        DropDownSettingsTile(
-                          AppSettings.regionID,
-                          itemList: regionList,
-                          onChanged: sourceSelection.updateFromSettings,
-                        ),
-                      if (AppSettings.futureEventsSourceID.value ==
-                          FutureEventsSourceID.fromURL)
-                        DialogInputSettingsTile(
-                          AppSettings.eventInfoURL,
-                          onChanged: sourceSelection.updateFromSettings,
-                        ),
-                      spacerBox
-                    ],
-                  ),
-                ),
+                const EventSearchSettings(),
                 spacerBox,
                 if (AppSettings.isMagicRusaID)
                   AdvancedSettings(
@@ -118,51 +84,77 @@ class SettingsPageState extends State<SettingsPage> {
   }
 }
 
-/*   ExpansionTile eventInfoDownloadSettings() {
-    var spacerBox = const SizedBox(
-      height: 8,
+class EventSearchSettings extends StatefulWidget {
+  // final void Function() onClear;
+
+  const EventSearchSettings({
+    super.key,
+  });
+
+  @override
+  State<EventSearchSettings> createState() => _EventSearchSettingsState();
+}
+
+class _EventSearchSettingsState extends State<EventSearchSettings> {
+  final spacerBox = const SizedBox(
+    height: 16,
+  );
+
+  final regionList = [
+    for (var k in Region.regionMap.keys)
+      DropdownMenuItem(
+        value: k,
+        child: Text(
+            "${Region.regionMap[k]!['state_code']!}: ${Region.regionMap[k]!['region_name']!}"),
+      )
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    var sourceSelection = context.watch<SourceSelection>();
+
+    return Material(
+      color: Colors.transparent,
+      child: ExpansionTile(
+        title: const Text('Event Info Source'),
+        subtitle: const Text('Where to download event info'),
+        children: [
+          RadioButtonSettingsTile(
+            AppSettings.futureEventsSourceID,
+            onChanged: sourceSelection.updateFromSettings,
+          ),
+          if (AppSettings.futureEventsSourceID.value ==
+              FutureEventsSourceID.fromRegion)
+            DropDownSettingsTile(
+              AppSettings.regionID,
+              itemList: regionList,
+              onChanged: sourceSelection.updateFromSettings,
+            ),
+          if (AppSettings.futureEventsSourceID.value ==
+              FutureEventsSourceID.fromPerm)
+            DialogInputSettingsTile(
+              AppSettings.permSearchLocation,
+              onChanged: sourceSelection.updateFromSettings,
+            ),
+          if (AppSettings.futureEventsSourceID.value ==
+              FutureEventsSourceID.fromPerm)
+            DialogInputSettingsTile(
+              AppSettings.permSearchRadius,
+              onChanged: sourceSelection.updateFromSettings,
+            ),
+          if (AppSettings.futureEventsSourceID.value ==
+              FutureEventsSourceID.fromURL)
+            DialogInputSettingsTile(
+              AppSettings.eventInfoURL,
+              onChanged: sourceSelection.updateFromSettings,
+            ),
+          spacerBox
+        ],
+      ),
     );
-    return ExpansionTile(
-        title: const Text('Event Info Download'),
-        subtitle: const Text('Where to get event information'),
-        children: <Widget>[
-          RadioSettingsTile(AppSettings.eventInfoSource),
-          infoSourceParameterEntry(
-              AppSettings.eventInfoSource.value as EventInfoSource),
-          spacerBox,
-          spacerBox,
-          spacerBox,
-        ]);
-  }
-
-  Widget infoSourceParameterEntry(EventInfoSource s) {
-    final regionList = [
-      for (var k in Region.regionMap.keys)
-        DropdownMenuItem(
-          value: k,
-          child: Text(
-              "${Region.regionMap[k]!['state_code']!}: ${Region.regionMap[k]!['region_name']!}"),
-        )
-    ];
-
-    switch (s) {
-      case EventInfoSource.rusaRegion:
-        return DropDownSettingsTile(
-          AppSettings.regionID,
-          itemList: regionList,
-        );
-
-      // break;
-
-      case EventInfoSource.eventInfoURL:
-        return DialogInputSettingsTile(AppSettings.eventInfoURL);
-      default:
-        return const Text('Unimplemented tile');
-      // break;
-    }
   }
 }
- */
+
 class AdvancedSettings extends StatefulWidget {
   final void Function() onClear;
 

@@ -28,6 +28,8 @@ import 'control_state.dart';
 import 'my_settings.dart';
 import 'event_list_page.dart';
 
+// TODO Update README for perms and custom URL settings
+
 // TODO Server side posting result and elapsed time to roster
 // Not really an app to-do, but this is a good reminder.
 
