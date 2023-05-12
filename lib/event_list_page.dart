@@ -250,7 +250,9 @@ class _EventSearchSettingsPageState extends State<EventSearchSettingsPage> {
       body: Container(
         color: Theme.of(context).colorScheme.primaryContainer,
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        child: const EventSearchSettings(),
+        child: const EventSearchSettings(
+          initiallyExpanded: true,
+        ),
       ),
     );
   }

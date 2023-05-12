@@ -46,10 +46,11 @@ class EventOutcomes {
   DateTime?
       lastUpload; // If using this setter don't forget to save event history
 
-  EventOutcomes(
-      {OverallOutcome? overallOutcome,
-      Map<int, DateTime>? checkInTimeMap,
-      bool? isPreride}) {
+  EventOutcomes({
+    OverallOutcome? overallOutcome,
+    Map<int, DateTime>? checkInTimeMap,
+    // bool? isPreride,
+  }) {
     _checkInTimeMap = checkInTimeMap ?? {};
     _overallOutcome = overallOutcome ?? OverallOutcome.dns;
   }

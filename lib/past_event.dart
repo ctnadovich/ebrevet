@@ -40,11 +40,11 @@ class PastEvent {
 
   PastEvent(this._event, this.riderID, this.outcomes, this.isPreride);
 
-  static Map<String, dynamic> toJson(PastEvent pe) => {
-        'event': pe._event.toMap,
-        'outcomes': pe.outcomes.toMap,
-        'preride': pe.isPreride,
-        'rider_id': pe.riderID,
+  Map<String, dynamic> toJson() => {
+        'event': _event.toMap,
+        'outcomes': outcomes.toMap,
+        'preride': isPreride,
+        'rider_id': riderID,
       };
 
   factory PastEvent.fromJson(Map<String, dynamic> jsonMap) {
@@ -57,11 +57,16 @@ class PastEvent {
     return PastEvent(e, riderID, o, isPreride);
   }
 
+  static int sort(PastEvent a, PastEvent b) => Event.sort(a._event, b._event);
+
+// CONTROL CHECK IN is a method of an activated event
+
   void controlCheckIn(
       {required Control control,
       String? comment,
       // Function? onUploadDone,
-      ControlState? controlState}) {
+      ControlState? controlState,
+      DateTime? checkInTime}) {
     assert(AppSettings.autoFirstControlCheckIn ||
         isAvailable(
             control.index)); // Trying to check into an unavailable control
@@ -69,9 +74,16 @@ class PastEvent {
     assert(null != EventHistory.lookupPastEvent(eventID));
     // Trying to check into a never activated event
 
-    var now = DateTime.now().toUtc();
+    // for an auto-checkin of the first control, "now" is defined as the onTime for the event
+    var now = checkInTime?.toUtc() ?? DateTime.now().toUtc();
+
     outcomes.setControlCheckInTime(control.index, now);
-    if (controlState != null) controlState.checkIn();
+
+    if (controlState != null) {
+      controlState.checkIn();
+      MyLogger.entry(
+          "Checking into control ${control.index} at ${now.toString()}");
+    }
     if (isAllChecked) {
       if (isAllCheckedInOrder()) {
         outcomes.overallOutcome = OverallOutcome.finish;
@@ -96,21 +108,13 @@ class PastEvent {
     // return outcomes.overallOutcome;
   }
 
-  String makeCheckInSignature(Control ctrl) {
-    var checkInSignatureString = '';
-    var checkInTime = controlCheckInTime(ctrl);
-    if (checkInTime != null) {
-      var checkInTimeString = checkInTime.toUtc().toString().substring(0, 16);
-      var checkInData = "C${ctrl.index} $checkInTimeString";
-      var checkInSignature = Signature(
-          data: checkInData, event: event, riderID: riderID, codeLength: 4);
-      checkInSignatureString =
-          Signature.substituteZeroOneXY(checkInSignature.text);
-      MyLogger.entry("checkInData: $checkInData; "
-          "checkInSignature: $checkInSignatureString");
-    }
-    return checkInSignatureString;
-  }
+  String makeCheckInSignature(Control ctrl) =>
+      Signature.checkInCode(this, ctrl).xyText;
+
+  bool get isFinished => (outcomes.overallOutcome == OverallOutcome.finish);
+  bool isIntermediateControl(control) =>
+      control.index != event.finishControlKey;
+  bool isFinishControl(control) => control.index == event.finishControlKey;
 
   bool get isFinalOutcomeFullyUploaded {
     var lastUpload = outcomes.lastUpload;
@@ -149,7 +153,7 @@ class PastEvent {
     var finishTime = outcomes.getControlCheckInTime(k);
     return finishTime != null &&
         lastUpload != null &&
-        lastUpload.isAfter(finishTime);
+        (lastUpload.isAfter(finishTime) || wasAutoChecked(k));
   }
 
   String get checkInFractionString {
@@ -173,11 +177,19 @@ class PastEvent {
     return outcomes.getControlCheckInTime(control.index);
   }
 
+  bool wasAutoChecked(int key) {
+    var checkInTime = outcomes.getControlCheckInTime(key);
+    if (checkInTime == null) return false;
+    if (key != event.startControlKey) return false;
+
+    return event.startTimeWindow != null &&
+        checkInTime.isAtSameMomentAs(event.startTimeWindow!.onTime);
+  }
+
   bool isAllCheckedInOrder() {
     if (controlCheckInTime(_event.controls.first) == null) return false;
-    DateTime tLast = isPreride
-        ? controlCheckInTime(_event.controls.first)!
-        : _event.startDateTime;
+    DateTime tLast = controlCheckInTime(_event.controls.first)!;
+
     var nControls = _event.controls.length;
     for (var i = 1; i < nControls; i++) {
       // skip the first
@@ -199,9 +211,8 @@ class PastEvent {
           ? 'Uploaded: ${outcomes.lastUploadString}'
           : 'Not Fully Uploaded');
 
-  DateTime? get startDateTimeActual => (isPreride)
-      ? outcomes.getControlCheckInTime(_event.startControlKey)
-      : _event.startDateTime;
+  DateTime? get startDateTimeActual =>
+      outcomes.getControlCheckInTime(_event.startControlKey);
 
   DateTime? get finishDateTimeActual =>
       outcomes.getControlCheckInTime(_event.finishControlKey);
@@ -231,13 +242,13 @@ class PastEvent {
 
   DateTime? openActual(int controlKey) {
     Control control = _event.controls[controlKey];
-    var openDur = control.openDuration(_event.startDateTime);
+    var openDur = control.openDuration(_event.controls.first.open);
     return startDateTimeActual?.add(openDur);
   }
 
   DateTime? closeActual(int controlKey) {
     Control control = _event.controls[controlKey];
-    var closeDur = control.closeDuration(_event.startDateTime);
+    var closeDur = control.closeDuration(_event.controls.first.open);
     return startDateTimeActual?.add(closeDur);
   }
 
@@ -254,9 +265,8 @@ class PastEvent {
     if (startDateTimeActual == null) return false;
 
     Control control = _event.controls[controlKey];
-
-    var openDur = control.openDuration(_event.startDateTime);
-    var closeDur = control.closeDuration(_event.startDateTime);
+    var openDur = control.openDuration(_event.controls.first.open);
+    var closeDur = control.closeDuration(_event.controls.first.open);
     var openActual = startDateTimeActual!.add(openDur);
     var closeActual = startDateTimeActual!.add(closeDur);
 

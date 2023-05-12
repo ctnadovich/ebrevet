@@ -98,7 +98,9 @@ class _EventCardState extends State<EventCard> {
               children: [
                 Text(regionName),
                 Text('${widget.event.startCity}, ${widget.event.startState}'),
-                Text('${widget.event.dateTime} (${widget.event.statusText})'),
+                if (widget.event.startTimeWindow != null)
+                  Text(
+                      '${widget.event.dateTime} (${widget.event.eventStatusText})'),
                 Text('Latest Cue Ver: ${widget.event.cueVersionString}'),
               ],
             ),
@@ -216,6 +218,8 @@ class _EventCardState extends State<EventCard> {
         if (AppSettings.isRusaIDSet == false) {
           SnackbarGlobal.show("Can't RIDE. Is RUSA ID set?");
         } else {
+          // If we did not (yet) start, then validate start.
+
           if (overallOutcomeInHistory == OverallOutcome.dns) {
             final startCode = await openStartBrevetDialog();
             final msg = validateStartCode(startCode, widget.event);
@@ -225,13 +229,24 @@ class _EventCardState extends State<EventCard> {
             }
           }
 
+          // OK to start
+
           if (context.mounted) {
+            // But only start if we haven't finished ?
+            // TODO are the if statements above and below really
+            // needed? Maybe better "if(pe==null)". Would
+            // we really addActivate if the pe parameter was
+            // non null? If the overalloutcome was "active"?
+
             if (overallOutcomeInHistory != OverallOutcome.finish) {
               pe = EventHistory.addActivate(
                   widget.event, AppSettings.rusaID.value,
                   isPreride: isPreride, controlState: controlState);
             }
-            assert(pe != null);
+            assert(pe != null); // by now there must be an activated event pe
+            // either created by the start above
+            // or passed in as a parameter
+
             Navigator.of(context)
                 .push(MaterialPageRoute(
                   builder: (context) =>
@@ -265,14 +280,7 @@ class _EventCardState extends State<EventCard> {
 
     if (startCode == magicCode) return null;
 
-    var rusaID = AppSettings.rusaID;
-
-    var cueVersion = event.cueVersion.toString();
-
-    var signature = Signature(
-        data: cueVersion, riderID: rusaID.value, event: event, codeLength: 4);
-
-    var validCode = Signature.substituteZeroOneXY(signature.text.toUpperCase());
+    var validCode = Signature.startCode(event, AppSettings.rusaID.value).xyText;
 
     if (validCode != startCode) {
       MyLogger.entry(
@@ -350,7 +358,8 @@ class _EventCardState extends State<EventCard> {
             Text('Region: $regionName'),
             Text('Club: $clubName'),
             Text('Location: ${we.startCity}, ${we.startState}'),
-            Text('Start: ${we.dateTime} (${we.statusText})'),
+            if (we.startTimeWindow != null)
+              Text('Start: ${we.dateTime} (${we.eventStatusText})'),
             Text('Latest Cue Ver: ${we.cueVersionString}'),
             const SizedBox(
               height: 8,

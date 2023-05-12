@@ -14,12 +14,53 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+// import 'package:flutter/material.dart';
+
 import 'control.dart';
 import 'time_till.dart';
 import 'region.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
 import 'utility.dart';
+
+class TimeWindow {
+  Duration? early;
+  Duration? late;
+  DateTime onTime;
+  bool freeStart = false;
+
+  TimeWindow(this.onTime, {this.early, this.late});
+
+  Duration setEarlyTime(DateTime et) {
+    if (et.isAfter(onTime)) throw RangeError("Early time after start time.");
+    early = onTime.difference(et);
+    return early!;
+  }
+
+  Duration setLateTime(DateTime lt) {
+    if (lt.isBefore(onTime)) throw RangeError("Late time before start time.");
+    late = lt.difference(onTime);
+    return late!;
+  }
+
+  DateTime? get lateTime => onTime.add(late ?? const Duration(days: 0));
+  DateTime? get earlyTime => onTime.subtract(early ?? const Duration(days: 0));
+
+  TimeWindow.fromJson(Map<String, dynamic> json)
+      : early = Duration(minutes: int.tryParse(json['early']) ?? 0),
+        late = Duration(minutes: int.tryParse(json['late']) ?? 0),
+        freeStart =
+            (json['free_start'] as String?)?.toUpperCase().contains("YES") ??
+                false,
+        onTime = DateTime.parse(json['on_time']);
+
+  Map<String, dynamic> toJson() => {
+        'early': early ?? 0,
+        'late': late ?? 0,
+        'on_time': onTime.toUtc().toIso8601String(),
+        'free_start': freeStart ? "YES" : "NO",
+      };
+}
 
 // The Event object documents an event details
 // with no reference to who is riding the event
@@ -28,16 +69,15 @@ import 'utility.dart';
 class Event {
   bool valid = false;
   late String name;
-  late DateTime startDateTime;
-  late DateTime endDateTime;
-  // late String date;
+  TimeWindow? startTimeWindow;
+  // late DateTime endDateTime;
   late String distance; // Official distance in KM
   late String startCity;
   late String startState;
   late String eventSanction;
   late String eventType;
-  String organizerName = "Not Set";
-  String organizerPhone = 'Not Set';
+  String organizerName = "";
+  String organizerPhone = '';
   late int cueVersion;
   late String eventInfoUrl;
   late String
@@ -56,8 +96,8 @@ class Event {
 
   Map<String, dynamic> get toMap => {
         'name': name,
-        'start_datetime_utc': startDateTime.toUtc().toIso8601String(),
-        'end_datetime_utc': endDateTime.toUtc().toIso8601String(),
+        'start_time_window': startTimeWindow?.toJson() ?? "PERMANENT",
+        // 'end_datetime_utc': endDateTime.toUtc().toIso8601String(),
         'distance': distance,
         'start_city': startCity,
         'start_state': startState,
@@ -76,10 +116,16 @@ class Event {
   Event.fromMap(Map<String, dynamic> json) {
     // try {
     name = json['name'];
-    String startDateTimeUTCString = json['start_datetime_utc'];
-    String endDateTimeUTCString = json['end_datetime_utc'];
-    startDateTime = DateTime.parse(startDateTimeUTCString);
-    endDateTime = DateTime.parse(endDateTimeUTCString);
+    // String? startDateTimeUTCString = json['start_datetime_utc'];
+    // String? endDateTimeUTCString = json['end_datetime_utc'];
+    if (json.containsKey('start_time_window') &&
+        json['start_time_window'] != null) {
+      startTimeWindow = TimeWindow.fromJson(json['start_time_window']);
+    } else if (json.containsKey('start_datetime_utc') &&
+        json['start_datetime_utc'] != null) {
+      startTimeWindow = TimeWindow(DateTime.parse(json['start_datetime_utc']));
+    }
+    // endDateTime = DateTime.parse(endDateTimeUTCString);
     distance = json['distance'];
     startCity = json['start_city'];
     startState = json['start_state'];
@@ -132,8 +178,25 @@ class Event {
   //   return "$regionID-$eventID";
   // }
 
+  DateTime? get startDateTime => startTimeWindow?.onTime;
+
+  DateTime get startControlOpenTime => controls[startControlKey].open;
+  DateTime get startControlCloseTime => controls[startControlKey].close;
+  DateTime get finishControlCloseTime => controls[finishControlKey].close;
+
+  Duration? get allowedDuration {
+    if (startTimeWindow == null) return null; // Permanent
+    return finishControlCloseTime.difference(startControlOpenTime);
+  }
+
+  DateTime? get finishDateTime {
+    if (startTimeWindow == null) return null; // Permanent
+    return startDateTime!.add(allowedDuration!);
+  }
+
   get dateTime {
-    var sdtl = startDateTime.toLocal();
+    if (startTimeWindow == null) return "Any time";
+    var sdtl = startTimeWindow!.onTime.toLocal();
     if (sdtl.year == DateTime.now().toLocal().year) {
       return Utility.toBriefDateTimeString(
           sdtl); // sdtl.toString().substring(0, 16);
@@ -143,19 +206,22 @@ class Event {
   }
 
   get startDate {
-    var sdtl = startDateTime.toLocal();
+    if (startTimeWindow == null) return "Any date";
+
+    var sdtl = startTimeWindow!.onTime.toLocal();
     return sdtl.toString().substring(0, 10);
   }
 
-  get statusText {
+  get eventStatusText {
+    if (startTimeWindow == null) return "Permanent";
     DateTime now = DateTime.now();
-    if (startDateTime.isAfter(now)) {
+    if (startTimeWindow!.onTime.isAfter(now)) {
       // Event in future
-      var tt = TimeTill(startDateTime);
+      var tt = TimeTill(startTimeWindow!.onTime);
       return "Starts in ${tt.interval} ${tt.unit}";
-    } else if (endDateTime.isBefore(now)) {
+    } else if (finishControlCloseTime.isBefore(now)) {
       // Event in past
-      var tt = TimeTill(endDateTime);
+      var tt = TimeTill(finishControlCloseTime);
       return "Ended ${tt.interval} ${tt.unit} ago";
     } else {
       return 'Underway!';
@@ -186,17 +252,47 @@ class Event {
   // starts will be allowed. In minutes.
 
   bool get isStartable {
+    if (startTimeWindow == null) return true; // Permanent
     var now = DateTime.now();
-    var difference = startDateTime.difference(now);
-    return (difference.inMinutes.abs() <
-        AppSettings.startableTimeWindowMinutes);
+    var onTime = startTimeWindow!.onTime;
+
+    if (startTimeWindow!.freeStart) {
+      // Free start
+      if (startTimeWindow!.early != null) {
+        var earlyTime = onTime.subtract(startTimeWindow!.early!);
+        if (now.isBefore(earlyTime)) return false;
+      }
+      if (startTimeWindow!.late != null) {
+        var lateTime = onTime.add(startTimeWindow!.late!);
+        if (now.isAfter(lateTime)) return false;
+      }
+      return true;
+    } else {
+      // Regular start with "grace"
+      var graceDuration =
+          const Duration(minutes: AppSettings.advanceStartTimeGraceMinutes);
+      var graceOpenTime = startTimeWindow!.onTime.subtract(graceDuration);
+      return graceOpenTime.isBefore(now) && startControlCloseTime.isAfter(now);
+    }
   }
 
   bool get isPreridable {
+    if (startTimeWindow == null) return false; // Can't pre-ride permanents
+
     var now = DateTime.now();
-    var difference = startDateTime.difference(now);
-    return difference.inMinutes > AppSettings.startableTimeWindowMinutes &&
+    var difference = startTimeWindow!.onTime.difference(now);
+    return difference.inMinutes > AppSettings.advanceStartTimeGraceMinutes &&
         (AppSettings.prerideDateWindowOverride.value ||
             difference.inDays <= AppSettings.prerideTimeWindowDays);
+  }
+
+  static int sort(Event a, Event b) {
+    if (a.startTimeWindow == null) return 1;
+    if (b.startTimeWindow == null) return -1;
+    return a.startTimeWindow!.onTime.isAfter(b.startTimeWindow!.onTime)
+        ? 1
+        : (a.startTimeWindow!.onTime.isBefore(b.startTimeWindow!.onTime)
+            ? -1
+            : 0);
   }
 }

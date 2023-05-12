@@ -28,12 +28,20 @@ class EventHistory {
 
   static const pastEventsFileName = 'past_events.json';
 
+  // START AN EVENT -- this method turns a mere event, into an activated
+  // PastEvent.   The name PastEvent is misleading since it also could
+  // be a "current event" that we are riding now. The main difference
+  // is that PastEvents have outcomes, like control check ins, and
+  // mere Events do not have outcomes.   Probably PastEvent should
+  // be refactored as a child object of Event.
+
   static PastEvent addActivate(Event e, String r,
       {bool isPreride = false, ControlState? controlState}) {
     var pe = lookupPastEvent(e.eventID);
     if (pe != null) {
-      pe.outcomes.overallOutcome = OverallOutcome.active;
+      pe.outcomes.overallOutcome = OverallOutcome.active; // reactivate
     } else {
+      // otherwise add
       pe = _add(
         e,
         r,
@@ -46,12 +54,15 @@ class EventHistory {
 
     if (AppSettings.autoFirstControlCheckIn &&
         isPreride == false &&
+        pe.event.startTimeWindow != null &&
+        pe.event.startTimeWindow!.freeStart == false &&
         pe.outcomes.checkInTimeList.isEmpty &&
         pe.event.isStartable) {
       pe.controlCheckIn(
         control: pe.event.controls[pe.event.startControlKey],
         comment: "Automatic Check In",
         controlState: controlState,
+        checkInTime: pe.event.startTimeWindow!.onTime, // check in time override
       );
     }
 
@@ -136,24 +147,24 @@ class EventHistory {
 
   static List<PastEvent> get pastEventList {
     var eventList = _pastEventMap.values.toList();
-    eventList.sort((a, b) =>
-        a.event.startDateTime.isAfter(b.event.startDateTime)
-            ? -1
-            : (a.event.startDateTime.isBefore(b.event.startDateTime) ? 1 : 0));
+    eventList.sort(PastEvent.sort);
     return eventList;
   }
 
   // When using this, don't forget to call EventHistory.save() afterwards
 
-  static PastEvent _add(Event e, String r,
-      {OverallOutcome? overallOutcome, bool? isPreride}) {
+  static PastEvent _add(
+    Event e,
+    String r, {
+    OverallOutcome? overallOutcome,
+    bool? isPreride,
+  }) {
     // }, Map<int, DateTime>? checkInTimeMap}) {
     if (_pastEventMap.containsKey(e.eventID)) {
       throw StateError(
           "Existing event ID ${e.eventID} in _pastEventMap. Can't add again.");
     } else {
-      var o =
-          EventOutcomes(overallOutcome: overallOutcome, isPreride: isPreride);
+      var o = EventOutcomes(overallOutcome: overallOutcome);
       var pe = PastEvent(e, r, o, isPreride ?? false);
       _pastEventMap[e.eventID] = pe;
 
