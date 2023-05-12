@@ -127,13 +127,9 @@ class Report {
 
     var timestamp = DateTime.now().toUtc().toIso8601String();
     report['timestamp'] = timestamp;
-    var signature = Signature(
-        riderID: _reportingEvent.riderID, // non null by assertion above
-        event: _reportingEvent.event,
-        data: timestamp,
-        codeLength: 8);
+    report['signature'] =
+        Signature.forReport(_reportingEvent, timestamp).cipherText;
 
-    report['signature'] = signature.text;
     return report;
   }
 

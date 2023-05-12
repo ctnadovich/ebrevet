@@ -19,6 +19,8 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
 import 'event.dart';
+import 'past_event.dart';
+import 'control.dart';
 
 class Signature {
   Signature(
@@ -34,7 +36,47 @@ class Signature {
 
   // Alphabetical by fixed field name, data in front, secret at end
 
-  String get text {
+  // Finish Certificates
+
+  factory Signature.forCert(PastEvent pastEvent) => Signature(
+      event: pastEvent.event,
+      riderID: pastEvent.riderID,
+      data:
+          "${pastEvent.outcomes.overallOutcome.description}:${pastEvent.elapsedTimeStringhhmm}",
+      codeLength: 4);
+
+  // Start Code
+
+  factory Signature.startCode(Event event, String riderID) => Signature(
+      data: event.cueVersion.toString(),
+      event: event,
+      riderID: riderID,
+      codeLength: 4);
+
+  // Check in code
+
+  factory Signature.checkInCode(PastEvent pe, Control ctrl) {
+    var checkInTime = pe.controlCheckInTime(ctrl);
+    var riderID = pe.riderID;
+    var checkInTimeString =
+        checkInTime?.toUtc().toString().substring(0, 16) ?? "Never";
+    var checkInData = "C${ctrl.index} $checkInTimeString";
+    return Signature(
+        data: checkInData, event: pe.event, riderID: riderID, codeLength: 4);
+  }
+
+  // Report
+
+  factory Signature.forReport(PastEvent reportingEvent, String timestamp) =>
+      Signature(
+          riderID: reportingEvent.riderID, // non null by assertion above
+          event: reportingEvent.event,
+          data: timestamp,
+          codeLength: 8);
+
+  // Generic code
+
+  String get cipherText {
     var plainString = [
       if (data != null) data,
       event
@@ -49,9 +91,10 @@ class Signature {
 
     // MyLogger.entry(
     //     "Generated Start Code. Plaintext: $plainString; Code: $startCode");
-
     return startCode;
   }
+
+  String get xyText => Signature.substituteZeroOneXY(cipherText);
 
   static String substituteZeroOneXY(String s) {
     return s.replaceAll('0', 'X').replaceAll('1', 'Y');
