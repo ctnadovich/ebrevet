@@ -15,7 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:share_plus/share_plus.dart';
-import 'package:screenshot/screenshot.dart';
+// import 'package:screenshot/screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'past_event.dart';
@@ -29,9 +29,11 @@ import 'mylogger.dart';
 import 'app_settings.dart';
 import 'snackbarglobal.dart';
 
+// TODO This really should be the same widget (or a child) as Ride Page
+
 class ControlDetailPage extends StatelessWidget {
   final PastEvent pastEvent;
-  final ScreenshotController screenshotController = ScreenshotController();
+  // final ScreenshotController screenshotController = ScreenshotController();
 
   ControlDetailPage(this.pastEvent, {super.key});
 
@@ -49,81 +51,84 @@ class ControlDetailPage extends StatelessWidget {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => takeScreenshot(fileName),
+          onPressed: () => {}, // takeScreenshot(fileName),
           child: const Icon(Icons.share),
         ),
         body: Container(
           color: Theme.of(context).colorScheme.primaryContainer,
           padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-          child: Screenshot(
-            controller: screenshotController,
-            child: ListView(
-              children: [
-                Row(
-                  children: [
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          (pastEvent.isPreride)
-                              ? 'Volunteer Preride'
-                              : 'Scheduled Brevet',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                            'Overall result: ${pastEvent.overallOutcomeDescription}'),
-                        Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
-                        Text(
-                            'Last Upload: ${pastEvent.outcomes.lastUploadString}'),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                      ],
-                    ),
-                    const Spacer(flex: 1),
-                    ElevatedButton(
-                        onPressed: () {
-                          Report.constructReportAndSend(pastEvent,
-                              onUploadDone: controlState.reportUploaded);
-                        }, // Current.constructReportAndSend(),
-                        child: const Text("Upload results")),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                  ],
-                ),
-                for (var checkIn in pastEvent.outcomes.checkInTimeList)
-                  checkInCard(checkIn),
-              ],
-            ),
+          child:
+              // Screenshot(
+              //   controller: screenshotController,
+              //   child:
+
+              ListView(
+            children: [
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (pastEvent.isPreride)
+                            ? 'Volunteer Preride'
+                            : 'Scheduled Brevet',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                          'Overall result: ${pastEvent.overallOutcomeDescription}'),
+                      Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
+                      Text(
+                          'Last Upload: ${pastEvent.outcomes.lastUploadString}'),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                    ],
+                  ),
+                  const Spacer(flex: 1),
+                  ElevatedButton(
+                      onPressed: () {
+                        Report.constructReportAndSend(pastEvent,
+                            onUploadDone: controlState.reportUploaded);
+                      }, // Current.constructReportAndSend(),
+                      child: const Text("Upload results")),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                ],
+              ),
+              for (var checkIn in pastEvent.outcomes.checkInTimeList)
+                checkInCard(checkIn),
+            ],
           ),
+          // ),
         ));
   }
 
-  void takeScreenshot(String fileName) async {
-    try {
-      await screenshotController
-          .capture(delay: const Duration(milliseconds: 10))
-          .then((image) async {
-        if (image != null) {
-          final directory = await getApplicationDocumentsDirectory();
+  // void takeScreenshot(String fileName) async {
+  //   try {
+  //     await screenshotController
+  //         .capture(delay: const Duration(milliseconds: 10))
+  //         .then((image) async {
+  //       if (image != null) {
+  //         final directory = await getApplicationDocumentsDirectory();
 
-          final imagePath = await File('${directory.path}/$fileName').create();
-          await imagePath.writeAsBytes(image);
+  //         final imagePath = await File('${directory.path}/$fileName').create();
+  //         await imagePath.writeAsBytes(image);
 
-          /// Share Plugin
-          await Share.shareXFiles([XFile(imagePath.path)]);
-        }
-      });
-    } catch (e) {
-      var message = "Failed to save screenshot: $e";
-      SnackbarGlobal.show(message);
-      MyLogger.entry(message, severity: Severity.error);
-    }
-  }
+  //         /// Share Plugin
+  //         await Share.shareXFiles([XFile(imagePath.path)]);
+  //       }
+  //     });
+  //   } catch (e) {
+  //     var message = "Failed to save screenshot: $e";
+  //     SnackbarGlobal.show(message);
+  //     MyLogger.entry(message, severity: Severity.error);
+  //   }
+  // }
 
   // TODO Consider Refactor/consolodating this with ControlCard
   // used by RidePage. Silly to maintain two similar views of the same thing.
