@@ -28,18 +28,33 @@ import 'control_state.dart';
 import 'my_settings.dart';
 import 'event_list_page.dart';
 
-// TODO Update README for perms and custom URL settings
+/////////////////
+// TODO APP RELATED
+
+// TODO Update README for recent changes
+
+// TODO log view page
+
+// TODO it does not appeear that incomplete ride results are saved/restored after
+// app reboot
+
+// TODO Free Starts
+
+// TODO Screen shot and share
+
+// TODO return from advanced settings should dirty everything
+
+// TODO return from delete event should dirty event list
+
+// TODO Upload results doesn't call set state on ride page?
+
+///////////////////////
+// TODO SERVER RELATED
 
 // TODO Server side posting result and elapsed time to roster
 // Not really an app to-do, but this is a good reminder.
 
-// TODO proper logging framework
-
-// TODO Support for Perms  -- IMPORTANT!  -- Enter RUSA Perm ID
-
-// TODO Support for Card-O-Matic?
-
-// TODO Support for non-US regions -- Enter any ACP club code
+// TODO I see preride mode set in RESPONSE to check-in for scheduled brevet
 
 void main() {
   initSettings().then((_) {

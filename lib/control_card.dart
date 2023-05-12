@@ -16,6 +16,7 @@
 
 import 'dart:async';
 import 'package:ebrevet_card/outcome.dart';
+import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -56,15 +57,15 @@ class _ControlCardState extends State<ControlCard> {
   Widget build(BuildContext context) {
     context.watch<ControlState>();
     var activeEvent = widget.pastEvent;
-    var checkInTime = activeEvent.controlCheckInTime(widget.control);
+    var control = widget.control;
+    var checkInTime = activeEvent.controlCheckInTime(control);
+    var isNotFinished =
+        activeEvent.isIntermediateControl(control) || !activeEvent.isFinished;
 
-    String? checkInSignatureString;
-    // String? checkInTimeString;
+    var checkInSignatureString = (isNotFinished)
+        ? Signature.checkInCode(activeEvent, control).xyText
+        : Signature.forCert(activeEvent).xyText;
 
-    if (checkInTime != null) {
-      checkInSignatureString = activeEvent.makeCheckInSignature(widget.control);
-      // checkInTimeString = Utility.toBriefDateTimeString(checkInTime);
-    }
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -82,7 +83,9 @@ class _ControlCardState extends State<ControlCard> {
                 Text(exactDistanceString(widget.control.cLoc)),
                 Text(controlStatusString(widget.control)),
                 (checkInTime != null)
-                    ? Text("Check In: ($checkInSignatureString)")
+                    ? Text(isNotFinished
+                        ? "Check-in Code: ($checkInSignatureString)"
+                        : "Finish Code: ($checkInSignatureString)")
                     : const SizedBox.shrink(),
               ],
             ),
@@ -151,7 +154,9 @@ class _ControlCardState extends State<ControlCard> {
 
       var lastUpload = activeEvent.outcomes.lastUpload;
 
-      var checkInIcon = (lastUpload != null && lastUpload.isAfter(checkInTime))
+      var checkInIcon = (lastUpload != null &&
+              (lastUpload.isAfter(checkInTime) ||
+                  activeEvent.wasAutoChecked(control.index)))
           ? const Icon(Icons.check_circle, color: Colors.green)
           : const Icon(Icons.pending_sharp, color: Colors.orangeAccent);
       checkInRow = Row(
@@ -199,13 +204,13 @@ class _ControlCardState extends State<ControlCard> {
   }
 
   Widget checkInButton(Control c, DateTime? lastUpload) {
-    var activeEvent = widget.pastEvent;
-    var checkInTime = activeEvent.controlCheckInTime(c);
-
-    // var lastUpload = Current.activatedEvent?.outcomes.lastUpload;
+    final activeEvent = widget.pastEvent;
+    final checkInTime = activeEvent.controlCheckInTime(c);
 
     if (checkInTime != null) {
-      var checkInIcon = (lastUpload != null && lastUpload.isAfter(checkInTime))
+      var checkInIcon = (lastUpload != null &&
+              (lastUpload.isAfter(checkInTime) ||
+                  activeEvent.wasAutoChecked(c.index)))
           ? const Icon(Icons.check_circle, color: Colors.green)
           : const Icon(Icons.pending_sharp, color: Colors.orangeAccent);
       return Column(
@@ -324,20 +329,28 @@ class _ControlCardState extends State<ControlCard> {
           var titleStyle = textTheme.headlineMedium;
           var smallPrint = textTheme.bodySmall;
           var overallOutcome = activeEvent.outcomes.overallOutcome;
-          var checkInSignatureString =
-              activeEvent.makeCheckInSignature(control);
           var spaceBox = const SizedBox(
             height: 16,
           );
+
+          var isNotFinished = activeEvent.isIntermediateControl(control) ||
+              !activeEvent.isFinished;
+
+          var checkInSignatureString = (isNotFinished)
+              ? Signature.checkInCode(activeEvent, control).xyText
+              : Signature.forCert(activeEvent).xyText;
+
           return AlertDialog(
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Check In Recorded',
+                  (isNotFinished) ? 'Check In Recorded' : 'Ride Completed',
                   style: titleStyle,
                 ),
-                const Text('Control Check-In Code'),
+                Text(
+                  (isNotFinished) ? 'Control Check-In Code' : 'Finish Code',
+                ),
                 spaceBox,
                 Container(
                   color: signatureColor,
@@ -361,7 +374,9 @@ class _ControlCardState extends State<ControlCard> {
                 Text(
                   (overallOutcome == OverallOutcome.finish)
                       ? "Congratulations! You have finished the ${activeEvent.event.nameDist}."
-                      : "Ride On!",
+                      : (activeEvent.isIntermediateControl(control)
+                          ? "Ride On!"
+                          : "Disqualified (See the RBA)"),
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontStyle: FontStyle.italic),
                 ),

@@ -22,7 +22,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'region.dart';
 import 'region_data.dart';
 import 'my_settings.dart';
-import 'permanent.dart';
+// import 'permanent.dart';
 
 class AppSettings {
   ////////////////////
@@ -30,7 +30,7 @@ class AppSettings {
 
   static const int infinity = 9999999;
   static const int infiniteDistance = infinity;
-  static const int startableTimeWindowMinutes = 60;
+  static const int advanceStartTimeGraceMinutes = 60;
   static const int prerideTimeWindowDays = 15;
   static const int httpGetTimeoutSeconds = 30;
   static const int timeRefreshPeriod = 60;
@@ -102,21 +102,21 @@ class AppSettings {
     icon: const Icon(Icons.map),
   );
 
-  static MySetting<String> permSearchLocation = MySetting<String>(
-    key: 'key-perm-search-location',
-    defaultValue: Permanent.defaultSearch,
-    title: '${FutureEventsSourceID.fromPerm.description} Location',
-    validator: notEmptyValidator,
-    icon: const Icon(Icons.map),
-  );
+  // static MySetting<String> permSearchLocation = MySetting<String>(
+  //   key: 'key-perm-search-location',
+  //   defaultValue: Permanent.defaultSearch,
+  //   title: '${FutureEventsSourceID.fromPerm.description} Location',
+  //   validator: notEmptyValidator,
+  //   icon: const Icon(Icons.map),
+  // );
 
-  static MySetting<double> permSearchRadius = MySetting<double>(
-    key: 'key-perm-search-radius',
-    defaultValue: 50,
-    title: '${FutureEventsSourceID.fromPerm.description} Radius (mi)',
-    validator: doubleValidator,
-    icon: const Icon(Icons.map),
-  );
+  // static MySetting<double> permSearchRadius = MySetting<double>(
+  //   key: 'key-perm-search-radius',
+  //   defaultValue: 50,
+  //   title: '${FutureEventsSourceID.fromPerm.description} Radius (mi)',
+  //   validator: doubleValidator,
+  //   icon: const Icon(Icons.map),
+  // );
 
   static MySetting<String> eventInfoURL = MySetting<String>(
     key: 'key-event-info-url',

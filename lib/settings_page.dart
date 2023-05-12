@@ -87,9 +87,9 @@ class SettingsPageState extends State<SettingsPage> {
 class EventSearchSettings extends StatefulWidget {
   // final void Function() onClear;
 
-  const EventSearchSettings({
-    super.key,
-  });
+  final bool initiallyExpanded;
+
+  const EventSearchSettings({super.key, this.initiallyExpanded = false});
 
   @override
   State<EventSearchSettings> createState() => _EventSearchSettingsState();
@@ -118,6 +118,7 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
       child: ExpansionTile(
         title: const Text('Event Info Source'),
         subtitle: const Text('Where to download event info'),
+        initiallyExpanded: widget.initiallyExpanded,
         children: [
           RadioButtonSettingsTile(
             AppSettings.futureEventsSourceID,
@@ -130,18 +131,18 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
               itemList: regionList,
               onChanged: sourceSelection.updateFromSettings,
             ),
-          if (AppSettings.futureEventsSourceID.value ==
-              FutureEventsSourceID.fromPerm)
-            DialogInputSettingsTile(
-              AppSettings.permSearchLocation,
-              onChanged: sourceSelection.updateFromSettings,
-            ),
-          if (AppSettings.futureEventsSourceID.value ==
-              FutureEventsSourceID.fromPerm)
-            DialogInputSettingsTile(
-              AppSettings.permSearchRadius,
-              onChanged: sourceSelection.updateFromSettings,
-            ),
+          // if (AppSettings.futureEventsSourceID.value ==
+          //     FutureEventsSourceID.fromPerm)
+          //   DialogInputSettingsTile(
+          //     AppSettings.permSearchLocation,
+          //     onChanged: sourceSelection.updateFromSettings,
+          //   ),
+          // if (AppSettings.futureEventsSourceID.value ==
+          //     FutureEventsSourceID.fromPerm)
+          //   DialogInputSettingsTile(
+          //     AppSettings.permSearchRadius,
+          //     onChanged: sourceSelection.updateFromSettings,
+          //   ),
           if (AppSettings.futureEventsSourceID.value ==
               FutureEventsSourceID.fromURL)
             DialogInputSettingsTile(

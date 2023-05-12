@@ -28,13 +28,13 @@ import 'exception.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
 import 'region.dart';
-import 'permanent.dart';
+// import 'permanent.dart';
 
 // import 'current.dart';
 
 enum FutureEventsSourceID {
   fromRegion('Brevet Region'),
-  fromPerm('RUSA Permanent Search'),
+  // fromPerm('RUSA Permanent Search'),
   fromURL('Custom Event Data URL');
 
   final String description;
@@ -64,9 +64,9 @@ class FutureEventsSource {
       case FutureEventsSourceID.fromURL:
         d = "($url)";
         break;
-      case FutureEventsSourceID.fromPerm:
-        d = "($url)";
-        break;
+      // case FutureEventsSourceID.fromPerm:
+      //   d = "($url)";
+      //   break;
     }
     return d;
   }
@@ -79,10 +79,10 @@ class FutureEventsSource {
         var rgn = Region.fromSettings();
         eventsURL = rgn.futureEventsURL;
         break;
-      case FutureEventsSourceID.fromPerm:
-        var perm = Permanent.fromSettings();
-        eventsURL = perm.futureEventsURL;
-        break;
+      // case FutureEventsSourceID.fromPerm:
+      //   var perm = Permanent.fromSettings();
+      //   eventsURL = perm.futureEventsURL;
+      //   break;
       case FutureEventsSourceID.fromURL:
         eventsURL = AppSettings.eventInfoURL.value;
         break;
@@ -241,7 +241,7 @@ class FutureEvents {
   // But this code still should prune past events that accidentally
   // appear in the future_events download
 
-  static const futureEventGraceTime = 12; // hours
+  static const keepInFutureEventListAfterFinishHours = 12; // hours
 
   static void rebuildEventList(Map eventMap) {
     List el = eventMap['event_list'];
@@ -253,14 +253,17 @@ class FutureEvents {
         throw const FormatException('Invalid event data found.');
       }
 
-      var now = DateTime.now();
-      var eventReallyEnds = eventToAdd.endDateTime
-          .add(const Duration(hours: futureEventGraceTime));
-      if (eventReallyEnds.isAfter(now)) events.add(eventToAdd);
+      if (eventToAdd.startTimeWindow == null) {
+        events.add(eventToAdd); // Permanent
+      } else {
+        var now = DateTime.now();
+        var graceDuration =
+            const Duration(hours: keepInFutureEventListAfterFinishHours);
+        var eventReallyEnds = eventToAdd.finishDateTime!.add(graceDuration);
+        if (eventReallyEnds.isAfter(now)) events.add(eventToAdd);
+      }
     }
-    events.sort((a, b) => a.startDateTime.isBefore(b.startDateTime)
-        ? -1
-        : (a.startDateTime.isAfter(b.startDateTime) ? 1 : 0));
+    events.sort(Event.sort);
     // rider = r;
     var n = events.length;
     MyLogger.entry(
