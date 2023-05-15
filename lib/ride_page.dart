@@ -64,6 +64,8 @@ class _RidePageState extends State<RidePage> {
     var isPreride = activeEvent.isPreride;
     var event = activeEvent.event;
     var outcomes = activeEvent.outcomes;
+    var isFinished = activeEvent.isFinished;
+    var isDNQ = activeEvent.outcomes.overallOutcome == OverallOutcome.dnq;
     var controlList = event.controls;
     var eventText = event.nameDist;
     var dayNight = context.watch<DayNight>();
@@ -115,11 +117,25 @@ class _RidePageState extends State<RidePage> {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  Text(
-                    lastLocationUpdateText,
-                    textAlign: TextAlign.center,
-                    style: lastLocationUpdateTextStyle,
-                  ),
+                  if (isDNQ)
+                    Text(
+                      'DISQUALIFIED',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.error),
+                      textAlign: TextAlign.center,
+                    ),
+                  if (isFinished)
+                    Text(
+                      'FINISHED',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    )
+                  else
+                    Text(
+                      lastLocationUpdateText,
+                      textAlign: TextAlign.center,
+                      style: lastLocationUpdateTextStyle,
+                    ),
                   (outcomes.overallOutcome == OverallOutcome.dns)
                       ? const SizedBox.shrink()
                       : Column(
