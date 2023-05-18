@@ -55,14 +55,14 @@ class EventOutcomes {
     _overallOutcome = overallOutcome ?? OverallOutcome.dns;
   }
 
-  Map<String, dynamic> get toMap => {
+  Map<String, dynamic> toJson() => {
         'overall_outcome': _overallOutcome.name,
         'last_upload': lastUpload?.toUtc().toIso8601String(),
         'check_in_times': _checkInTimeMap.map((key, value) =>
             MapEntry(key.toString(), value.toUtc().toIso8601String())),
       };
 
-  factory EventOutcomes.fromMap(Map<String, dynamic> jsonMap) {
+  factory EventOutcomes.fromJson(Map<String, dynamic> jsonMap) {
     var eo = EventOutcomes();
     eo._overallOutcome =
         OverallOutcome.values.byName(jsonMap['overall_outcome']);
@@ -74,7 +74,9 @@ class EventOutcomes {
       DateTime vDateTime = DateTime.parse(checkInJsonMap[k]);
       eo._checkInTimeMap[kInt] = vDateTime;
     }
-    eo.lastUpload = DateTime.parse(jsonMap['last_upload']);
+    if (jsonMap['last_upload'] != null) {
+      eo.lastUpload = DateTime.parse(jsonMap['last_upload']);
+    }
     return eo;
   }
 
@@ -117,8 +119,8 @@ class EventOutcomes {
     return citl;
   }
 
-  static Map<String, dynamic> toJson(EventOutcomes value) => {
-        'overall_outcome': value.outcomeName,
-        'check_in_times': value.checkInTimeList,
-      };
+// static Map<String, dynamic> toJson(EventOutcomes value) => {
+//         'overall_outcome': value.outcomeName,
+//         'check_in_times': value.checkInTimeList,
+//       };
 }

@@ -52,8 +52,8 @@ class MySetting<T> {
       var setting = MySetting._generate(
           key, defaultValue, title, validator, onChanged, icon);
       _settingMap[key] = setting;
-      MyLogger.entry(
-          'Added setting $key; Map now contains ${_settingMap.length} entries.');
+      // MyLogger.entry(
+      //     'Added setting $key; Map now contains ${_settingMap.length} entries.');
       return setting;
     }
   }

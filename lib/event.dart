@@ -47,16 +47,16 @@ class TimeWindow {
   DateTime? get earlyTime => onTime.subtract(early ?? const Duration(days: 0));
 
   TimeWindow.fromJson(Map<String, dynamic> json)
-      : early = Duration(minutes: int.tryParse(json['early']) ?? 0),
-        late = Duration(minutes: int.tryParse(json['late']) ?? 0),
+      : early = Duration(minutes: (json['early'] ?? 0)),
+        late = Duration(minutes: (json['late'] ?? 0)),
         freeStart =
             (json['free_start'] as String?)?.toUpperCase().contains("YES") ??
                 false,
         onTime = DateTime.parse(json['on_time']);
 
   Map<String, dynamic> toJson() => {
-        'early': early ?? 0,
-        'late': late ?? 0,
+        'early': early?.inMinutes ?? 0,
+        'late': late?.inMinutes ?? 0,
         'on_time': onTime.toUtc().toIso8601String(),
         'free_start': freeStart ? "YES" : "NO",
       };
@@ -94,7 +94,7 @@ class Event {
 
   final List<Control> controls = [];
 
-  Map<String, dynamic> get toMap => {
+  Map<String, dynamic> get toJson => {
         'name': name,
         'start_time_window': startTimeWindow?.toJson() ?? "PERMANENT",
         // 'end_datetime_utc': endDateTime.toUtc().toIso8601String(),
@@ -113,7 +113,7 @@ class Event {
         'controls': [for (var cntrl in controls) cntrl.toMap],
       };
 
-  Event.fromMap(Map<String, dynamic> json) {
+  Event.fromJson(Map<String, dynamic> json) {
     // try {
     name = json['name'];
     // String? startDateTimeUTCString = json['start_datetime_utc'];

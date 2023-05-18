@@ -265,7 +265,7 @@ class _ControlCardState extends State<ControlCard> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Check In to Control'),
-          content: checkInDIalogContent(widget.control),
+          content: checkInDialogContent(widget.control),
           actions: [
             TextButton(
                 onPressed: () {
@@ -276,7 +276,7 @@ class _ControlCardState extends State<ControlCard> {
         ),
       );
 
-  Column checkInDIalogContent(Control control) {
+  Column checkInDialogContent(Control control) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -321,16 +321,22 @@ class _ControlCardState extends State<ControlCard> {
   Future openPostCheckInDialog() => showDialog(
         context: context,
         builder: (context) {
-          var activeEvent = widget.pastEvent;
-          var control = widget.control;
+          final activeEvent = widget.pastEvent;
+          final control = widget.control;
+          final checkInDateTime =
+              activeEvent.outcomes.getControlCheckInTime(control.index);
+          final checkInTimeString = Utility.toBriefTimeString(checkInDateTime);
           var textTheme = Theme.of(context).textTheme;
           var signatureStyle = textTheme.headlineLarge;
           var signatureColor = Theme.of(context).colorScheme.onError;
           var titleStyle = textTheme.headlineMedium;
           var smallPrint = textTheme.bodySmall;
           var overallOutcome = activeEvent.outcomes.overallOutcome;
-          var spaceBox = const SizedBox(
+          const spaceBox = SizedBox(
             height: 16,
+          );
+          const thinSpaceBox = SizedBox(
+            height: 8,
           );
 
           var isNotFinished = activeEvent.isIntermediateControl(control) ||
@@ -349,9 +355,14 @@ class _ControlCardState extends State<ControlCard> {
                   style: titleStyle,
                 ),
                 Text(
-                  (isNotFinished) ? 'Control Check-In Code' : 'Finish Code',
+                  "At $checkInTimeString",
+                  style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 spaceBox,
+                Text(
+                  (isNotFinished) ? 'Control Check-In Code' : 'Finish Code',
+                ),
+                thinSpaceBox,
                 Container(
                   color: signatureColor,
                   padding: const EdgeInsets.all(8),
@@ -373,7 +384,7 @@ class _ControlCardState extends State<ControlCard> {
                 Text(activeEvent.checkInFractionString),
                 Text(
                   (overallOutcome == OverallOutcome.finish)
-                      ? "Congratulations! You have finished the ${activeEvent.event.nameDist}."
+                      ? "Congratulations! You have finished the ${activeEvent.event.nameDist} in ${activeEvent.elapsedTimeString}."
                       : (activeEvent.isIntermediateControl(control)
                           ? "Ride On!"
                           : "Disqualified (See the RBA)"),

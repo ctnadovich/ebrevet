@@ -35,26 +35,17 @@ import 'event_list_page.dart';
 
 // TODO log view page
 
-// TODO it does not appeear that incomplete ride results are saved/restored after
-// app reboot
+// TODO Start Styles: permanant, mass start, freestart
 
-// TODO Free Starts
+// TODO STart code search for obsolete codes
 
-// TODO Screen shot and share
+// Less important
 
 // TODO return from advanced settings should dirty everything
 
 // TODO return from delete event should dirty event list
 
 // TODO Upload results doesn't call set state on ride page?
-
-///////////////////////
-// TODO SERVER RELATED
-
-// TODO Server side posting result and elapsed time to roster
-// Not really an app to-do, but this is a good reminder.
-
-// TODO I see preride mode set in RESPONSE to check-in for scheduled brevet
 
 void main() {
   initSettings().then((_) {

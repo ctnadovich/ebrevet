@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:share_plus/share_plus.dart';
+// import 'package:share_plus/share_plus.dart';
 // import 'package:screenshot/screenshot.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+// import 'package:path_provider/path_provider.dart';
+// import 'dart:io';
 import 'past_event.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,17 +25,18 @@ import 'control.dart';
 import 'report.dart';
 import 'control_state.dart';
 import 'utility.dart';
-import 'mylogger.dart';
+// import 'mylogger.dart';
 import 'app_settings.dart';
-import 'snackbarglobal.dart';
+// import 'snackbarglobal.dart';
 
 // TODO This really should be the same widget (or a child) as Ride Page
+// TODO Share needs to be fixed
 
 class ControlDetailPage extends StatelessWidget {
   final PastEvent pastEvent;
   // final ScreenshotController screenshotController = ScreenshotController();
 
-  ControlDetailPage(this.pastEvent, {super.key});
+  const ControlDetailPage(this.pastEvent, {super.key});
 
   @override
   Widget build(BuildContext context) {

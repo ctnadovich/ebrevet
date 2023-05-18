@@ -114,6 +114,10 @@ class Report {
     if (comment != null) report['comment'] = comment;
     report['outcome'] = _reportingEvent.outcomes;
 
+    if (_reportingEvent.outcomes.overallOutcome == OverallOutcome.finish) {
+      report['finish_elapsed_time'] = _reportingEvent.elapsedTimeStringHHCMM;
+    }
+
     report['app_version'] = AppSettings.version;
     report['proximity_radius'] = AppSettings.proximityRadius.toString();
     report['proximity_override'] =
@@ -142,10 +146,12 @@ class Report {
       throw NoPreviousDataException('No URL specified for upload');
     }
 
-    var reportJSON = jsonEncode(report,
-        toEncodable: (Object? value) => value is EventOutcomes
-            ? EventOutcomes.toJson(value)
-            : throw FormatException('Cannot convert to JSON: $value'));
+    var reportJSON = jsonEncode(report);
+
+    // ,
+    //     toEncodable: (Object? value) => value is EventOutcomes
+    //         ? EventOutcomes.toJson(value)
+    //         : throw FormatException('Cannot convert to JSON: $value'));
 
     MyLogger.entry("Sending JSON: $reportJSON");
 

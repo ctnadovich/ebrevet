@@ -248,7 +248,7 @@ class FutureEvents {
     MyLogger.entry("rebuildEventList() from ${el.length} events in Map");
     events.clear();
     for (var e in el) {
-      var eventToAdd = Event.fromMap(e);
+      var eventToAdd = Event.fromJson(e);
       if (eventToAdd.valid == false) {
         throw const FormatException('Invalid event data found.');
       }

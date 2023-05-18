@@ -34,28 +34,34 @@ import 'mylogger.dart';
 
 class PastEvent {
   String riderID;
-  Event _event;
+  final Event _event;
   EventOutcomes outcomes;
   bool isPreride;
 
   PastEvent(this._event, this.riderID, this.outcomes, this.isPreride);
 
   Map<String, dynamic> toJson() => {
-        'event': _event.toMap,
-        'outcomes': outcomes.toMap,
+        'event': _event.toJson,
+        'outcomes': outcomes.toJson(),
         'preride': isPreride,
         'rider_id': riderID,
       };
 
-  factory PastEvent.fromJson(Map<String, dynamic> jsonMap) {
-    var eventMap = jsonMap['event'];
-    var outcomeMap = jsonMap['outcomes'];
-    var isPreride = jsonMap['preride'];
-    var riderID = jsonMap['rider_id'];
-    var e = Event.fromMap(eventMap);
-    var o = EventOutcomes.fromMap(outcomeMap);
-    return PastEvent(e, riderID, o, isPreride);
-  }
+  PastEvent.fromJson(Map<String, dynamic> json)
+      : riderID = json['rider_id'],
+        isPreride = json['preride'],
+        _event = Event.fromJson(json['event']),
+        outcomes = EventOutcomes.fromJson(json['outcomes']);
+
+  // factory PastEvent.fromJson(Map<String, dynamic> jsonMap) {
+  //   var eventMap = jsonMap['event'];
+  //   var outcomeMap = jsonMap['outcomes'];
+  //   var isPreride = jsonMap['preride'];
+  //   var riderID = jsonMap['rider_id'];
+  //   var e = Event.fromMap(eventMap);
+  //   var o = EventOutcomes.fromMap(outcomeMap);
+  //   return PastEvent(e, riderID, o, isPreride);
+  // }
 
   static int sort(PastEvent a, PastEvent b) => Event.sort(a._event, b._event);
 
@@ -232,6 +238,12 @@ class PastEvent {
   String get elapsedTimeStringhhmm {
     if (elapsedDuration == null) return "No Finish";
     return "${elapsedDuration!.inHours.toString().padLeft(2, '0')}"
+        "${(elapsedDuration!.inMinutes % 60).toString().padLeft(2, '0')}";
+  }
+
+  String get elapsedTimeStringHHCMM {
+    if (elapsedDuration == null) return "No Finish";
+    return "${elapsedDuration!.inHours.toString().padLeft(2, '0')}:"
         "${(elapsedDuration!.inMinutes % 60).toString().padLeft(2, '0')}";
   }
 
