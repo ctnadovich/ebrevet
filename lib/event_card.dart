@@ -274,21 +274,30 @@ class _EventCardState extends State<EventCard> {
     if (false == AppSettings.isRusaIDSet) return "Rider not set.";
     if (FutureEvents.eventInfoSource == null) return "No event authority. ";
 
-    var startCode = Signature.substituteZeroOneXY(s.toUpperCase());
+    var offeredCode = Signature.substituteZeroOneXY(s.toUpperCase());
     var magicCode =
         Signature.substituteZeroOneXY(AppSettings.magicStartCode.toUpperCase());
 
-    if (startCode == magicCode) return null;
+    if (offeredCode == magicCode) return null;
 
     var validCode = Signature.startCode(event, AppSettings.rusaID.value).xyText;
+    if (validCode == offeredCode) return null;
 
-    if (validCode != startCode) {
-      MyLogger.entry(
-          "Invalid Start Code $startCode; Valid code is '$validCode'; ");
-      return "Invalid Start Code.";
+    var cueVersion = event.cueVersion - 1;
+    while (cueVersion >= 0) {
+      var oldCode = Signature.startCode(event, AppSettings.rusaID.value,
+              cueVersion: cueVersion)
+          .xyText;
+      if (offeredCode == oldCode) {
+        SnackbarGlobal.show("Start Code from OLD cue version.");
+        MyLogger.entry("Start Code from an OLD cue version.");
+        return null;
+      }
+      cueVersion--;
     }
-
-    return null;
+    MyLogger.entry(
+        "Invalid Start Code $offeredCode; Valid code is '$validCode'; ");
+    return "Invalid Start Code.";
   }
 
   Future<String?> openStartBrevetDialog() => showDialog<String>(

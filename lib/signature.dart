@@ -47,22 +47,23 @@ class Signature {
 
   // Start Code
 
-  factory Signature.startCode(Event event, String riderID) => Signature(
-      data: event.cueVersion.toString(),
-      event: event,
-      riderID: riderID,
-      codeLength: 4);
+  factory Signature.startCode(Event event, String riderID, {int? cueVersion}) =>
+      Signature(
+          data: cueVersion?.toString() ?? event.cueVersion.toString(),
+          event: event,
+          riderID: riderID,
+          codeLength: 4);
 
   // Check in code
 
   factory Signature.checkInCode(PastEvent pe, Control ctrl) {
-    var checkInTime = pe.controlCheckInTime(ctrl);
-    var riderID = pe.riderID;
-    var checkInTimeString =
-        checkInTime?.toUtc().toString().substring(0, 16) ?? "Never";
-    var checkInData = "C${ctrl.index} $checkInTimeString";
+    // var checkInTime = pe.controlCheckInTime(ctrl);
+    //var riderID = pe.riderID;
+    // var checkInTimeString =
+    //     checkInTime?.toUtc().toString().substring(0, 16) ?? "Never";
+    var checkInData = ctrl.index.toString();
     return Signature(
-        data: checkInData, event: pe.event, riderID: riderID, codeLength: 4);
+        data: checkInData, event: pe.event, riderID: pe.riderID, codeLength: 4);
   }
 
   // Report
