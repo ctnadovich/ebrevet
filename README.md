@@ -21,7 +21,8 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 - Does not require anything physically at controls (eg no QR code, volunteer, etc... needed)
 - Does not require any third party service (eg no Strava, Spot, RWGPS, Garmin... needed)
 - Does not require photographs or any other media or service result to be reviewed by the organizer
-- Pre-ride / permanent mode allows "free" start-time and  "relative" control open/close times.
+- Pre-ride / permanent / and free-start modes allows "free" start-time and  "relative" control open/close times.
+- Organized mode allows flexible checkin time with evenyone "starting" at the offical start time.
 - The app can be used effectively during an event without  Cellular service or Internet access.
 - The phone can be turned off or rebooted and the app will continue to work. 
 - Low power use. Does not run in background. 
@@ -39,7 +40,7 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 
 Install the app on your phone.
 You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet".  *Make sure you have the latest version of the app installed in your phone before you start riding an event.  If your app version is too old, you may not be able to start
-an event.*
+an event or there may be trouble checking into controls.*
 
 ### Settings
 
