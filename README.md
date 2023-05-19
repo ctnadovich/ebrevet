@@ -6,10 +6,12 @@ An electronic brevet card for randonneuring.
 
 ## Introduction
 
-This Android/iOS 
-app serves as an automated brevet card that can provide Electronic Proof of Passage
-on a randonneuring brevet, while maintaining some of the "feel" of the traditional paper brevet card process.  The app only needs to be activated at controls. If network access is available,
-the app will report control check in times for the rider to a central server. 
+This Android/iOS app serves as an automated brevet card that can
+provide Electronic Proof of Passage on a randonneuring brevet, while
+maintaining some of the "feel" of the traditional paper brevet card
+process.  The app only needs to be activated at controls. If network
+access is available, the app will report control check in times for
+the rider to a central server. 
 
 You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet".
 
@@ -38,11 +40,11 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 
 ### Installation
 
-Install the app on your phone.
-You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and 
-the [Google Play Store](https://play.google.com). Search for "eBrevet".  *Make sure you have 
-the latest version of the app installed in your phone before you start riding an event.  
-If your app version is too old, you may not be able to start
+Install the app on your phone. You can find the app on both the
+[Apple Store](https://www.apple.com/app-store/) and the 
+[Google Play Store](https://play.google.com). Search for "eBrevet".  *Make sure you
+have the latest version of the app installed in your phone before you
+start riding an event.  If your app version is too old, you may not be able to start
 an event or there may be trouble checking into controls.*
 
 ### Settings
