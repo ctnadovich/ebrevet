@@ -47,7 +47,7 @@ have the latest version of the app installed in your phone before you
 start riding an event.  If your app version is too old, you may not be able to start
 an event or there may be trouble checking into controls.*
 
-### Settings
+### Rider Name and Number
 
 When you first open the app, you *must* enter your Name and RUSA
 ID number. Please make sure you you enter your Rider ID correctly. If
@@ -215,6 +215,9 @@ upper left corner (the so called hamburger icon). Clicking this will
 open the side drawer menu. This menu allows you to access app settings
 (eg Rider Name, Rider ID, Event Info Source), as well as Past Events
 and the About eBrevet dialog. 
+
+<img src="https://parando.org/ebrevet/v26/main_menu.png" width=33%/>
+
 
 ### Past Events
 
