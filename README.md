@@ -77,6 +77,9 @@ Info Source to be the RUSA Club/Region or ACP Club for the events you
 want to ride. You will only see events from the Club/Region you
 select. 
 
+<img src="https://parando.org/ebrevet/v26/no_events_yet.png" width=33%/>
+
+
 The app presents a list of regions in the US. The default is PA:
 Eastern, but any US region can be selected. Please only select regions
 that support eBrevet.  If a region does not support eBrevet, you will
