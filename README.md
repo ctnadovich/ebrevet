@@ -54,7 +54,7 @@ ID number. Please make sure you you enter your Rider ID correctly. If
 you enter the wrong Rider ID, you wll not be able to use the app
 till this is corrected. In the USA, your Rider ID is your RUSA number. 
 
-<img src="https://parando.org/ebrevet/v19/ScreenShots/required_settings.png" width=33%/>
+<img src="https://parando.org/ebrevet/v26/required_settings.png" width=33%/>
 
 Once you've set your name and rider ID number, press "Continue". This will take
 you to the main eBrevet Events screen. 
