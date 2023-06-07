@@ -20,6 +20,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'app_settings.dart';
 import 'settings_page.dart';
+import 'log_page.dart';
 
 class SideMenuDrawer extends StatelessWidget {
   final Function? onClose;
@@ -80,6 +81,19 @@ class SideMenuDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               aboutDialog(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.newspaper),
+            title: Text(
+              'Log',
+              style: menuItemStyle,
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const LogPage(),
+              ));
             },
           ),
         ],

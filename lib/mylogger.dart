@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:flutter/material.dart';
+import 'utility.dart';
+
 enum Severity {
   info,
   warning,
@@ -33,6 +36,18 @@ class MyLogger {
   static final List<LogRecord> _log = [];
 
   static const int logLength = 100;
+
+  static List<String> get records {
+    List<String> recordList = [];
+
+    for (var r in _log) {
+      var s =
+          "${Utility.toBriefTimeString(r.timestamp)} ${r.severity.name.toUpperCase().padRight(7)} ${r.message}";
+      recordList.add(s);
+    }
+
+    return recordList;
+  }
 
   static void entry(String s, {Severity severity = Severity.info}) {
     _log.add(LogRecord(severity, s));

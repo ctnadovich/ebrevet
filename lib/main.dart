@@ -37,8 +37,6 @@ import 'event_list_page.dart';
 
 // TODO Start Styles: permanant, mass start, freestart
 
-// TODO STart code search for obsolete codes
-
 // Less important
 
 // TODO return from advanced settings should dirty everything

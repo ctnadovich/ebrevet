@@ -149,8 +149,8 @@ class Event {
     checkinPostURL = json['checkin_post_url']!;
 
     List<dynamic> controlsListMap = json['controls'];
-    MyLogger.entry(
-        'Event.fromMap() restored $name from JSON. Found ${controlsListMap.length} controls.');
+    // MyLogger.entry(
+    //     'Event.fromMap() restored $name from JSON. Found ${controlsListMap.length} controls.');
     controls.clear();
     for (var i = 0; i < controlsListMap.length; i++) {
       var controlMap = controlsListMap[i];
