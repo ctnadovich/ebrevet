@@ -20,7 +20,6 @@ import 'control.dart';
 import 'time_till.dart';
 import 'region.dart';
 import 'app_settings.dart';
-import 'mylogger.dart';
 import 'utility.dart';
 
 class TimeWindow {

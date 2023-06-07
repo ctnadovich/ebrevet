@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:flutter/material.dart';
 import 'utility.dart';
 
 enum Severity {

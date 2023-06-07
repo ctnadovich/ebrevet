@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:ebrevet_card/my_settings.dart';
 import 'package:ebrevet_card/past_events_page.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
