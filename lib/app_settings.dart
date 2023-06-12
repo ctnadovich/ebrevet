@@ -47,6 +47,12 @@ class AppSettings {
   static String get magicStartCode => RegionData.magicStartCode;
   static String get magicRUSAID => RegionData.magicRUSAID;
 
+  //////////
+  // Filenames
+  static const String futureEventsFilename =
+      'futureEvents.json'; // File to save events locally
+  static const String pastEventsFileName = 'pastEvents.json';
+
   ////////////////////////
   // Package Info Settings
 

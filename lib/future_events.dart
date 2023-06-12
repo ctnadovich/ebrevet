@@ -138,9 +138,7 @@ class FutureEvents {
   static DateTime? lastRefreshed; // Time when last refreshed from server
   static const lastRefreshedFieldName = 'last_refreshed';
 
-  static const futureEventsFileName =
-      'future_events.json'; // File to save events locally
-  static var storedEvents = FileStorage(futureEventsFileName);
+  static var storedEvents = FileStorage(AppSettings.futureEventsFilename);
 
   static void clear() {
     events.clear();
@@ -154,7 +152,7 @@ class FutureEvents {
   static Future<String> refreshEventsFromDisk() async {
     Map<String, dynamic> eventMapFromFile;
     try {
-      MyLogger.entry("** Refreshing events from DISK ");
+      MyLogger.entry("** Refreshing events from ${storedEvents.fileName}");
 
       try {
         eventMapFromFile = await storedEvents.readJSON();
@@ -245,7 +243,7 @@ class FutureEvents {
 
   static void rebuildEventList(Map eventMap) {
     List el = eventMap['event_list'];
-    MyLogger.entry("rebuildEventList() from ${el.length} events in Map");
+    MyLogger.entry("Start rebuildEventList() from ${el.length} events in Map");
     events.clear();
     for (var e in el) {
       var eventToAdd = Event.fromJson(e);
@@ -266,8 +264,7 @@ class FutureEvents {
     events.sort(Event.sort);
     // rider = r;
     var n = events.length;
-    MyLogger.entry(
-        "Event List rebuilt with $n events in ${eventInfoSource?.description ?? '<unknown>'}.");
+    MyLogger.entry("Event List rebuilt with $n events.");
   }
 
   static Future<Map<String, dynamic>?> fetchFutureEventsFromServer(

@@ -26,8 +26,6 @@ import 'control_state.dart';
 class EventHistory {
   static Map<String, PastEvent> _pastEventMap = {}; // Key is EventID string
 
-  static const pastEventsFileName = 'past_events.json';
-
   // START AN EVENT -- this method turns a mere event, into an activated
   // PastEvent.   The name PastEvent is misleading since it also could
   // be a "current event" that we are riding now. The main difference
@@ -88,7 +86,7 @@ class EventHistory {
   }
 
   static Future<int> load() async {
-    var storage = FileStorage(pastEventsFileName);
+    var storage = FileStorage(AppSettings.pastEventsFileName);
     try {
       MyLogger.entry("** Loading event history from DISK");
       var pastEventsFromFile =
@@ -100,7 +98,7 @@ class EventHistory {
         return _pastEventMap.length;
       } else {
         MyLogger.entry(
-            "Empty, missing, or undecodable file: $pastEventsFileName");
+            "Empty, missing, or undecodable file: ${storage.fileName}");
         return 0;
       }
     } catch (e) {
@@ -110,7 +108,7 @@ class EventHistory {
   }
 
   static save() {
-    var storage = FileStorage(pastEventsFileName);
+    var storage = FileStorage(AppSettings.pastEventsFileName);
     try {
       storage.writeJSON(_pastEventMap);
 

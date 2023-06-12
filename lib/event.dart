@@ -22,6 +22,20 @@ import 'region.dart';
 import 'app_settings.dart';
 import 'utility.dart';
 
+// MassStart -- Everyone gets the same start time. Automatic check in
+// at the first control within the early/closing window. Distance
+// to control doesn't matter.
+
+// FreeStart -- Start time is individually determined by actual manual check-in at
+// the first control, which must be within the early/late window
+// and distance to control must be within proximity limit
+
+// PreRide -- Start time is individually determined by actual manual check-in at
+// the first control, which must be within the 15 day pre-ride window
+// and before the early window and distance < proximity limit
+
+// TODO -- should autostart be prompted/confirmed with a dialog?
+
 class TimeWindow {
   Duration? early;
   Duration? late;

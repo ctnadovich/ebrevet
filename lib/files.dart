@@ -51,6 +51,7 @@ class FileStorage {
       final file = await _localFile;
       final contents = await file.readAsString();
       var decodedResult = jsonDecode(contents) as Map<String, dynamic>;
+      MyLogger.entry("Read JSON Map from ${file.path}");
       return decodedResult;
     } catch (e) {
       MyLogger.entry("Exception in FileStorage.readJSON: $e");

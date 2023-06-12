@@ -43,6 +43,10 @@ import 'event_list_page.dart';
 
 // TODO Upload results doesn't call set state on ride page?
 
+// TODO Clear all saved files
+
+// TODO Confirmation dialog for check-in
+
 void main() {
   initSettings().then((_) {
     MyLogger.entry("** runApp(MyApp)");
@@ -62,6 +66,11 @@ void main() {
 Future<void> initSettings() async {
   WidgetsFlutterBinding.ensureInitialized();
   MyLogger.entry('Init settings start...');
+
+  FlutterError.onError = (FlutterErrorDetails errorDetails) {
+    MyLogger.entry("FLT: ${errorDetails.exception.toString()}",
+        severity: Severity.error);
+  };
 
   await MySetting.initSharedPreferences();
   await AppSettings.initializePackageInfo();
