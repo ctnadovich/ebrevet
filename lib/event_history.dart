@@ -33,36 +33,69 @@ class EventHistory {
   // mere Events do not have outcomes.   Probably PastEvent should
   // be refactored as a child object of Event.
 
-  static PastEvent addActivate(Event e, String r,
-      {bool isPreride = false, ControlState? controlState}) {
+  static PastEvent addActivate(Event e,
+      {String? riderID, StartStyle? startStyle, ControlState? controlState}) {
     var pe = lookupPastEvent(e.eventID);
     if (pe != null) {
       pe.outcomes.overallOutcome = OverallOutcome.active; // reactivate
     } else {
       // otherwise add
+
+      if (riderID == null) {
+        throw Exception("Can't activate event. No rider specified.");
+      }
+      if (startStyle == null) {
+        throw Exception("Can't activate event. No start style specified.");
+      }
       pe = _add(
         e,
-        r,
+        riderID,
+        startStyle,
         overallOutcome: OverallOutcome.active,
-        isPreride: isPreride,
       );
     }
 
     // Auto first-control check in
 
-    if (AppSettings.autoFirstControlCheckIn &&
-        isPreride == false &&
-        pe.event.startTimeWindow != null &&
-        pe.event.startTimeWindow!.freeStart == false &&
-        pe.outcomes.checkInTimeList.isEmpty &&
-        pe.event.isStartable) {
-      pe.controlCheckIn(
-        control: pe.event.controls[pe.event.startControlKey],
-        comment: "Automatic Check In",
-        controlState: controlState,
-        checkInTime: pe.event.startTimeWindow!.onTime, // check in time override
-      );
+    // TODO Confirmation Dialog?
+
+    if (pe.outcomes.checkInTimeList.isEmpty && pe.event.isStartable) {
+      switch (startStyle) {
+        case StartStyle.massStart:
+          pe.controlCheckIn(
+            control: pe.event.controls[pe.event.startControlKey],
+            comment: "Automatic Check In",
+            controlState: controlState,
+            checkInTime:
+                pe.event.startTimeWindow.onTime, // check in time override
+          );
+          break;
+        case StartStyle.freeStart:
+        case StartStyle.permanent:
+          pe.controlCheckIn(
+            control: pe.event.controls[pe.event.startControlKey],
+            comment: "Automatic Check In",
+            controlState: controlState,
+          );
+          break;
+        default:
+          break;
+      }
     }
+
+    // if (AppSettings.autoFirstControlCheckIn &&
+    //     isPreride == false &&
+    //     pe.event.startTimeWindow != null &&
+    //     pe.event.startTimeWindow!.freeStart == false &&
+    //     pe.outcomes.checkInTimeList.isEmpty &&
+    //     pe.event.isStartable) {
+    //   pe.controlCheckIn(
+    //     control: pe.event.controls[pe.event.startControlKey],
+    //     comment: "Automatic Check In",
+    //     controlState: controlState,
+    //     checkInTime: pe.event.startTimeWindow!.onTime, // check in time override
+    //   );
+    // }
 
     // need to save EventHistory now
 
@@ -153,9 +186,9 @@ class EventHistory {
 
   static PastEvent _add(
     Event e,
-    String r, {
+    String riderID,
+    StartStyle startStyle, {
     OverallOutcome? overallOutcome,
-    bool? isPreride,
   }) {
     // }, Map<int, DateTime>? checkInTimeMap}) {
     if (_pastEventMap.containsKey(e.eventID)) {
@@ -163,7 +196,7 @@ class EventHistory {
           "Existing event ID ${e.eventID} in _pastEventMap. Can't add again.");
     } else {
       var o = EventOutcomes(overallOutcome: overallOutcome);
-      var pe = PastEvent(e, r, o, isPreride ?? false);
+      var pe = PastEvent(e, riderID, o, startStyle);
       _pastEventMap[e.eventID] = pe;
 
       return pe;

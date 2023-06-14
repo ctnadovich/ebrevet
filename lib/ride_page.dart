@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+// import 'package:ebrevet_card/event.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -61,7 +62,7 @@ class _RidePageState extends State<RidePage> {
   @override
   Widget build(BuildContext context) {
     var activeEvent = widget.activeEvent;
-    var isPreride = activeEvent.isPreride;
+    var startStyle = activeEvent.startStyle;
     var event = activeEvent.event;
     var outcomes = activeEvent.outcomes;
     var isFinished = activeEvent.isFinished;
@@ -113,7 +114,7 @@ class _RidePageState extends State<RidePage> {
           child: ListView(
             children: <Widget>[
                   Text(
-                    (isPreride) ? 'Volunteer Preride' : 'Scheduled Brevet',
+                    startStyle.description,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),

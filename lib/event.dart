@@ -16,6 +16,9 @@
 
 // import 'package:flutter/material.dart';
 
+// import 'package:flutter/cupertino.dart';
+import 'package:flutter_launcher_icons/custom_exceptions.dart';
+
 import 'control.dart';
 import 'time_till.dart';
 import 'region.dart';
@@ -34,44 +37,63 @@ import 'utility.dart';
 // the first control, which must be within the 15 day pre-ride window
 // and before the early window and distance < proximity limit
 
-// TODO -- should autostart be prompted/confirmed with a dialog?
+// Permanent -- Start time is individually determined by actual manual check-in at
+// the first control, which can be any time. Distance < proximity limit
+
+enum StartStyle {
+  massStart,
+  freeStart,
+  permanent,
+  preRide;
+
+  static Map _description = {
+    massStart: 'Scheduled Brevet',
+    freeStart: 'Free Start Brevet',
+    permanent: 'Permanent',
+    preRide: 'Volunteer pre-ride',
+  };
+
+  get description => _description[this];
+}
 
 class TimeWindow {
   Duration? early;
   Duration? late;
-  DateTime onTime;
-  bool freeStart = false;
+  DateTime? onTime;
+  StartStyle startStyle;
 
-  TimeWindow(this.onTime, {this.early, this.late});
+  TimeWindow(this.startStyle, {this.onTime, this.early, this.late});
 
   Duration setEarlyTime(DateTime et) {
-    if (et.isAfter(onTime)) throw RangeError("Early time after start time.");
-    early = onTime.difference(et);
+    if (onTime == null) {
+      throw RangeError("Can't set early when onTime is null.");
+    }
+    if (et.isAfter(onTime!)) throw RangeError("Early time after start time.");
+    early = onTime!.difference(et);
     return early!;
   }
 
   Duration setLateTime(DateTime lt) {
-    if (lt.isBefore(onTime)) throw RangeError("Late time before start time.");
-    late = lt.difference(onTime);
+    if (onTime == null) throw RangeError("Can't set late when onTime is null.");
+    if (lt.isBefore(onTime!)) throw RangeError("Late time before start time.");
+    late = lt.difference(onTime!);
     return late!;
   }
 
-  DateTime? get lateTime => onTime.add(late ?? const Duration(days: 0));
-  DateTime? get earlyTime => onTime.subtract(early ?? const Duration(days: 0));
+  DateTime? get lateTime => onTime?.add(late ?? const Duration(days: 0));
+  DateTime? get earlyTime => onTime?.subtract(early ?? const Duration(days: 0));
 
   TimeWindow.fromJson(Map<String, dynamic> json)
       : early = Duration(minutes: (json['early'] ?? 0)),
         late = Duration(minutes: (json['late'] ?? 0)),
-        freeStart =
-            (json['free_start'] as String?)?.toUpperCase().contains("YES") ??
-                false,
-        onTime = DateTime.parse(json['on_time']);
+        startStyle = StartStyle.values.byName(json['start_style']),
+        onTime = DateTime.tryParse(json['on_time'] ?? '');
 
   Map<String, dynamic> toJson() => {
         'early': early?.inMinutes ?? 0,
         'late': late?.inMinutes ?? 0,
-        'on_time': onTime.toUtc().toIso8601String(),
-        'free_start': freeStart ? "YES" : "NO",
+        'on_time': onTime?.toUtc().toIso8601String() ?? '',
+        'start_style': startStyle.name,
       };
 }
 
@@ -82,7 +104,7 @@ class TimeWindow {
 class Event {
   bool valid = false;
   late String name;
-  TimeWindow? startTimeWindow;
+  late TimeWindow startTimeWindow;
   // late DateTime endDateTime;
   late String distance; // Official distance in KM
   late String startCity;
@@ -109,7 +131,7 @@ class Event {
 
   Map<String, dynamic> get toJson => {
         'name': name,
-        'start_time_window': startTimeWindow?.toJson() ?? "PERMANENT",
+        'start_time_window': startTimeWindow.toJson(),
         // 'end_datetime_utc': endDateTime.toUtc().toIso8601String(),
         'distance': distance,
         'start_city': startCity,
@@ -131,12 +153,13 @@ class Event {
     name = json['name'];
     // String? startDateTimeUTCString = json['start_datetime_utc'];
     // String? endDateTimeUTCString = json['end_datetime_utc'];
-    if (json.containsKey('start_time_window') &&
-        json['start_time_window'] != null) {
-      startTimeWindow = TimeWindow.fromJson(json['start_time_window']);
-    } else if (json.containsKey('start_datetime_utc') &&
+    if (json.containsKey('start_datetime_utc') &&
         json['start_datetime_utc'] != null) {
-      startTimeWindow = TimeWindow(DateTime.parse(json['start_datetime_utc']));
+      // Legacy, simple start time
+      startTimeWindow = TimeWindow(StartStyle.massStart,
+          onTime: DateTime.parse(json['start_datetime_utc']));
+    } else {
+      startTimeWindow = TimeWindow.fromJson(json['start_time_window']);
     }
     // endDateTime = DateTime.parse(endDateTimeUTCString);
     distance = json['distance'];
@@ -191,25 +214,29 @@ class Event {
   //   return "$regionID-$eventID";
   // }
 
-  DateTime? get startDateTime => startTimeWindow?.onTime;
+  DateTime? get startDateTime => startTimeWindow.onTime;
 
   DateTime get startControlOpenTime => controls[startControlKey].open;
   DateTime get startControlCloseTime => controls[startControlKey].close;
   DateTime get finishControlCloseTime => controls[finishControlKey].close;
 
   Duration? get allowedDuration {
-    if (startTimeWindow == null) return null; // Permanent
+    // if (startTimeWindow == null) return null; // Permanent
     return finishControlCloseTime.difference(startControlOpenTime);
   }
 
   DateTime? get finishDateTime {
-    if (startTimeWindow == null) return null; // Permanent
+    if (startTimeWindow.startStyle == StartStyle.permanent ||
+        startTimeWindow.onTime == null) return null; // Permanent
     return startDateTime!.add(allowedDuration!);
   }
 
   get dateTime {
-    if (startTimeWindow == null) return "Any time";
-    var sdtl = startTimeWindow!.onTime.toLocal();
+    if (startTimeWindow.startStyle == StartStyle.permanent ||
+        startTimeWindow.onTime == null) {
+      return "Any time";
+    }
+    var sdtl = startTimeWindow.onTime!.toLocal();
     if (sdtl.year == DateTime.now().toLocal().year) {
       return Utility.toBriefDateTimeString(
           sdtl); // sdtl.toString().substring(0, 16);
@@ -219,18 +246,22 @@ class Event {
   }
 
   get startDate {
-    if (startTimeWindow == null) return "Any date";
+    if (startTimeWindow.startStyle == StartStyle.permanent ||
+        startTimeWindow.onTime == null) {
+      return "Any date";
+    }
 
-    var sdtl = startTimeWindow!.onTime.toLocal();
+    var sdtl = startTimeWindow.onTime!.toLocal();
     return sdtl.toString().substring(0, 10);
   }
 
   get eventStatusText {
-    if (startTimeWindow == null) return "Permanent";
+    if (startTimeWindow.startStyle == StartStyle.permanent ||
+        startTimeWindow.onTime == null) return "Any Time";
     DateTime now = DateTime.now();
-    if (startTimeWindow!.onTime.isAfter(now)) {
+    if (startTimeWindow.onTime!.isAfter(now)) {
       // Event in future
-      var tt = TimeTill(startTimeWindow!.onTime);
+      var tt = TimeTill(startTimeWindow.onTime!);
       return "Starts in ${tt.interval} ${tt.unit}";
     } else if (finishControlCloseTime.isBefore(now)) {
       // Event in past
@@ -265,46 +296,69 @@ class Event {
   // starts will be allowed. In minutes.
 
   bool get isStartable {
-    if (startTimeWindow == null) return true; // Permanent
     var now = DateTime.now();
-    var onTime = startTimeWindow!.onTime;
+    var onTime = startTimeWindow.onTime;
+    var early = startTimeWindow.early;
+    var late = startTimeWindow.late;
+    var answer = true;
 
-    if (startTimeWindow!.freeStart) {
-      // Free start
-      if (startTimeWindow!.early != null) {
-        var earlyTime = onTime.subtract(startTimeWindow!.early!);
-        if (now.isBefore(earlyTime)) return false;
-      }
-      if (startTimeWindow!.late != null) {
-        var lateTime = onTime.add(startTimeWindow!.late!);
-        if (now.isAfter(lateTime)) return false;
-      }
-      return true;
-    } else {
-      // Regular start with "grace"
-      var graceDuration =
-          const Duration(minutes: AppSettings.advanceStartTimeGraceMinutes);
-      var graceOpenTime = startTimeWindow!.onTime.subtract(graceDuration);
-      return graceOpenTime.isBefore(now) && startControlCloseTime.isAfter(now);
+    switch (startTimeWindow.startStyle) {
+      case StartStyle.freeStart:
+        if (onTime != null) {
+          if (early != null) {
+            var earlyTime = onTime.subtract(early);
+            if (now.isBefore(earlyTime)) answer = false;
+          } else if (late != null) {
+            var lateTime = onTime.add(late);
+            if (now.isAfter(lateTime)) answer = false;
+          }
+        }
+        break;
+
+      case StartStyle.massStart:
+        if (onTime == null) {
+          throw const InvalidConfigException(
+              'Mass start events must have a start time');
+        }
+        var graceDuration =
+            const Duration(minutes: AppSettings.advanceStartTimeGraceMinutes);
+        var graceOpenTime = onTime.subtract(graceDuration);
+        answer =
+            graceOpenTime.isBefore(now) && startControlCloseTime.isAfter(now);
+        break;
+
+      case StartStyle.preRide:
+        answer = isPreridable;
+        break;
+
+      case StartStyle.permanent:
+        answer = true;
+        break;
     }
+
+    return answer;
   }
 
   bool get isPreridable {
-    if (startTimeWindow == null) return false; // Can't pre-ride permanents
-
     var now = DateTime.now();
-    var difference = startTimeWindow!.onTime.difference(now);
+    var onTime = startTimeWindow.onTime;
+
+    if (startTimeWindow.startStyle == StartStyle.permanent || onTime == null) {
+      return false; // Can't pre-ride permanents
+    }
+
+    var difference = onTime.difference(now);
     return difference.inMinutes > AppSettings.advanceStartTimeGraceMinutes &&
         (AppSettings.prerideDateWindowOverride.value ||
             difference.inDays <= AppSettings.prerideTimeWindowDays);
   }
 
   static int sort(Event a, Event b) {
-    if (a.startTimeWindow == null) return 1;
-    if (b.startTimeWindow == null) return -1;
-    return a.startTimeWindow!.onTime.isAfter(b.startTimeWindow!.onTime)
+    if (a.startTimeWindow.onTime == null) return 1;
+    if (b.startTimeWindow.onTime == null) return -1;
+    return a.startTimeWindow.onTime!.isAfter(b.startTimeWindow.onTime!)
         ? 1
-        : (a.startTimeWindow!.onTime.isBefore(b.startTimeWindow!.onTime)
+        : (a.startTimeWindow.onTime!.isBefore(b.startTimeWindow.onTime!)
             ? -1
             : 0);
   }

@@ -137,9 +137,7 @@ class _CertificatePageState extends State<CertificatePage> {
                         ),
                         const Text('This', style: emStyle),
                         Text(
-                          (pastEvent.isPreride)
-                              ? 'Volunteer Preride'
-                              : 'Scheduled Brevet',
+                          pastEvent.startStyle.description,
                           style: emStyle,
                         ),
                         const Text('was completed in', style: emStyle),

@@ -36,20 +36,20 @@ class PastEvent {
   String riderID;
   final Event _event;
   EventOutcomes outcomes;
-  bool isPreride;
+  StartStyle startStyle;
 
-  PastEvent(this._event, this.riderID, this.outcomes, this.isPreride);
+  PastEvent(this._event, this.riderID, this.outcomes, this.startStyle);
 
   Map<String, dynamic> toJson() => {
         'event': _event.toJson,
         'outcomes': outcomes.toJson(),
-        'preride': isPreride,
+        'start_style': startStyle.name,
         'rider_id': riderID,
       };
 
   PastEvent.fromJson(Map<String, dynamic> json)
       : riderID = json['rider_id'],
-        isPreride = json['preride'],
+        startStyle = StartStyle.values.byName(json['start_style']),
         _event = Event.fromJson(json['event']),
         outcomes = EventOutcomes.fromJson(json['outcomes']);
 
@@ -188,8 +188,8 @@ class PastEvent {
     if (checkInTime == null) return false;
     if (key != event.startControlKey) return false;
 
-    return event.startTimeWindow != null &&
-        checkInTime.isAtSameMomentAs(event.startTimeWindow!.onTime);
+    return event.startTimeWindow.onTime != null &&
+        checkInTime.isAtSameMomentAs(event.startTimeWindow.onTime!);
   }
 
   bool isAllCheckedInOrder() {
@@ -270,8 +270,10 @@ class PastEvent {
       closeActual(controlKey)?.toLocal().toString().substring(0, 16) ?? '';
 
   bool isOpenControl(int controlKey) {
-    // can start preride any time
-    if (isPreride && controlKey == _event.startControlKey) return true;
+    // can start perm / preride any time
+    if ((startStyle == StartStyle.preRide ||
+            startStyle == StartStyle.permanent) &&
+        controlKey == _event.startControlKey) return true;
 
     // no controls are open till the first one is checked
     if (startDateTimeActual == null) return false;

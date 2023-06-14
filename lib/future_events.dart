@@ -251,7 +251,7 @@ class FutureEvents {
         throw const FormatException('Invalid event data found.');
       }
 
-      if (eventToAdd.startTimeWindow == null) {
+      if (eventToAdd.startTimeWindow.onTime == null) {
         events.add(eventToAdd); // Permanent
       } else {
         var now = DateTime.now();

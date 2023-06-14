@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 
 class SnackbarGlobal {
@@ -22,7 +23,7 @@ class SnackbarGlobal {
 
   static void show(String message, {Color? color}) {
     var themeColor = Theme.of(key.currentContext!).primaryColorDark;
-
+    MyLogger.entry("SnackBar: $message");
     key.currentState!
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(

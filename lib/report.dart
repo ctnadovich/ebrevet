@@ -124,7 +124,7 @@ class Report {
         AppSettings.controlProximityOverride.toString();
 
     report['open_override'] = AppSettings.openTimeOverride.value ? "YES" : "NO";
-    report['preride'] = (_reportingEvent.isPreride) ? "YES" : "NO";
+    report['start_style'] = _reportingEvent.startStyle.name;
 
     report['rider_location'] = RiderLocation.latLongFullString;
     report['last_loc_update'] = RiderLocation.lastLocationUpdateUTCString;

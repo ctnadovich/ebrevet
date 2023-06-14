@@ -74,9 +74,7 @@ class ControlDetailPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        (pastEvent.isPreride)
-                            ? 'Volunteer Preride'
-                            : 'Scheduled Brevet',
+                        pastEvent.startStyle.description,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(

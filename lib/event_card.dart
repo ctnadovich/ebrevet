@@ -62,22 +62,16 @@ class _EventCardState extends State<EventCard> {
   @override
   Widget build(BuildContext context) {
     context.watch<ControlState>();
+    final event = widget.event;
 
-    final eventID = widget.event.eventID;
-    final regionID = widget.event.regionID;
-    final regionName = Region(regionID: regionID).clubName;
-    final pe = EventHistory.lookupPastEvent(eventID);
-    // var eventInHistory = pe?.event;
+    final regionName = Region(regionID: event.regionID).clubName;
+    final pe = EventHistory.lookupPastEvent(event.eventID);
     final OverallOutcome overallOutcomeInHistory =
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
     final String overallOutcomeDescriptionInHistory =
         overallOutcomeInHistory.description;
-
     final bool isOutcomeFullyUploaded =
         pe?.isCurrentOutcomeFullyUploaded ?? false;
-
-    final isStartable = widget.event.isStartable;
-    final isPreridable = widget.event.isPreridable;
 
     return Card(
       child: Column(
@@ -92,16 +86,15 @@ class _EventCardState extends State<EventCard> {
                     },
                     icon: const Icon(Icons.delete))
                 : null,
-            title: showEventName(widget.event),
+            title: showEventName(event),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(regionName),
-                Text('${widget.event.startCity}, ${widget.event.startState}'),
-                if (widget.event.startTimeWindow != null)
-                  Text(
-                      '${widget.event.dateTime} (${widget.event.eventStatusText})'),
-                Text('Latest Cue Ver: ${widget.event.cueVersionString}'),
+                Text('${event.startCity}, ${event.startState}'),
+                if (event.startTimeWindow.onTime != null)
+                  Text('${widget.event.dateTime} (${event.eventStatusText})'),
+                Text('Latest Cue Ver: ${event.cueVersionString}'),
               ],
             ),
           ),
@@ -121,7 +114,8 @@ class _EventCardState extends State<EventCard> {
                         : null,
                   ),
                   overallOutcomeInHistory == OverallOutcome.finish
-                      ? Text(" ${EventHistory.getElapsedTimeString(eventID)}")
+                      ? Text(
+                          " ${EventHistory.getElapsedTimeString(event.eventID)}")
                       : const SizedBox.shrink(),
                   overallOutcomeInHistory == OverallOutcome.active
                       ? IconButton(
@@ -141,12 +135,7 @@ class _EventCardState extends State<EventCard> {
                   //   ),
                   // ),
                   const Spacer(),
-
-                  (isStartable ||
-                          isPreridable ||
-                          overallOutcomeInHistory != OverallOutcome.dns)
-                      ? rideButton(context, pe)
-                      : const SizedBox.shrink(),
+                  rideButton(context, event, pastEvent: pe),
                   const SizedBox(width: 8),
                 ],
               ),
@@ -204,11 +193,33 @@ class _EventCardState extends State<EventCard> {
         });
   }
 
-  TextButton rideButton(BuildContext context, PastEvent? pe) {
-    final isPreride = widget.event.isPreridable;
+  Widget rideButton(BuildContext context, Event event, {PastEvent? pastEvent}) {
+    var controlState = context
+        .read<ControlState>(); // So addActivate can dirty the control card
+
+    final isStartable = event.isStartable;
+    final isPreridable = event.isPreridable;
     final OverallOutcome overallOutcomeInHistory =
-        pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
-    var controlState = context.read<ControlState>();
+        pastEvent?.outcomes.overallOutcome ?? OverallOutcome.dns;
+    final notYetStarted = overallOutcomeInHistory == OverallOutcome.dns;
+    final isFinished = overallOutcomeInHistory == OverallOutcome.finish;
+    final notYetFinished = !isFinished;
+    final isRiding = overallOutcomeInHistory == OverallOutcome.active;
+
+    String? buttonText;
+    var isPreride = false;
+    if (isFinished) {
+      buttonText = "CERTIFICATE";
+    } else if (isRiding) {
+      buttonText = "CONTINUE RIDE";
+    } else if (isPreridable) {
+      buttonText = "PRE-RIDE";
+      isPreride = true;
+    } else if (isStartable) {
+      buttonText = "RIDE";
+    }
+
+    if (buttonText == null) return const SizedBox.shrink(); // No button
 
     return TextButton(
       style: TextButton.styleFrom(
@@ -216,44 +227,49 @@ class _EventCardState extends State<EventCard> {
       ),
       onPressed: () async {
         if (AppSettings.isRusaIDSet == false) {
-          SnackbarGlobal.show("Can't RIDE. Is RUSA ID set?");
+          SnackbarGlobal.show("Can't RIDE. Rider ID not set.");
         } else {
           // If we did not (yet) start, then validate start.
 
-          if (overallOutcomeInHistory == OverallOutcome.dns) {
+          if (notYetStarted) {
             final startCode = await openStartBrevetDialog();
-            final msg = validateStartCode(startCode, widget.event);
+            final msg = validateStartCode(startCode, event);
             if (null != msg) {
               SnackbarGlobal.show(msg);
               return;
             }
           }
 
-          // OK to start
+          // OK to start, or re-start. Which is it?
 
           if (context.mounted) {
-            // But only start if we haven't finished ?
-            // TODO are the if statements above and below really
-            // needed? Maybe better "if(pe==null)". Would
-            // we really addActivate if the pe parameter was
-            // non null? If the overalloutcome was "active"?
+            // or will get 'don't use context across async gaps warning
 
-            if (overallOutcomeInHistory != OverallOutcome.finish) {
-              pe = EventHistory.addActivate(
-                  widget.event, AppSettings.rusaID.value,
-                  isPreride: isPreride, controlState: controlState);
+            if (notYetFinished) {
+              if (pastEvent != null) {
+                EventHistory.addActivate(event); // re-activate
+              } else {
+                pastEvent = EventHistory.addActivate(widget.event,
+                    riderID: AppSettings.rusaID.value,
+                    startStyle: isPreride
+                        ? StartStyle.preRide
+                        : event.startTimeWindow.startStyle,
+                    controlState: controlState);
+              }
             }
-            assert(pe != null); // by now there must be an activated event pe
+
+            assert(pastEvent !=
+                null); // by now there must be an activated event pastEvent
             // either created by the start above
-            // or passed in as a parameter
+            // or passed in as a parameter for
 
             Navigator.of(context)
                 .push(MaterialPageRoute(
-                  builder: (context) =>
-                      overallOutcomeInHistory != OverallOutcome.finish
-                          ? RidePage(pe!)
-                          : CertificatePage(
-                              pe!), // will implicitly ride event just activated
+                  builder: (context) => overallOutcomeInHistory !=
+                          OverallOutcome.finish
+                      ? RidePage(pastEvent!)
+                      : CertificatePage(
+                          pastEvent!), // will implicitly ride event just activated
                 ))
                 .then((_) => setState(() {}));
           } else {
@@ -261,11 +277,7 @@ class _EventCardState extends State<EventCard> {
           }
         }
       },
-      child: Text(overallOutcomeInHistory == OverallOutcome.finish
-          ? "CERTIFICATE "
-          : (overallOutcomeInHistory == OverallOutcome.active
-              ? "CONTINUE RIDE"
-              : (isPreride ? 'PRERIDE' : 'RIDE'))),
+      child: Text(buttonText),
     );
   }
 
@@ -290,7 +302,6 @@ class _EventCardState extends State<EventCard> {
           .xyText;
       if (offeredCode == oldCode) {
         SnackbarGlobal.show("Start Code from OLD cue version.");
-        MyLogger.entry("Start Code from an OLD cue version.");
         return null;
       }
       cueVersion--;
@@ -367,7 +378,7 @@ class _EventCardState extends State<EventCard> {
             Text('Region: $regionName'),
             Text('Club: $clubName'),
             Text('Location: ${we.startCity}, ${we.startState}'),
-            if (we.startTimeWindow != null)
+            if (we.startTimeWindow.onTime != null)
               Text('Start: ${we.dateTime} (${we.eventStatusText})'),
             Text('Latest Cue Ver: ${we.cueVersionString}'),
             const SizedBox(
