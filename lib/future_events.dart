@@ -257,7 +257,7 @@ class FutureEvents {
         var now = DateTime.now();
         var graceDuration =
             const Duration(hours: keepInFutureEventListAfterFinishHours);
-        var eventReallyEnds = eventToAdd.finishDateTime!.add(graceDuration);
+        var eventReallyEnds = eventToAdd.latestFinishTime!.add(graceDuration);
         if (eventReallyEnds.isAfter(now)) events.add(eventToAdd);
       }
     }

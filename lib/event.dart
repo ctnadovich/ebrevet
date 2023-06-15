@@ -17,6 +17,8 @@
 // import 'package:flutter/material.dart';
 
 // import 'package:flutter/cupertino.dart';
+import 'dart:js_interop';
+
 import 'package:flutter_launcher_icons/custom_exceptions.dart';
 
 import 'control.dart';
@@ -47,7 +49,7 @@ enum StartStyle {
   preRide;
 
   static Map _description = {
-    massStart: 'Scheduled Brevet',
+    massStart: 'Mass Start Brevet',
     freeStart: 'Free Start Brevet',
     permanent: 'Permanent',
     preRide: 'Volunteer pre-ride',
@@ -80,9 +82,6 @@ class TimeWindow {
     return late!;
   }
 
-  DateTime? get lateTime => onTime?.add(late ?? const Duration(days: 0));
-  DateTime? get earlyTime => onTime?.subtract(early ?? const Duration(days: 0));
-
   TimeWindow.fromJson(Map<String, dynamic> json)
       : early = Duration(minutes: (json['early'] ?? 0)),
         late = Duration(minutes: (json['late'] ?? 0)),
@@ -95,6 +94,9 @@ class TimeWindow {
         'on_time': onTime?.toUtc().toIso8601String() ?? '',
         'start_style': startStyle.name,
       };
+
+  bool get earlyStartOK => early.isDefinedAndNotNull && early! > Duration.zero;
+  bool get lateStartOK => late.isDefinedAndNotNull && late! > Duration.zero;
 }
 
 // The Event object documents an event details
@@ -220,28 +222,41 @@ class Event {
   DateTime get startControlCloseTime => controls[startControlKey].close;
   DateTime get finishControlCloseTime => controls[finishControlKey].close;
 
-  Duration? get allowedDuration {
+  Duration get allowedDuration {
     // if (startTimeWindow == null) return null; // Permanent
     return finishControlCloseTime.difference(startControlOpenTime);
   }
 
-  DateTime? get finishDateTime {
-    if (startTimeWindow.startStyle == StartStyle.permanent ||
-        startTimeWindow.onTime == null) return null; // Permanent
-    return startDateTime!.add(allowedDuration!);
-  }
+  // DateTime? get x xfinishDateTime {
+  //   if (startTimeWindow.startStyle == StartStyle.permanent ||
+  //       startTimeWindow.onTime == null) return null; // Permanent
+  //   return startDateTime!.add(allowedDuration);
+  // }
+
+  DateTime? get latestStartTime => startTimeWindow.onTime
+      ?.add(startTimeWindow.late ?? const Duration(days: 0));
+  DateTime? get earliestStartTime => startTimeWindow.onTime
+      ?.subtract(startTimeWindow.early ?? const Duration(days: 0));
+
+  DateTime? get latestFinishTime => latestStartTime?.add(allowedDuration);
+  DateTime? get earliestFinishTime => earliestStartTime?.add(allowedDuration);
 
   get dateTime {
     if (startTimeWindow.startStyle == StartStyle.permanent ||
         startTimeWindow.onTime == null) {
-      return "Any time";
+      return "Ride any time";
     }
     var sdtl = startTimeWindow.onTime!.toLocal();
-    if (sdtl.year == DateTime.now().toLocal().year) {
-      return Utility.toBriefDateTimeString(
-          sdtl); // sdtl.toString().substring(0, 16);
+    var edtl =
+        startTimeWindow.earlyStartOK ? earliestStartTime!.toLocal() : sdtl;
+    var ldtl = startTimeWindow.lateStartOK ? latestStartTime!.toLocal() : sdtl;
+
+    if (edtl.isAtSameMomentAs(ldtl)) {
+      return Utility.toBriefDateTimeString(sdtl);
     } else {
-      return Utility.toYearDateTimeString(sdtl);
+      var es = Utility.toBriefDateTimeString(edtl);
+      var ls = Utility.toBriefTimeString(ldtl);
+      return "From $es to $ls";
     }
   }
 
@@ -259,9 +274,9 @@ class Event {
     if (startTimeWindow.startStyle == StartStyle.permanent ||
         startTimeWindow.onTime == null) return "Any Time";
     DateTime now = DateTime.now();
-    if (startTimeWindow.onTime!.isAfter(now)) {
+    if (earliestStartTime!.isAfter(now)) {
       // Event in future
-      var tt = TimeTill(startTimeWindow.onTime!);
+      var tt = TimeTill(earliestStartTime!);
       return "Starts in ${tt.interval} ${tt.unit}";
     } else if (finishControlCloseTime.isBefore(now)) {
       // Event in past

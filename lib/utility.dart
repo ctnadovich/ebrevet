@@ -18,6 +18,16 @@
 import 'package:flutter/material.dart';
 
 class Utility {
+  static String toBriefTimeString(DateTime? dt) {
+    var timestamp = dt?.toLocal().toIso8601String();
+    return timestamp == null ? 'Never' : timestamp.substring(11, 16);
+  }
+
+  static String toBriefDateString(DateTime? dt) {
+    var timestamp = dt?.toLocal().toIso8601String();
+    return timestamp == null ? 'Never' : timestamp.substring(5, 10);
+  }
+
   static String toBriefDateTimeString(DateTime? dt) {
     var timestamp = dt?.toLocal().toIso8601String();
     return timestamp == null
@@ -30,11 +40,6 @@ class Utility {
     return timestamp == null
         ? 'Never'
         : '${timestamp.substring(0, 10)} @ ${timestamp.substring(11, 16)}';
-  }
-
-  static String toBriefTimeString(DateTime? dt) {
-    var timestamp = dt?.toLocal().toIso8601String();
-    return timestamp == null ? 'Never' : timestamp.substring(11, 16);
   }
 
   static String toStringAsFixed(

@@ -33,8 +33,6 @@ import 'event_list_page.dart';
 
 // TODO Update README for recent changes
 
-// TODO Start Styles: permanant, mass start, freestart
-
 // Less important
 
 // TODO return from advanced settings should dirty everything

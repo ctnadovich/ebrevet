@@ -92,8 +92,9 @@ class _EventCardState extends State<EventCard> {
               children: [
                 Text(regionName),
                 Text('${event.startCity}, ${event.startState}'),
+                Text(event.startTimeWindow.startStyle.description),
                 if (event.startTimeWindow.onTime != null)
-                  Text('${widget.event.dateTime} (${event.eventStatusText})'),
+                  Text('${event.dateTime} (${event.eventStatusText})'),
                 Text('Latest Cue Ver: ${event.cueVersionString}'),
               ],
             ),
