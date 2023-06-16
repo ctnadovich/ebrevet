@@ -43,4 +43,8 @@ class ControlState extends ChangeNotifier {
     _lastPositionUpdate = DateTime.now();
     notifyListeners();
   }
+
+  void pastEventDeleted() {
+    notifyListeners();
+  }
 }

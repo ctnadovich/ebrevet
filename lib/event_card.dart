@@ -31,6 +31,7 @@ import 'signature.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
+import 'utility.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -61,7 +62,7 @@ class _EventCardState extends State<EventCard> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ControlState>();
+    var controlState = context.watch<ControlState>();
     final event = widget.event;
 
     final regionName = Region(regionID: event.regionID).clubName;
@@ -82,7 +83,9 @@ class _EventCardState extends State<EventCard> {
             trailing: widget.hasDelete == true
                 ? IconButton(
                     onPressed: () async {
-                      confirmDeleteDialog(context, pe!);
+                      var deleted =
+                          await confirmDeleteDialog(context, pe!) ?? false;
+                      if (deleted) controlState.pastEventDeleted();
                     },
                     icon: const Icon(Icons.delete))
                 : null,
@@ -164,35 +167,34 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  void confirmDeleteDialog(BuildContext context, PastEvent pe) {
-    showDialog(
-        context: context,
-        builder: (BuildContext ctx) {
-          return AlertDialog(
-            title: const Text('Please Confirm'),
-            content: Text('Delete the ${pe.event.nameDist}?'),
-            actions: [
-              // The "Yes" button
-              TextButton(
-                  onPressed: () {
-                    // Remove the box
-                    EventHistory.deletePastEvent(pe);
+  Future<bool?> confirmDeleteDialog(BuildContext context, PastEvent pe) =>
+      showDialog<bool>(
+          context: context,
+          builder: (BuildContext ctx) {
+            return AlertDialog(
+              title: const Text('Please Confirm'),
+              content: Text('Delete the ${pe.event.nameDist}?'),
+              actions: [
+                // The "Yes" button
+                TextButton(
+                    onPressed: () {
+                      // Remove the box
+                      EventHistory.deletePastEvent(pe);
 
-                    // Close the dialog
-                    Navigator.of(context).pop();
-                    if (widget.onDelete != null) widget.onDelete!();
-                  },
-                  child: const Text('Yes')),
-              TextButton(
-                  onPressed: () {
-                    // Close the dialog
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('No'))
-            ],
-          );
-        });
-  }
+                      // Close the dialog
+                      Navigator.of(context).pop(true);
+                      if (widget.onDelete != null) widget.onDelete!();
+                    },
+                    child: const Text('Yes')),
+                TextButton(
+                    onPressed: () {
+                      // Close the dialog
+                      Navigator.of(context).pop(false);
+                    },
+                    child: const Text('No'))
+              ],
+            );
+          });
 
   Widget rideButton(BuildContext context, Event event, {PastEvent? pastEvent}) {
     var controlState = context
@@ -241,29 +243,69 @@ class _EventCardState extends State<EventCard> {
             }
           }
 
-          // OK to start, or re-start. Which is it?
+          // OK to start, or re-activate. Unless we are finished!
 
-          if (context.mounted) {
-            // or will get 'don't use context across async gaps warning
+          if (notYetFinished) {
+            if (pastEvent != null) {
+              EventHistory.addActivate(event); // re-activate
+            } else {
+              pastEvent = EventHistory.addActivate(widget.event,
+                  riderID: AppSettings.rusaID.value,
+                  startStyle: isPreride
+                      ? StartStyle.preRide
+                      : event.startTimeWindow.startStyle,
+                  controlState: controlState);
+            }
 
-            if (notYetFinished) {
-              if (pastEvent != null) {
-                EventHistory.addActivate(event); // re-activate
-              } else {
-                pastEvent = EventHistory.addActivate(widget.event,
-                    riderID: AppSettings.rusaID.value,
-                    startStyle: isPreride
-                        ? StartStyle.preRide
-                        : event.startTimeWindow.startStyle,
-                    controlState: controlState);
+            // Auto first-control check in
+            if (pastEvent!.outcomes.checkInTimeList.isEmpty) {
+              var doAutoCheckin =
+                  await confirmAutoCheckinDialog(pastEvent!) ?? false;
+              if (doAutoCheckin) {
+                switch (pastEvent!.startStyle) {
+                  case StartStyle.massStart:
+                    pastEvent!.controlCheckIn(
+                      control: event.controls[event.startControlKey],
+                      comment: "Mass Start. Automatic Check In",
+                      controlState: controlState,
+                      checkInTime: event
+                          .startTimeWindow.onTime, // check in time override
+                    );
+                    break;
+                  case StartStyle.preRide:
+                  case StartStyle.freeStart:
+                  case StartStyle.permanent:
+                    pastEvent!.controlCheckIn(
+                      control: event.controls[event.startControlKey],
+                      comment:
+                          "${pastEvent!.startStyle.description}. Automatic Check In",
+                      controlState: controlState,
+                    );
+                    break;
+                  default:
+                    break;
+                }
               }
             }
 
-            assert(pastEvent !=
-                null); // by now there must be an activated event pastEvent
-            // either created by the start above
-            // or passed in as a parameter for
+            // need to save EventHistory now
 
+            EventHistory.save();
+
+            // It seems excessive to save the whole event history
+            // every activation, but this certainly does the job.
+            // The only time an event can change state is when
+            // activated or at a control checkin.
+
+            // once an event is "activated" it gets copied to past events map and becomes immutable -- only the outcome can change
+            // so conceivably the preriders could have a different "event" saved than the day-of riders
+          }
+
+          assert(pastEvent !=
+              null); // by now there must be an activated event pastEvent
+
+          if (context.mounted) {
+            // or will get 'don't use context across async gaps warning
             Navigator.of(context)
                 .push(MaterialPageRoute(
                   builder: (context) => overallOutcomeInHistory !=
@@ -281,6 +323,32 @@ class _EventCardState extends State<EventCard> {
       child: Text(buttonText),
     );
   }
+
+  Future<bool?> confirmAutoCheckinDialog(PastEvent pe) => showDialog<bool>(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text('Check In at First Control'),
+          content: pe.startStyle == StartStyle.massStart
+              ? Text('Check into the first control now? '
+                  'Your start time will be the same as the group (${Utility.toBriefDateString(pe.event.startTimeWindow.onTime!.toLocal())})')
+              : Text('Check into the first control now? '
+                  'Your start time will be immediate (${Utility.toBriefTimeString(DateTime.now().toLocal())})'),
+          actions: [
+            // The "Yes" button
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Yes')),
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text('No'))
+          ],
+        );
+      });
 
   String? validateStartCode(String? s, Event event) {
     if (s == null || s.isEmpty) return "Missing start code";
@@ -321,19 +389,19 @@ class _EventCardState extends State<EventCard> {
                 const InputDecoration(hintText: 'Enter code from brevet card'),
             autofocus: true,
             controller: controller,
-            onSubmitted: (_) => submitStartBrevetDialog(),
+            onSubmitted: (_) => submitDialog(),
           ),
           actions: [
             TextButton(
                 onPressed: () {
-                  submitStartBrevetDialog();
+                  submitDialog();
                 },
                 child: const Text('SUBMIT'))
           ],
         ),
       );
 
-  void submitStartBrevetDialog() {
+  void submitDialog() {
     Navigator.of(context).pop(controller.text);
     controller.clear();
   }

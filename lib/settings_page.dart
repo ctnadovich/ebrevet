@@ -171,6 +171,7 @@ class AdvancedSettings extends StatefulWidget {
 class _AdvancedSettingsState extends State<AdvancedSettings> {
   @override
   Widget build(BuildContext context) {
+    var sourceSelection = context.read<SourceSelection>();
     return Material(
       color: Colors.transparent,
       child: ExpansionTile(
@@ -200,7 +201,10 @@ class _AdvancedSettingsState extends State<AdvancedSettings> {
                     height: 16,
                   ),
                   ElevatedButton(
-                    onPressed: () => FutureEvents.clear(),
+                    onPressed: () {
+                      FutureEvents.clear();
+                      sourceSelection.updateFromSettings();
+                    },
                     child: const Text('Clear Event List'),
                   ),
                 ])),

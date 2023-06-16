@@ -55,60 +55,6 @@ class EventHistory {
       );
     }
 
-    // Auto first-control check in
-
-    // TODO Confirmation Dialog?
-
-    if (pe.outcomes.checkInTimeList.isEmpty && pe.event.isStartable) {
-      switch (startStyle) {
-        case StartStyle.massStart:
-          pe.controlCheckIn(
-            control: pe.event.controls[pe.event.startControlKey],
-            comment: "Automatic Check In",
-            controlState: controlState,
-            checkInTime:
-                pe.event.startTimeWindow.onTime, // check in time override
-          );
-          break;
-        case StartStyle.freeStart:
-        case StartStyle.permanent:
-          pe.controlCheckIn(
-            control: pe.event.controls[pe.event.startControlKey],
-            comment: "Automatic Check In",
-            controlState: controlState,
-          );
-          break;
-        default:
-          break;
-      }
-    }
-
-    // if (AppSettings.autoFirstControlCheckIn &&
-    //     isPreride == false &&
-    //     pe.event.startTimeWindow != null &&
-    //     pe.event.startTimeWindow!.freeStart == false &&
-    //     pe.outcomes.checkInTimeList.isEmpty &&
-    //     pe.event.isStartable) {
-    //   pe.controlCheckIn(
-    //     control: pe.event.controls[pe.event.startControlKey],
-    //     comment: "Automatic Check In",
-    //     controlState: controlState,
-    //     checkInTime: pe.event.startTimeWindow!.onTime, // check in time override
-    //   );
-    // }
-
-    // need to save EventHistory now
-
-    save();
-
-    // It seems excessive to save the whole event history
-    // every activation, but this certainly does the job.
-    // The only time an event can change state is when
-    // activated or at a control checkin.
-
-    // once an event is "activated" it gets copied to past events map and becomes immutable -- only the outcome can change
-    // so conceivably the preriders could have a different "event" saved than the day-of riders
-
     return pe;
   }
 

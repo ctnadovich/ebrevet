@@ -17,7 +17,6 @@
 // import 'package:flutter/material.dart';
 
 // import 'package:flutter/cupertino.dart';
-import 'dart:js_interop';
 
 import 'package:flutter_launcher_icons/custom_exceptions.dart';
 
@@ -95,8 +94,8 @@ class TimeWindow {
         'start_style': startStyle.name,
       };
 
-  bool get earlyStartOK => early.isDefinedAndNotNull && early! > Duration.zero;
-  bool get lateStartOK => late.isDefinedAndNotNull && late! > Duration.zero;
+  bool get earlyStartOK => early != null && early! > Duration.zero;
+  bool get lateStartOK => late != null && late! > Duration.zero;
 }
 
 // The Event object documents an event details
