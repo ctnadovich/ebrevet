@@ -235,7 +235,7 @@ class _EventCardState extends State<EventCard> {
           // If we did not (yet) start, then validate start.
 
           if (notYetStarted) {
-            final startCode = await openStartBrevetDialog();
+            final startCode = await getStartCodeDialog();
             final msg = validateStartCode(startCode, event);
             if (null != msg) {
               SnackbarGlobal.show(msg);
@@ -259,32 +259,33 @@ class _EventCardState extends State<EventCard> {
 
             // Auto first-control check in
             if (pastEvent!.outcomes.checkInTimeList.isEmpty) {
-              var doAutoCheckin =
-                  await confirmAutoCheckinDialog(pastEvent!) ?? false;
-              if (doAutoCheckin) {
-                switch (pastEvent!.startStyle) {
-                  case StartStyle.massStart:
-                    pastEvent!.controlCheckIn(
-                      control: event.controls[event.startControlKey],
-                      comment: "Mass Start. Automatic Check In",
-                      controlState: controlState,
-                      checkInTime: event
-                          .startTimeWindow.onTime, // check in time override
-                    );
-                    break;
-                  case StartStyle.preRide:
-                  case StartStyle.freeStart:
-                  case StartStyle.permanent:
+              switch (pastEvent!.startStyle) {
+                case StartStyle.massStart:
+                  pastEvent!.controlCheckIn(
+                    control: event.controls[event.startControlKey],
+                    comment:
+                        "${pastEvent!.startStyle.description}. Automatic Check In",
+                    controlState: controlState,
+                    checkInTime:
+                        event.startTimeWindow.onTime, // check in time override
+                  );
+                  break;
+                case StartStyle.preRide:
+                case StartStyle.freeStart:
+                case StartStyle.permanent:
+                  var doAutoCheckin =
+                      await confirmAutoCheckinDialog(pastEvent!) ?? false;
+                  if (doAutoCheckin) {
                     pastEvent!.controlCheckIn(
                       control: event.controls[event.startControlKey],
                       comment:
                           "${pastEvent!.startStyle.description}. Automatic Check In",
                       controlState: controlState,
                     );
-                    break;
-                  default:
-                    break;
-                }
+                  }
+                  break;
+                default:
+                  break;
               }
             }
 
@@ -328,12 +329,10 @@ class _EventCardState extends State<EventCard> {
       context: context,
       builder: (BuildContext ctx) {
         return AlertDialog(
-          title: const Text('Check In at First Control'),
-          content: pe.startStyle == StartStyle.massStart
-              ? Text('Check into the first control now? '
-                  'Your start time will be the same as the group (${Utility.toBriefDateString(pe.event.startTimeWindow.onTime!.toLocal())})')
-              : Text('Check into the first control now? '
-                  'Your start time will be immediate (${Utility.toBriefTimeString(DateTime.now().toLocal())})'),
+          icon: const Icon(Icons.check_circle, size: 62.0),
+          title: const Text('Check In at First Control?'),
+          content: Text('Check in NOW at the first control? '
+              'Your start time will be immediate (${Utility.toBriefTimeString(DateTime.now().toLocal())})'),
           actions: [
             // The "Yes" button
             TextButton(
@@ -380,26 +379,29 @@ class _EventCardState extends State<EventCard> {
     return "Invalid Start Code.";
   }
 
-  Future<String?> openStartBrevetDialog() => showDialog<String>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Enter Brevet Start Code'),
-          content: TextField(
-            decoration:
-                const InputDecoration(hintText: 'Enter code from brevet card'),
-            autofocus: true,
-            controller: controller,
-            onSubmitted: (_) => submitDialog(),
-          ),
-          actions: [
-            TextButton(
-                onPressed: () {
-                  submitDialog();
-                },
-                child: const Text('SUBMIT'))
-          ],
+  Future<String?> getStartCodeDialog() {
+    return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter Brevet Start Code '),
+        icon: const Icon(Icons.lock_person, size: 128),
+        content: TextField(
+          decoration: const InputDecoration(
+              hintText: 'Enter start code from brevet card'),
+          autofocus: true,
+          controller: controller,
+          onSubmitted: (_) => submitDialog(),
         ),
-      );
+        actions: [
+          TextButton(
+              onPressed: () {
+                submitDialog();
+              },
+              child: const Text('SUBMIT'))
+        ],
+      ),
+    );
+  }
 
   void submitDialog() {
     Navigator.of(context).pop(controller.text);

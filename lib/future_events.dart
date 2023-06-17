@@ -294,6 +294,18 @@ class FutureEvents {
       if (decodedResponse is List && decodedResponse.isEmpty) {
         throw ServerException('Empty reponse from $url');
       }
+      if (false == decodedResponse.containsKey('minimum_app_version')) {
+        throw ServerException(
+            'Missing app version value in response from $url');
+      }
+
+      var minimumAppVersion = decodedResponse['minimum_app_version'];
+
+      if (isIncompatibleAppVersion(minimumAppVersion)) {
+        throw ServerException(
+            'Incompatible App Version: server requires at least v$minimumAppVersion '
+            'but this app is v${AppSettings.version}');
+      }
 
       if (false == decodedResponse.containsKey('event_list')) {
         throw ServerException('No event_list key in response from $url');
@@ -306,6 +318,34 @@ class FutureEvents {
 
       return decodedResponse;
     }
+  }
+
+  static const numberOfSubversions = 3;
+  static final versionPattern = RegExp(r'^(\d+)\.(\d+)\.(\d+)$');
+
+  static bool isIncompatibleAppVersion(String minimumAppVersion) {
+    final myVersion = AppSettings.version ?? '0.0.0';
+
+    RegExpMatch? myVersionMatch = versionPattern.firstMatch(myVersion);
+    assert(myVersionMatch != null);
+
+    RegExpMatch? minimumAppVersionMatch =
+        versionPattern.firstMatch(minimumAppVersion);
+
+    if (minimumAppVersionMatch == null && myVersionMatch != null) {
+      throw ServerException(
+          'Empty or invalid app version value in response from server.');
+    } else {
+      for (var i = 1; i <= numberOfSubversions; i++) {
+        var required = int.parse(minimumAppVersionMatch!.group(i)!);
+        var mine = int.parse(myVersionMatch!.group(i)!);
+        if (mine < required) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   static String get lastRefreshedStr {

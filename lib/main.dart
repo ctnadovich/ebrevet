@@ -29,25 +29,17 @@ import 'my_settings.dart';
 import 'event_list_page.dart';
 
 /////////////////
-// TODO APP RELATED
+// APP RELATED
 
 // TODO Update README for recent changes
-
-// TODO Min App Version tag in server data -- don't accept events unless app recent enough
 
 // TODO Server should also reject apps that identify with old version.
 
 // Less important
 
-// TODO return from advanced settings should dirty everything
-
-// TODO return from delete event should dirty event list
-
 // TODO Upload results doesn't call set state on ride page?
 
 // TODO Clear all saved files
-
-// TODO Confirmation dialog for check-in
 
 void main() {
   initSettings().then((_) {

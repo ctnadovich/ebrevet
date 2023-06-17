@@ -67,6 +67,9 @@ class PastEvent {
 
 // CONTROL CHECK IN is a method of an activated event
 
+// TODO what's with AppSettings.autoFirst checkin?
+// TODO all checkins except massStart should require proximity
+
   void controlCheckIn(
       {required Control control,
       String? comment,

@@ -70,7 +70,7 @@ class Report {
           var now = DateTime.now().toUtc();
           _reportingEvent.outcomes.lastUpload = now;
         } else {
-          result = ('Did not receive OK response. Got: $status');
+          result = ('Did not receive OK response. Server said: $status');
         }
       } catch (e) {
         result = ("Couldn't decode server response to report.");
