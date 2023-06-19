@@ -33,11 +33,11 @@ import 'event_list_page.dart';
 
 // TODO Update README for recent changes
 
-// TODO Server should also reject apps that identify with old version.
+// TODO Not In Roster not detected till last control
+
+// TODO Server sends full startTimeWindow object
 
 // Less important
-
-// TODO Upload results doesn't call set state on ride page?
 
 // TODO Clear all saved files
 

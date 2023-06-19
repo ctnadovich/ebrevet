@@ -258,9 +258,13 @@ class _EventCardState extends State<EventCard> {
             }
 
             // Auto first-control check in
-            if (pastEvent!.outcomes.checkInTimeList.isEmpty) {
+            if (pastEvent!.outcomes.checkInTimeList.isEmpty &&
+                (isPreridable || isStartable)) {
+              // no checkins yet, but starting OK
+
               switch (pastEvent!.startStyle) {
                 case StartStyle.massStart:
+                  // Auto checkin for massStart is allowed at any (startable) time, any location
                   pastEvent!.controlCheckIn(
                     control: event.controls[event.startControlKey],
                     comment:
@@ -273,15 +277,18 @@ class _EventCardState extends State<EventCard> {
                 case StartStyle.preRide:
                 case StartStyle.freeStart:
                 case StartStyle.permanent:
-                  var doAutoCheckin =
-                      await confirmAutoCheckinDialog(pastEvent!) ?? false;
-                  if (doAutoCheckin) {
-                    pastEvent!.controlCheckIn(
-                      control: event.controls[event.startControlKey],
-                      comment:
-                          "${pastEvent!.startStyle.description}. Automatic Check In",
-                      controlState: controlState,
-                    );
+                  if (pastEvent!.isControlNearby(event.startControlKey) ||
+                      AppSettings.controlProximityOverride.value) {
+                    var doAutoCheckin =
+                        await confirmAutoCheckinDialog(pastEvent!) ?? false;
+                    if (doAutoCheckin) {
+                      pastEvent!.controlCheckIn(
+                        control: event.controls[event.startControlKey],
+                        comment:
+                            "${pastEvent!.startStyle.description}. Automatic Check In",
+                        controlState: controlState,
+                      );
+                    }
                   }
                   break;
                 default:

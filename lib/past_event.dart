@@ -67,18 +67,13 @@ class PastEvent {
 
 // CONTROL CHECK IN is a method of an activated event
 
-// TODO what's with AppSettings.autoFirst checkin?
-// TODO all checkins except massStart should require proximity
-
   void controlCheckIn(
       {required Control control,
       String? comment,
       // Function? onUploadDone,
       ControlState? controlState,
       DateTime? checkInTime}) {
-    assert(AppSettings.autoFirstControlCheckIn ||
-        isAvailable(
-            control.index)); // Trying to check into an unavailable control
+    // assert(isAvailable(control.index)); // not assumed
     var eventID = _event.eventID;
     assert(null != EventHistory.lookupPastEvent(eventID));
     // Trying to check into a never activated event
@@ -272,7 +267,7 @@ class PastEvent {
   String closeActualString(int controlKey) =>
       closeActual(controlKey)?.toLocal().toString().substring(0, 16) ?? '';
 
-  bool isOpenControl(int controlKey) {
+  bool isControlOpen(int controlKey) {
     // can start perm / preride any time
     if ((startStyle == StartStyle.preRide ||
             startStyle == StartStyle.permanent) &&
@@ -292,11 +287,13 @@ class PastEvent {
     return (openActual.isBefore(now) && closeActual.isAfter(now));
   }
 
-  bool isNear(int controlKey) => _event.controls[controlKey].cLoc.isNearControl;
+  bool isControlNearby(int controlKey) =>
+      _event.controls[controlKey].cLoc.isNearby;
 
-  bool isAvailable(int controlKey) =>
-      (AppSettings.openTimeOverride.value || isOpenControl(controlKey)) &&
-      isNear(controlKey);
+  bool isControlAvailable(int controlKey) =>
+      (isControlOpen(controlKey) || AppSettings.openTimeOverride.value) &&
+      (isControlNearby(controlKey) ||
+          AppSettings.controlProximityOverride.value);
 
   Event get event {
     return _event;

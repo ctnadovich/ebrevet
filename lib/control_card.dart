@@ -15,6 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'package:ebrevet_card/mylogger.dart';
 import 'package:ebrevet_card/outcome.dart';
 import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
@@ -219,11 +220,11 @@ class _ControlCardState extends State<ControlCard> {
           Text(Utility.toBriefTimeString(checkInTime)),
         ],
       );
-    } else if (false == activeEvent.isAvailable(c.index)) {
-      var open = activeEvent.isOpenControl(c.index);
-      var near = activeEvent.isNear(c.index);
+    } else if (false == activeEvent.isControlAvailable(c.index)) {
+      var open = activeEvent.isControlOpen(c.index);
+      var near = activeEvent.isControlNearby(c.index);
       var openTimeOverride = AppSettings.openTimeOverride;
-      var proximityRadiusInfinite = AppSettings.controlProximityOverride.value;
+      var proximityOverride = AppSettings.controlProximityOverride.value;
 
       return Text.rich(
           TextSpan(style: const TextStyle(fontSize: 12), children: [
@@ -239,7 +240,7 @@ class _ControlCardState extends State<ControlCard> {
         const TextSpan(text: ' - '),
         if (near)
           TextSpan(
-            text: 'At control${proximityRadiusInfinite ? "*" : ""}',
+            text: 'At control${proximityOverride ? "*" : ""}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         if (!near && RiderLocation.riderLocation != null)
@@ -264,6 +265,10 @@ class _ControlCardState extends State<ControlCard> {
   Future openCheckInDialog() => showDialog(
         context: context,
         builder: (context) => AlertDialog(
+          icon: const Icon(
+            Icons.check_circle,
+            size: 64,
+          ),
           title: const Text('Check In to Control'),
           content: checkInDialogContent(widget.control),
           actions: [
@@ -288,7 +293,7 @@ class _ControlCardState extends State<ControlCard> {
         ),
         Text(controlStatusString(control)),
         Text(exactDistanceString(control.cLoc)),
-        if (control.cLoc.isNearControl)
+        if (control.cLoc.isNearby)
           const Text(
             'AT THIS CONTROL',
             style: TextStyle(
@@ -309,7 +314,6 @@ class _ControlCardState extends State<ControlCard> {
     widget.pastEvent.controlCheckIn(
       control: widget.control,
       comment: controller.text,
-      // onUploadDone: controlState.reportUploaded,
       controlState: controlState,
     );
     controller.clear();
@@ -342,9 +346,13 @@ class _ControlCardState extends State<ControlCard> {
           var isNotFinished = activeEvent.isIntermediateControl(control) ||
               !activeEvent.isFinished;
 
-          var checkInSignatureString = (isNotFinished)
-              ? Signature.checkInCode(activeEvent, control).xyText
-              : Signature.forCert(activeEvent).xyText;
+          var checkInSignature = (isNotFinished)
+              ? Signature.checkInCode(activeEvent, control)
+              : Signature.forCert(activeEvent);
+          var checkInSignatureString = checkInSignature.xyText;
+          var checkInPlaintext = checkInSignature.plainText;
+
+          MyLogger.entry("Control check-in: $checkInPlaintext");
 
           return AlertDialog(
             content: Column(

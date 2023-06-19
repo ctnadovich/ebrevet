@@ -165,11 +165,10 @@ class ControlLocation {
   String get crowCompassHeadingString =>
       (crowBearing == null) ? '?' : angleToCompassHeading(crowBearing);
 
-  bool get isNearControl {
+  bool get isNearby {
     if (crowDistMeters == null) return false;
     var d = AppSettings.proximityRadius.value;
-    var closeEnough =
-        (crowDistMeters! < d) || AppSettings.controlProximityOverride.value;
+    var closeEnough = (crowDistMeters! < d);
     return closeEnough;
   }
 }

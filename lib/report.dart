@@ -30,7 +30,6 @@ import 'signature.dart';
 
 class Report {
   static late PastEvent _reportingEvent;
-  static Function? _onUploadDoneCallback;
   static String? reportURL;
 
   static void constructReportAndSend(
@@ -40,14 +39,14 @@ class Report {
     Function? onUploadDone,
   }) {
     _reportingEvent = pe;
-    _onUploadDoneCallback = onUploadDone;
 
     Map<String, dynamic> report =
         _constructReport(controlIndex: control?.index, comment: comment);
 
-    _sendReportToServer(report)
-        .then((response) => _recordReportResponse(response))
-        .catchError((e) {
+    _sendReportToServer(report).then((response) {
+      _recordReportResponse(response);
+      onUploadDone?.call();
+    }).catchError((e) {
       if (e is NoPreviousDataException) {
         SnackbarGlobal.show("Invalid event data: ${e.toString()}");
       } else {
@@ -56,7 +55,7 @@ class Report {
       }
       // Save the event history even if the upload was unsuccessful.
       EventHistory.save();
-      if (_onUploadDoneCallback != null) _onUploadDoneCallback!();
+      onUploadDone?.call();
     });
   }
 
@@ -96,7 +95,6 @@ class Report {
     MyLogger.entry(result);
     MyLogger.entry(
         "POST Status: ${response.statusCode}; Body: ${response.body}");
-    if (_onUploadDoneCallback != null) _onUploadDoneCallback!();
   }
 
   static Map<String, dynamic> _constructReport(

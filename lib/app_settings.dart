@@ -38,7 +38,7 @@ class AppSettings {
   static const int maxRUSAID = infinity;
   static const int maxACPCODE = infinity;
   static const int maxPERMID = infinity;
-  static const bool autoFirstControlCheckIn = true;
+  // static const bool autoFirstControlCheckIn = true;
   static const double defaultProximityRadius = 500.0; // meters
 
   //////////

@@ -15,6 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:crypto/crypto.dart';
+import 'package:ebrevet_card/exception.dart';
 // import 'package:ebrevet_card/mylogger.dart';
 import 'dart:convert';
 
@@ -57,11 +58,24 @@ class Signature {
   // Check in code
 
   factory Signature.checkInCode(PastEvent pe, Control ctrl) {
-    // var checkInTime = pe.controlCheckInTime(ctrl);
-    //var riderID = pe.riderID;
-    // var checkInTimeString =
-    //     checkInTime?.toUtc().toString().substring(0, 16) ?? "Never";
-    var checkInData = ctrl.index.toString();
+    var checkInTime = pe.controlCheckInTime(ctrl);
+    var checkInData = "Never";
+
+    if (checkInTime != null) {
+      var checkInDay = checkInTime.toUtc().day;
+      var checkInHour = checkInTime.toUtc().hour;
+      var checkInMinute = checkInTime.toUtc().minute;
+
+      // var checkInTimeString =
+      //     checkInTime?.toUtc().toString().substring(0, 16) ?? "Never";
+      checkInData = [
+        ctrl.index.toString(),
+        checkInDay,
+        checkInHour,
+        checkInMinute
+      ].join('-');
+    }
+
     return Signature(
         data: checkInData, event: pe.event, riderID: pe.riderID, codeLength: 4);
   }
@@ -93,6 +107,18 @@ class Signature {
     // MyLogger.entry(
     //     "Generated Start Code. Plaintext: $plainString; Code: $startCode");
     return startCode;
+  }
+
+  String get plainText {
+    var plainString = [
+      if (data != null) data,
+      event
+          .eventID, // regionID not needed because eventID is sufficient for world uniqueness, as "acp_club_code-pa_event"
+      riderID,
+      // event.region.secret,
+    ].join('-');
+
+    return plainString;
   }
 
   String get xyText => Signature.substituteZeroOneXY(cipherText);

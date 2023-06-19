@@ -82,19 +82,19 @@ class Control {
     }
   }
 
-  get cLoc => ControlLocation(this);
+  ControlLocation get cLoc => ControlLocation(this);
 
   Duration openDuration(DateTime s) => open.difference(s);
   Duration closeDuration(DateTime s) => close.difference(s);
 
-  String? closeDurationString(DateTime start){ 
+  String? closeDurationString(DateTime start) {
     var d = close.difference(start);
     var a = d.inDays;
     var h = d.inHours;
     var m = d.inMinutes;
     var s = "$m min";
-    if (h>0) s = "$h hrs, $s";
-    if (a>0) s = "$a days, $s";
+    if (h > 0) s = "$h hrs, $s";
+    if (a > 0) s = "$a days, $s";
     return s;
   }
 
@@ -103,6 +103,4 @@ class Control {
   get closeTimeString =>
       close.toLocal().toString().substring(0, 16) +
       close.toLocal().timeZoneName;
-
-  
 }

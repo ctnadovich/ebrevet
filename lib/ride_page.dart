@@ -166,7 +166,9 @@ class _RidePageState extends State<RidePage> {
                       ElevatedButton(
                           onPressed: () => Report.constructReportAndSend(
                                 activeEvent,
-                                onUploadDone: () => controlState.reportUploaded,
+                                onUploadDone: () {
+                                  controlState.reportUploaded;
+                                },
                               ),
                           child: const Text("Upload results")),
                     ],
