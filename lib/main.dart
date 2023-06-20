@@ -33,8 +33,6 @@ import 'event_list_page.dart';
 
 // TODO Update README for recent changes
 
-// TODO Not In Roster not detected till last control
-
 // TODO Server sends full startTimeWindow object
 
 // Less important

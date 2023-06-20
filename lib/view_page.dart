@@ -18,6 +18,8 @@
 // import 'package:screenshot/screenshot.dart';
 // import 'package:path_provider/path_provider.dart';
 // import 'dart:io';
+import 'package:ebrevet_card/screen_shot.dart';
+
 import 'past_event.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -30,11 +32,11 @@ import 'app_settings.dart';
 // import 'snackbarglobal.dart';
 
 // TODO This really should be the same widget (or a child) as Ride Page
-// TODO Share needs to be fixed
 
 class ControlDetailPage extends StatelessWidget {
   final PastEvent pastEvent;
   // final ScreenshotController screenshotController = ScreenshotController();
+  static GlobalKey previewContainer = GlobalKey();
 
   const ControlDetailPage(this.pastEvent, {super.key});
 
@@ -52,7 +54,7 @@ class ControlDetailPage extends StatelessWidget {
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => {}, // takeScreenshot(fileName),
+          onPressed: () => ScreenShot.take(fileName, previewContainer),
           child: const Icon(Icons.share),
         ),
         body: Container(
@@ -63,45 +65,48 @@ class ControlDetailPage extends StatelessWidget {
               //   controller: screenshotController,
               //   child:
 
-              ListView(
-            children: [
-              Row(
-                children: [
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        pastEvent.startStyle.description,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                          'Overall result: ${pastEvent.overallOutcomeDescription}'),
-                      Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
-                      Text(
-                          'Last Upload: ${pastEvent.outcomes.lastUploadString}'),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                    ],
-                  ),
-                  const Spacer(flex: 1),
-                  ElevatedButton(
-                      onPressed: () {
-                        Report.constructReportAndSend(pastEvent,
-                            onUploadDone: controlState.reportUploaded);
-                      }, // Current.constructReportAndSend(),
-                      child: const Text("Upload results")),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                ],
-              ),
-              for (var checkIn in pastEvent.outcomes.checkInTimeList)
-                checkInCard(checkIn),
-            ],
+              RepaintBoundary(
+            key: previewContainer,
+            child: ListView(
+              children: [
+                Row(
+                  children: [
+                    const SizedBox(
+                      width: 8,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pastEvent.startStyle.description,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                            'Overall result: ${pastEvent.overallOutcomeDescription}'),
+                        Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
+                        Text(
+                            'Last Upload: ${pastEvent.outcomes.lastUploadString}'),
+                        const SizedBox(
+                          height: 8,
+                        ),
+                      ],
+                    ),
+                    const Spacer(flex: 1),
+                    ElevatedButton(
+                        onPressed: () {
+                          Report.constructReportAndSend(pastEvent,
+                              onUploadDone: controlState.reportUploaded);
+                        }, // Current.constructReportAndSend(),
+                        child: const Text("Upload results")),
+                    const SizedBox(
+                      width: 8,
+                    ),
+                  ],
+                ),
+                for (var checkIn in pastEvent.outcomes.checkInTimeList)
+                  checkInCard(checkIn),
+              ],
+            ),
           ),
           // ),
         ));
