@@ -15,7 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:crypto/crypto.dart';
-import 'package:ebrevet_card/exception.dart';
+// import 'package:ebrevet_card/exception.dart';
 // import 'package:ebrevet_card/mylogger.dart';
 import 'dart:convert';
 
@@ -62,18 +62,30 @@ class Signature {
     var checkInData = "Never";
 
     if (checkInTime != null) {
-      var checkInDay = checkInTime.toUtc().day;
-      var checkInHour = checkInTime.toUtc().hour;
-      var checkInMinute = checkInTime.toUtc().minute;
+      // If the checkInTime is incorporated into the checkInCode,
+      // then riders must record the time as well as the code.
+      // And checking the code requires the time (which must be
+      // manually entered since we assume there was no upload).
+      // This has some security advantage, "proving" the recorded
+      // time, but the app has already enforced the control closing
+      // time and arrival in-time at the control is implied by
+      // the issuance of the code. Final analysis is that
+      // incorporating time into the code is more trouble than
+      // it's worth.
+
+      // var checkInDay = checkInTime.toUtc().day;
+      // var checkInHour = checkInTime.toUtc().hour;
+      // var checkInMinute = checkInTime.toUtc().minute;
 
       // var checkInTimeString =
       //     checkInTime?.toUtc().toString().substring(0, 16) ?? "Never";
-      checkInData = [
-        ctrl.index.toString(),
-        checkInDay,
-        checkInHour,
-        checkInMinute
-      ].join('-');
+      checkInData = ctrl.index.toString();
+      // [
+      // ctrl.index.toString(),
+      // checkInDay,
+      // checkInHour,
+      // checkInMinute
+      // ].join('-');
     }
 
     return Signature(
