@@ -72,6 +72,20 @@ class SideMenuDrawer extends StatelessWidget {
               //.then((value) => onClose?.call());
             },
           ),
+          // if (AppSettings.isMagicRusaID)  // Everyone can see log
+          ListTile(
+            leading: const Icon(Icons.newspaper),
+            title: Text(
+              'Activity Log',
+              style: menuItemStyle,
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const LogPage(),
+              ));
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.info),
             title: Text(
@@ -81,20 +95,6 @@ class SideMenuDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               aboutDialog(context);
-            },
-          ),
-          // if (AppSettings.isMagicRusaID)  // Everyone can see log
-          ListTile(
-            leading: const Icon(Icons.newspaper),
-            title: Text(
-              'Log',
-              style: menuItemStyle,
-            ),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const LogPage(),
-              ));
             },
           ),
         ],
