@@ -382,8 +382,9 @@ class _EventCardState extends State<EventCard> {
       cueVersion--;
     }
     MyLogger.entry(
-        "Invalid Start Code $offeredCode; Valid code is '$validCode'; ");
-    return "Invalid Start Code.";
+        "Invalid Start Code $offeredCode; Valid code is '$validCode'; ",
+        severity: Severity.hidden);
+    return "INVALID Start Code: $offeredCode";
   }
 
   Future<String?> getStartCodeDialog() {

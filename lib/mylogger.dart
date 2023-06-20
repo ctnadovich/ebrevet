@@ -17,6 +17,7 @@
 import 'utility.dart';
 
 enum Severity {
+  hidden,
   info,
   warning,
   error,
@@ -49,7 +50,7 @@ class MyLogger {
   }
 
   static void entry(String s, {Severity severity = Severity.info}) {
-    _log.add(LogRecord(severity, s));
+    if (severity != Severity.hidden) _log.add(LogRecord(severity, s));
     if (_log.length > logLength) _log.removeAt(0);
     print("LOG: $s");
   }
