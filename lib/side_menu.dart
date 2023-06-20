@@ -83,20 +83,20 @@ class SideMenuDrawer extends StatelessWidget {
               aboutDialog(context);
             },
           ),
-          if (AppSettings.isMagicRusaID)
-            ListTile(
-              leading: const Icon(Icons.newspaper),
-              title: Text(
-                'Log',
-                style: menuItemStyle,
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const LogPage(),
-                ));
-              },
+          // if (AppSettings.isMagicRusaID)  // Everyone can see log
+          ListTile(
+            leading: const Icon(Icons.newspaper),
+            title: Text(
+              'Log',
+              style: menuItemStyle,
             ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const LogPage(),
+              ));
+            },
+          ),
         ],
       ),
     );
