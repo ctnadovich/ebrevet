@@ -7,31 +7,35 @@ An electronic brevet card for randonneuring.
 ## Introduction
 
 This Android/iOS app serves as an automated brevet card that can
-provide Electronic Proof of Passage on a randonneuring brevet, while
+provide Electronic Proof of Passage on a randonneuring brevet or permanent, while
 maintaining some of the "feel" of the traditional paper brevet card
-process.  The app only needs to be activated at controls. If network
+process.  The app only needs to be activated at controls and does
+not require Internet data service at controls. If network
 access is available, the app will report control check in times for
-the rider to a central server. 
+the rider to a central server. When the event is completed succefully,
+the app generates a unique Proof of Passage Certificate that is sharable
+on social media. 
 
-You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet".
+You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet" by "CTNadovich".
 
 ## Features include
 
 - Provides electronic proof of passage with a brevet card process requiring "check in" at controls.
 - Monitors distance to controls with GPS and open/close times versus clock time.  
-- Only allows control check in when near (500m) a control, and the control is open.
+- Only allows control check in when near (~500m) a control, and the control is open.
 - Does not require anything physically at controls (eg no QR code, volunteer, etc... needed)
 - Does not require any third party service (eg no Strava, Spot, RWGPS, Garmin... needed)
 - Does not require photographs or any other media or service result to be reviewed by the organizer
 - Pre-ride / permanent / and free-start modes allows "free" start-time and  "relative" control open/close times.
-- Organized mode allows flexible checkin time with evenyone "starting" at the offical start time.
+- Mass start mode allows flexible checkin time with evenyone "starting" at the offical start time.
 - The app can be used effectively during an event without  Cellular service or Internet access.
-- The phone can be turned off or rebooted and the app will continue to work. 
+- The phone can be turned off or rebooted and the app will continue to work correctly. 
 - Low power use. Does not run in background. 
+- Secure. Needs location permission only. Minimal use of personal information.
 - Needs network access initially to download event details, and finally to upload results. 
 - Requires a "start code" so riders must be registerd for event to use the app
 - Check-in signature "codes" available for your paper brevet card as backup proof of passage.
-- Finish certificate sharable on social media.
+- Finish certificate sharable on social media with unique "finish code" proof of passage.
 - Reports control check ins back to server allowing rider progess monitoring.
 - Can be used by any club publishing event details in specified JSON format. 
 - Free, open source software.
@@ -42,7 +46,7 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 
 Install the app on your phone. You can find the app on both the
 [Apple Store](https://www.apple.com/app-store/) and the 
-[Google Play Store](https://play.google.com). Search for "eBrevet".  *Make sure you
+[Google Play Store](https://play.google.com). Search for "eBrevet" by "CTNadovich".  *Make sure you
 have the latest version of the app installed in your phone before you
 start riding an event.  If your app version is too old, you may not be able to start
 an event or there may be trouble checking into controls.*
@@ -59,46 +63,18 @@ till this is corrected. In the USA, your Rider ID is your RUSA number.
 Once you've set your name and rider ID number, press "Continue". This will take
 you to the main eBrevet Events screen. 
 
-
-### Event Info Source
+### Downloading Events
 
 The main eBrevet Events screen will show you future events that you
 can ride. The first time you run the app, this page will be blank. You
 need to download events before anything will appear on the list. These
-events come from your "Event Info Source". Depending on the events you
-want to ride, you may need to select the "Event Info Source", which is
-where the app goes to fetch information about the events you can ride. 
+events come from your "Event Info Source". The default is to 
+download PA Rando events. 
 
-The info source selection can be
-changed in the Settings menu reached through the "hamburger" icon on
-the upper left, or by clicking the search-settings icon to the right
-of the "Update event data" button. You will want to set your Event
-Info Source to be the RUSA Club/Region or ACP Club for the events you
-want to ride. You will only see events from the Club/Region you
-select. 
-
-<img src="https://parando.org/ebrevet/v26/no_events_yet.png" width=50%/>
-
-
-The app presents a list of regions in the US. The default is PA:
-Eastern, but any US region can be selected. Please only select regions
-that support eBrevet.  If a region does not support eBrevet, you will
-not be able to use eBrevet for those events. Talk to your RBA and RUSA
-about supporting eBrevet EPP for the events you want to ride. More
-supported regions are being added all the time.  
-
-There is also an option for selecting a Custom Event Data URL. This
-allows you to enter a special URL given to you by your RBA or event
-organizer, allowing you to use eBrevet even if your region is not on
-the Brevet Region list built into eBrevet. 
-
-
-### Downloading Events
-
- If the main eBrevet Events page is blank, or it's been several days
- since the last time you updated the page, hit the "Refresh Events
- from Server" button. If you have Internet service, in a few seconds
- the available events from your chosen Club/Region will appear. 
+If the main eBrevet Events page is blank, or it's been several days
+since the last time you updated the page, hit the "Refresh Events
+from Server" button. If you have Internet service, in a few seconds
+the available events from your chosen Club/Region will appear. 
 
 **IMPORTANT:** *If your Club/Region changes the cues for an event
 (control location, start time, route, etc...), you will need to press
@@ -118,7 +94,7 @@ appear. Press this button to RIDE or PRERIDE the event.
 
 The first time you choose RIDE/PRERIDE, you will need to enter your
 Start Code to start the event. The start code is a four character code
-printed on your brevet card, and also is available from the event
+printed on your brevet card, or available from the event
 organizer. Every rider has a different start code.  If your Start Code
 isn't working, make sure you have the latest version of the events
 refreshed from the Server, and that you have the latest version of the
@@ -167,12 +143,17 @@ results ASAP.*
 <img src="https://parando.org/ebrevet/v19/ScreenShots/no_yes_upload.png" width=67%/>
 </div>
 
+### Abandoning a Ride
+
 While you are riding an event, you can hit the exit arrow on the upper
 left, returning to the main eBrevet Events page. To go back to riding
 and checking into controls, hit the CONTINUE RIDE button on the event
-card. Should you want to abandon an event, click the black X button
-next to the Riding Now indicator. It's possible to "Un-abandon" by
-hitting "RIDE" again. 
+card. *Should you want to abandon an event*, click the black X button
+next to the Riding Now indicator. 
+
+Yes, it's possible to "Un-abandon" (at least in the app -- not sure
+about your legs). Just hit "RIDE" again and the app will resume your
+ride. 
 
 ### Check-In and Finish Codes
 
@@ -181,7 +162,7 @@ A check-in confirmation dialog appers with an official check in
 on your paper brevet card as proof of passage, particularly if you see
 orange dots indicating that your proof of passage hasn't been uploaded
 and backed up at the Club/Region. Should something happen to your
-phone (eg dead battery) writing down the check in signature code is
+phone, writing down the check in signature code is
 proof you were at the control at the required time. 
 
 <img src="https://parando.org/ebrevet/v19/ScreenShots/check_in_code.png" width=33%/>
@@ -192,28 +173,72 @@ idea to write those check-in codes onto your paper brevet card. There
 will also be an event Finish Code that certifies you checked into all
 the controls at the proper times and in the right order! 
 
-### Auto Check-In for Mass Starts 
+### Auto Check-In for Mass Start
 
 With organized mass-start brevets, the app will automatically check
 you into the first control and give you a start time of the "official"
 brevet start time, independent of when you actually start. This
-"auto-start-checkin" is a convenience that can be enabled by 
-your RBA for events where everyone starts together. 
+"auto-start-checkin" is a convenience 
+for events where everyone starts together. 
 
 For such events, you can enter your start code into eBrevet any time
-in the hour before the actual start. Then you wait till the organizer
+within a grace period before the actual start. Then you wait till the organizer
 says "GO!", and you start riding. You don't have to worry about
 opening eBrevet after the "GO!" to check into the start for these mass
 start events. It's already done. Of course, for all subsequent
-controls (and the start control for a PRERIDE, PERM, or FREE-START),
-you will need to check in using eBrevet in the usual way.
+controls you will need to check in using eBrevet in the usual way.
+
+### Auto Check-In for Perms, Pre-Rides, and Free Starts
+
+With non-mass-start events, after you enter the start code and are near the 
+start control at the correct time, 
+the app will ask if you optionally want to check into the start control. If you
+say YES, it will check you in immediately. 
+
+On the other hand, if you say NO to the auto check-in prompt (or maybe you
+are too far away from the start, or at the wrong time), then you have not checked into the 
+start control; you have not really started the event. You still need 
+to go near to the start control at the correct time 
+hit the check-in button when you actually want to start. 
+
+
+### Event Info Source
+
+If you
+want to ride non-PA events, you will need to select the "Event Info Source", which is
+where the app goes to fetch information about the events you can ride. 
+
+The info source selection can be
+changed in the Settings menu reached through the "hamburger" icon on
+the upper left, or by clicking the search-settings icon to the right
+of the "Update event data" button. You will want to set your Event
+Info Source to be the RUSA Club/Region or ACP Club for the events you
+want to ride. You will only see events from the Club/Region you
+select. 
+
+<img src="https://parando.org/ebrevet/v26/no_events_yet.png" width=50%/>
+
+
+The app presents a list of regions in the US. The default is PA:
+Eastern, but any US region can be selected. Please only select regions
+that support eBrevet.  If a region does not support eBrevet, you will
+not be able to use eBrevet for those events. Talk to your RBA and RUSA
+about supporting eBrevet EPP for the events you want to ride. More
+supported regions are being added all the time.  
+
+There is also an option for selecting a Custom Event Data URL. This
+allows you to enter a special URL given to you by your RBA or event
+organizer, allowing you to use eBrevet even if your region is not on
+the Brevet Region list built into eBrevet. 
+
 
 ### Side Drawer Menu
 
 On the main eBrevet page you will see three horizontal lines in the
 upper left corner (the so called hamburger icon). Clicking this will
 open the side drawer menu. This menu allows you to access app settings
-(eg Rider Name, Rider ID, Event Info Source), as well as Past Events
+(eg Rider Name, Rider ID, Event Info Source), as well as Past Events, 
+a log of app activity, 
 and the About eBrevet dialog. 
 
 <img src="https://parando.org/ebrevet/v26/main_menu.png" width=33%/>
@@ -235,11 +260,19 @@ sure your results are also stored in Le Grand Livre for posterity is
 to share your certificate of completion. Each event you've finished
 will show a CERTIFICATE button. If you press this button, a
 certificate of completion will appear. On the lower right of the
-certificate, there will be a "share" icon. Press this and your phone's
+certificate there is a "share" icon. Press this and your phone's
 share media page will open. You can use this to save the certificate
 to photos, google or dropbox, or to attach it to an email or social
 media post. 
 
+### Activity Log
+
+The side drawer menu provides access to the Activity Log. 
+The app compiles a text log of its recent activity that is 
+displayed through this menu entry. Normally riders will have
+no need to look at the app activity log, but in case there are problems with the app, 
+the log might show error messages and other information that could 
+help them debug problems. 
 
 
 ## Club/Region Webserver Support
@@ -265,13 +298,32 @@ to the desired club webserver. Alternatively, clubs can have their
 server URL compiled into eBrevet to avoid the redirect.
 
 The future_events details provided in JSON format by the server must
-contain several required fields, including the name of the event, the
-start location, start date/time, and a list of control locations with
-open/close times. All times are ISO 8601 timestamps in UTC. All
-locations are RWGPS compatibile decimal N Lattitude and E Longitude.
-Distances in decimal miles. 
+contain several required fields. At the top level of the JSON map, three fields are required
 
-To see an example future_events JSON object, visit the PA Rando (ACP
+- `minimum_app_version` The minimum version of the app that is required to be able to download this event data
+
+- `event_list` JSON list containing data for each event.
+
+- `event_errors` List of errors that occured when generating the event_list. Normally empty. 
+
+For each event in the event list, there is a map describing the event with fields as follows
+
+- `event_id` Globally unique event ID string (eg: ACPClubCode-EventNumber)
+- `name` Name of event without distance (eg: 'EndlessMountains')
+- `distance` Official distance in integer KM (eg: 200)
+- `sanction` Sanctioning body (eg: RUSA, ACP, RM, ...)
+- `start_city` City name (eg: Easton)
+- `start_state` State code (eg: PA)
+- `cue_version` Integer version number for cues (eg: 3). Used in generating start codes. 
+- `club_acp_code` Numeric club code (eg: 938017)
+- `checkin_post_url` The URL where checkins should be directed (eg: https://parando.org/ebrevet/check-in/938017-403)
+- `event_info_url` The URL where riders can get event information (eg: https://parando.org/info/event/938017-403)
+- `organizer_name` Name of the RBA or Event Organizer (eg: John Smith) 
+- `organizer_phone` Emergency phone for RBA or Event organizer (eg: +1.8005551212)
+- `start_time_window` JSON map of start time information (see below)
+- `controls` List of controls (see below)
+                
+To see a live example future_events JSON object, visit the PA Rando (ACP
 club 938017) implementation
 
 &nbsp;&nbsp;&nbsp;  https://randonneuring.org/ebrevet/future_events/938017
@@ -285,6 +337,70 @@ your club uses RWGPS cue markup as described in the
 automatic control info extraction is facilitated. See the Cue Wizard
 documentation source code for example methods that are free to copy
 and use. 
+
+### Start Time Window
+
+eBrevet supports a variety of event start 'styles'.  
+
+- MassStart: Everyone gets the same start time. Automatic check in
+at the start control within the time window that begins 
+with the grace period before the start, and ends to the close time
+of the start control. Distance
+to control doesn't matter (it is assumed that the organizer, not
+the eBrevet app, polices
+location/time of the mass start).
+
+- FreeStart: Start time is individually determined by actual manual check-in at
+the start control, which must be within a specified time window
+and distance to control must be within proximity limit
+
+- PreRide: Start time is individually determined by actual manual check-in at
+the start control, which must be within the 15 day pre-ride window
+and before any MassStart/FreeStart window begins. The distance to the start control must
+be within the proximity limit.
+
+- Permanent: Start time is individually determined by actual manual check-in at
+the start control, which can be any time. The distance to the start control must
+be within the proximity limit.
+
+The start format of a particular event is specified by the `start_time_window` tag. 
+This value for this tag is a map with the following tags
+
+- `on_time` The advertised start time for a mass start, or the 'nominal' start time
+for a free start. Time zone is UTC and the format is ISO 8601. 
+For permanents or pre-rides, this is ignored. 
+
+- `early` Specifies the begining of the time window for a free start. 
+Positive integer number of minutes before `on_time` when it is allowed to start the event. 
+
+- `late` Specifies the end of the time window for a free start. 
+Positive integer number of minutes after `on_time` when it is allowed to start the event. 
+
+- `start_style` One of the following: `massStart`, `freeStart`, `permanent`, or `preRide`.
+
+As an example, for an ordinary mass start event on July 8th 2023 at 6AM EDT, the start_time_window map would be 
+
+```
+{"on_time":"2023-07-08T10:00:00+00:00","start_style":"massStart"}
+```
+
+
+
+### Controls
+
+### App Version
+
+A top level key in the future_events JSON record is 'minimum_app_version'. 
+It's important that the record include this key with value set to the 
+minimum version of the eBrevet app that can successfully parse all 
+the fields in the record. Should the record be enhanced with fields
+that are unsupported by older versions of the app, this 'minimum_app_version'
+key allows the app to recognize the  incompatibility and refuse to download
+events till it's updated. 
+
+Similarly, the check_in record will have an 'app_version' key. The webserver
+should use the value of this key to determine its 
+compatibility with the app checking in. 
 
 ### Control Check In JSON
 
@@ -303,11 +419,14 @@ if the rider has failed to complete the brevet.
 An example of the checkin record is the following
 
 ```
-{"event_id":"938017-382","rider_id":"5456","control_index":"0","comment":"No Comment","outcome":{"overall_outcome":"active","check_in_times":[["0","2023-03-14T06:11:51.232885Z"]]},"app_version":"0.1.6","proximity_radius":9999999.0,"open_override":"YES","preride":"YES","rider_location":"37.4226711N, -122.0849872E","last_loc_update":"2023-03-14T06:11:07.902975Z","timestamp":"2023-03-14T06:11:51.235675Z","signature":"C37D730E"}
+{"event_id":"938017-405","rider_id":"987654","control_index":"0","comment":"Volunteer pre-ride. Automatic Check In","outcome":{"overall_outcome":"active","last_upload":null,"check_in_times":{"0":"2023-07-06T10:21:08.411891Z"}},"app_version":"1.2.2","proximity_radius":"500.0","proximity_override":"true","open_override":"NO","start_style":"preRide","rider_location":"39.9469517N, -75.1870467E","last_loc_update":"2023-07-06T10:20:56.454889Z","timestamp":"2023-07-06T10:21:08.413137Z","signature":"23B0B361"}
 ```
 
 If the received checkin record is decoded successfully by the
-Club/Region server, and the signature is valid, the sever should reply
+Club/Region server, it can internally record and display checkin information as desired on 
+the Club/Region website.
+
+On a successful decode of the checkin record, the sever should reply
 with a JSON acknowledgement that includes `"status";"OK"` and
 minimally looks like this 
 
@@ -315,7 +434,14 @@ minimally looks like this
 {"status":"OK","event_id":"938017-382","rider_id":"5456"}
 ```
 
-Additionally, the Club/Region server can internally record and display checkin information as desired on their website.
+An additional "notes" fields can be added to the acknowledgement that aid in debugging. These 'notes'
+are not used by the app, but will appear in the app activity log. For example.
+
+```
+{"status":"OK","event_id":"938017-382","rider_id":"5456","notes":["Check In at control 0","PRERIDE MODE SET","Comment: Volunteer pre-ride. Automatic Check In","Outcome: active","Check Ins: 1"]}
+```
+
+he Club/Region server can internally record and display checkin information as desired on their website.
 
 Explanations of the checkin fields are as follows:
 
@@ -348,6 +474,8 @@ club/region secret separated by dashes. In the hex result,
 a "X" is substituted for the digit "0" and
 a "Y" is substituted for the digit "1" to avoid confusion with "O" and "I". Start code
 comparisons should be case insensitive. 
+
+- `notes` An undefined string=value map that contains debugging information. Displayed in app log.
 
 ### Secrets
 

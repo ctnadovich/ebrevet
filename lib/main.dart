@@ -33,10 +33,6 @@ import 'event_list_page.dart';
 
 // TODO Update README for recent changes
 
-// Less important
-
-// TODO Clear all saved files
-
 void main() {
   initSettings().then((_) {
     MyLogger.entry("** runApp(MyApp)");
