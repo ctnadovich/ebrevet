@@ -158,11 +158,9 @@ next to the Riding Now indicator.
 <img src="https://parando.org/ebrevet/v28/riding_now.png" width=33%/>
 
 Yes, it's possible to "Un-abandon" (at least in the app -- not sure
-about your legs). Just hit "RIDE" again and the app will resume your
-ride. 
-
-
-
+about your legs). Assuming your time hasn't run out, just 
+hit "RIDE" again and the app will resume your ride so you can 
+attempt to finish. 
 
 ### Check-In and Finish Codes
 
