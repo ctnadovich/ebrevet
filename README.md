@@ -12,7 +12,7 @@ maintaining some of the "feel" of the traditional paper brevet card
 process.  The app only needs to be activated at controls and does
 not require Internet data service at controls. If network
 access is available, the app will report control check in times for
-the rider to a central server. When the event is completed succefully,
+the rider to a central server. When the event is completed successfully,
 the app generates a unique Proof of Passage Certificate that is sharable
 on social media. 
 
