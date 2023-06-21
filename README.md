@@ -101,6 +101,9 @@ isn't working, make sure you have the latest version of the events
 refreshed from the Server, and that you have the latest version of the
 eBrevet app. 
 
+<img src="https://parando.org/ebrevet/v28/start_code.png" width=33%/>
+
+
 ### Control Check In
 
 Once you have started the event you need to check in to every control,
@@ -180,7 +183,6 @@ brevet start time, independent of when you actually start. This
 "auto-start-checkin" is a convenience 
 for events where everyone starts together. 
 
-<img src="https://parando.org/ebrevet/v28/auto_checkin.png" width=33%/>
 
 
 For such events, you can enter your start code into eBrevet any time
@@ -196,6 +198,8 @@ With non-mass-start events, after you enter the start code and are near the
 start control at the correct time, 
 the app will ask if you optionally want to check into the start control. If you
 say YES, it will check you in immediately. 
+
+<img src="https://parando.org/ebrevet/v28/auto_checkin.png" width=33%/>
 
 On the other hand, if you say NO to the auto check-in prompt (or maybe you
 are too far away from the start, or at the wrong time), then you have not checked into the 
