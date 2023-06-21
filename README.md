@@ -83,7 +83,7 @@ the available events from your chosen Club/Region will appear.
 this, the event data on your phone may be invalid and you won't be
 able to ride.*
 
-![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/updating_events_process.png)
+![eBrevet Screen Shots](https://parando.org/ebrevet/v28/updating_events_process.png)
 
 Once the latest future events are downloaded to your phone, you should
 see cards describing each upcoming event. If the event may be
