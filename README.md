@@ -166,8 +166,6 @@ and backed up at the Club/Region. Should something happen to your
 phone, writing down the check in signature code is
 proof you were at the control at the required time. 
 
-<img src="https://parando.org/ebrevet/v19/ScreenShots/check_in_code.png" width=33%/>
-
 If for some reason uploads fail and you don't have green checks on all
 your controls when you've finished an event, now it's *really* a good
 idea to write those check-in codes onto your paper brevet card. There
@@ -181,6 +179,9 @@ you into the first control and give you a start time of the "official"
 brevet start time, independent of when you actually start. This
 "auto-start-checkin" is a convenience 
 for events where everyone starts together. 
+
+<img src="https://parando.org/ebrevet/v28/auto_checkin.png" width=33%/>
+
 
 For such events, you can enter your start code into eBrevet any time
 within a grace period before the actual start. Then you wait till the organizer
