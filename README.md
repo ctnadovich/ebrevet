@@ -53,8 +53,9 @@ an event or there may be trouble checking into controls.*
 
 ### Rider Name and Number
 
-When you first open the app, you *must* enter your Name and RUSA
-ID number. Please make sure you you enter your Rider ID correctly. If
+When you first open the app, you *must* enter your Name and Rider
+ID number. Your Rider ID is your RUSA ID number 
+in the USA. Please make sure you you enter your Rider ID correctly. If
 you enter the wrong Rider ID, you wll not be able to use the app
 till this is corrected. In the USA, your Rider ID is your RUSA number. 
 
