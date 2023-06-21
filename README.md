@@ -114,7 +114,7 @@ In dialog will open. To actually check in, press the "CHECK IN NOW"
 button. You can enter an optional check-in comment that will be posted
 to the event chat channel. 
 
-![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/check_in_sequence.png)
+![eBrevet Screen Shots](https://parando.org/ebrevet/v28/check_in_sequence.png)
 
 When you press the "CHECK IN NOW" button, your check-in is recorded on
 your phone and the app will attempt to report the check-in to your
@@ -242,7 +242,7 @@ open the side drawer menu. This menu allows you to access app settings
 a log of app activity, 
 and the About eBrevet dialog. 
 
-<img src="https://parando.org/ebrevet/v26/main_menu.png" width=33%/>
+<img src="https://parando.org/ebrevet/v28/side_menu.png" width=33%/>
 
 
 ### Past Events
