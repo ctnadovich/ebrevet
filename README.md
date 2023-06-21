@@ -397,22 +397,18 @@ ending with the finish control.  The map entry for each control contains the fol
 - `open` Open time of control in time zone UTC in ISO 8661 format (eg: 2023-07-08T10:46:00+00:00)
 - `close` Open time of control in time zone UTC in ISO 8661 format (eg: 2023-07-08T10:46:00+00:00)
 
-The open/close time of the start control in the control list is arbitrary and does not have to bear any relationship to the 
-start time of the event given in the `start_time_window` map.  The open/close time of the start given in 
-the control list is subtracted from 
-the open/close times of each subsequent control in the list to determine the relative open/close time difference between the controls. This 
+Although an exact open and close time is specified for each control in the JSON map, the  open/close time of the start control is arbitrary and does not have to bear any relationship to the 
+actual start time of the event given in the `start_time_window` map.  The open/close times of subsequent controls are all considered to be relative to the start control open/close times. Specifically, the open/close time of the start is subtracted from 
+the open/close times of each subsequent control in the list to determine the relative open/close time difference between the controls. This calculated
 difference is then added to the actual start time based on the start style, to yield the actual open/close time 
-of each control. For example, if the open time of the start control is 6AM, and the open time of the next control is 7:30AM, 
-this is a one and a half hour difference. If a rider actually starts at 5AM with a freeStart style event, then their first control will open at 6:30 AM. 
+of each control for the actual event. For example, if the open time of the start control is given as 6AM in the JSON, and the open time of the next control is given as 7:30AM, 
+this is a calculated one and a half hour difference. If a rider actually starts at 5AM with a freeStart style event, then their first control will open at 5AM plus 1 hour 30 minutes, or 6:30 AM. 
 
 Two optional fields are supported in this data structure, and if available will be displayed as 
 part of the detailed control description, but are otherwise not used. 
 
 - `style` Style of control for traditional brevet purposes (eg: staffed, merchant, photo, etc... )
 - `address` Street address of control (eg: 123 Main St, Anytown, NJ)
-
-
-
 
 
 ### App Version
