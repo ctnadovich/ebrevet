@@ -19,7 +19,7 @@ import 'snackbarglobal.dart';
 import 'location.dart';
 
 // Where is this control in the scheme of thngs
-enum SIF { start, intermediate, finish, unknown }
+// enum SIF { start, intermediate, finish, unknown }
 
 class Control {
   late double distMi;
@@ -32,7 +32,7 @@ class Control {
   late DateTime close;
 
   late int index;
-  SIF sif = SIF.unknown;
+  // SIF sif = SIF.unknown;
   bool valid = false;
 
   Map<String, dynamic> get toMap => {
@@ -45,9 +45,9 @@ class Control {
         'open': open.toUtc().toIso8601String(),
         'close': close.toUtc().toIso8601String(),
         'index': index,
-        'sif': sif == SIF.start
-            ? 'start'
-            : (sif == SIF.finish ? 'finish' : 'intermediate'),
+        // 'sif': sif == SIF.start
+        //     ? 'start'
+        //     : (sif == SIF.finish ? 'finish' : 'intermediate'),
       };
 
   Control.fromMap(this.index, Map<String, dynamic> m) {
@@ -55,26 +55,30 @@ class Control {
       distMi = double.parse(m['dist_mi'].toString());
       lat = double.parse(m['lat'].toString());
       long = double.parse(m['long'].toString());
-      name = m['name'] ?? '<unknown>';
-      style = m['style'] ?? '<unknown>';
-      address = m['address'] ?? '<unknown>';
+      if (m.containsKey('name')) {
+        name = m['name'];
+      } else {
+        throw FormatException('Control $index has no name.');
+      }
+      style = m['style'] ?? '';
+      address = m['address'] ?? '';
       open = DateTime.parse(m['open'] ?? '').toLocal();
       close = DateTime.parse(m['close'] ?? '').toLocal();
 
-      switch (m['sif']) {
-        case 'start':
-          sif = SIF.start;
-          break;
-        case 'finish':
-          sif = SIF.finish;
-          break;
-        case 'intermediate':
-          sif = SIF.intermediate;
-          break;
-        default:
-          sif = SIF.unknown;
-          break;
-      }
+      // switch (m['sif']) {
+      //   case 'start':
+      //     sif = SIF.start;
+      //     break;
+      //   case 'finish':
+      //     sif = SIF.finish;
+      //     break;
+      //   case 'intermediate':
+      //     sif = SIF.intermediate;
+      //     break;
+      //   default:
+      //     sif = SIF.unknown;
+      //     break;
+      // }
       valid = true;
     } catch (error) {
       var etxt = "Error converting JSON response control map: $error";

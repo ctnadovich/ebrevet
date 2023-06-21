@@ -63,6 +63,9 @@ class _ControlCardState extends State<ControlCard> {
     var isNotFinished =
         activeEvent.isIntermediateControl(control) || !activeEvent.isFinished;
 
+    var startIndex = activeEvent.event.startControlKey;
+    var finishIndex = activeEvent.event.finishControlKey;
+
     var checkInSignatureString = (isNotFinished)
         ? Signature.checkInCode(activeEvent, control).xyText
         : Signature.forCert(activeEvent).xyText;
@@ -72,11 +75,11 @@ class _ControlCardState extends State<ControlCard> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon((widget.control.sif == SIF.intermediate)
-                ? Icons.checklist
-                : ((widget.control.sif == SIF.start)
-                    ? Icons.play_arrow
-                    : Icons.stop)),
+            leading: Icon((widget.control.index == startIndex)
+                ? Icons.play_arrow
+                : ((widget.control.index == finishIndex)
+                    ? Icons.stop
+                    : Icons.checklist)),
             title: showControlName(widget.control),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
