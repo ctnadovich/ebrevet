@@ -155,9 +155,14 @@ and checking into controls, hit the CONTINUE RIDE button on the event
 card. *Should you want to abandon an event*, click the black X button
 next to the Riding Now indicator. 
 
+<img src="https://parando.org/ebrevet/v28/riding_now.png" width=33%/>
+
 Yes, it's possible to "Un-abandon" (at least in the app -- not sure
 about your legs). Just hit "RIDE" again and the app will resume your
 ride. 
+
+
+
 
 ### Check-In and Finish Codes
 
