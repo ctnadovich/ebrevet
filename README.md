@@ -316,8 +316,8 @@ For each event in the event list, there is a map describing the event with field
 - `start_state` State code (eg: PA)
 - `cue_version` Integer version number for cues (eg: 3). Used in generating start codes. 
 - `club_acp_code` Numeric club code (eg: 938017)
-- `checkin_post_url` The URL where checkins should be directed (eg: https://parando.org/ebrevet/check-in/938017-403)
-- `event_info_url` The URL where riders can get event information (eg: https://parando.org/info/event/938017-403)
+- `checkin_post_url` The URL where checkins should be directed (eg: https://myclub.org/ebrevet/check-in/999997-403)
+- `event_info_url` The URL where riders can get event information (eg: https://myclub.org/info/event/999997-403)
 - `organizer_name` Name of the RBA or Event Organizer (eg: John Smith) 
 - `organizer_phone` Emergency phone for RBA or Event organizer (eg: +1.8005551212)
 - `start_time_window` JSON map of start time information (see below)
@@ -352,7 +352,7 @@ location/time of the mass start).
 
 - FreeStart: Start time is individually determined by actual manual check-in at
 the start control, which must be within a specified time window
-and distance to control must be within proximity limit
+and distance to control must be within proximity limit.
 
 - PreRide: Start time is individually determined by actual manual check-in at
 the start control, which must be within the 15 day pre-ride window
@@ -384,9 +384,36 @@ As an example, for an ordinary mass start event on July 8th 2023 at 6AM EDT, the
 {"on_time":"2023-07-08T10:00:00+00:00","start_style":"massStart"}
 ```
 
-
-
 ### Controls
+
+The controls are specified under the `controls` tag as a JSON list. Each entry in the list describes
+a control with a JSON map. The controls must be in consecutive order in the list, starting with the start control and 
+ending with the finish control.  The map entry for each control contains the following required fields
+
+- `dist_mi` Exact distance in miles from the start to this control. The value of `dist_mi` for the start control is assumed to be 0.0 miles. 
+- `long` East longitude of the control in decimal degrees. Values for this in the USA will be negative. 
+- `lat` North lattitude of the control in decimal degrees. Values for this in the USA will be positive. 
+- `name` Descriptive text name of the control (eg "Turkey Hill Minit Mart")
+- `open` Open time of control in time zone UTC in ISO 8661 format (eg: 2023-07-08T10:46:00+00:00)
+- `close` Open time of control in time zone UTC in ISO 8661 format (eg: 2023-07-08T10:46:00+00:00)
+
+The open/close time of the start control in the control list is arbitrary and does not have to bear any relationship to the 
+start time of the event given in the `start_time_window` map.  The open/close time of the start given in 
+the control list is subtracted from 
+the open/close times of each subsequent control in the list to determine the relative open/close time difference between the controls. This 
+difference is then added to the actual start time based on the start style, to yield the actual open/close time 
+of each control. For example, if the open time of the start control is 6AM, and the open time of the next control is 7:30AM, 
+this is a one and a half hour difference. If a rider actually starts at 5AM with a freeStart style event, then their first control will open at 6:30 AM. 
+
+Two optional fields are supported in this data structure, and if available will be displayed as 
+part of the detailed control description, but are otherwise not used. 
+
+- `style` Style of control for traditional brevet purposes (eg: staffed, merchant, photo, etc... )
+- `address` Street address of control (eg: 123 Main St, Anytown, NJ)
+
+
+
+
 
 ### App Version
 
