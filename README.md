@@ -473,8 +473,6 @@ are not used by the app, but will appear in the app activity log. For example.
 {"status":"OK","event_id":"938017-382","rider_id":"5456","notes":["Check In at control 0","PRERIDE MODE SET","Comment: Volunteer pre-ride. Automatic Check In","Outcome: active","Check Ins: 1"]}
 ```
 
-he Club/Region server can internally record and display checkin information as desired on their website.
-
 Explanations of the checkin fields are as follows:
 
 - `event_id` A unique string that identifies the event. It must be unique worldwide making it impossible for there to ever be two events with the same ID. This must consist of the ACP club code and the club-specific unique event ID separated by
