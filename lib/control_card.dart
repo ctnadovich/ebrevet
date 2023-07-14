@@ -75,17 +75,17 @@ class _ControlCardState extends State<ControlCard> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon((widget.control.index == startIndex)
+            leading: Icon((control.index == startIndex)
                 ? Icons.play_arrow
-                : ((widget.control.index == finishIndex)
+                : ((control.index == finishIndex)
                     ? Icons.stop
                     : Icons.checklist)),
-            title: showControlName(widget.control),
+            title: showControlName(),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(exactDistanceString(widget.control.cLoc)),
-                Text(controlStatusString(widget.control)),
+                Text(exactDistanceString(control.cLoc)),
+                Text(controlStatusString()),
                 (checkInTime != null)
                     ? Text(isNotFinished
                         ? "Check-in Code: ($checkInSignatureString)"
@@ -93,10 +93,7 @@ class _ControlCardState extends State<ControlCard> {
                     : const SizedBox.shrink(),
               ],
             ),
-            trailing: checkInButton(
-              widget.control,
-              widget.pastEvent.outcomes.lastUpload,
-            ),
+            trailing: checkInButton(),
           ),
           const SizedBox(
             height: 5,
@@ -106,13 +103,15 @@ class _ControlCardState extends State<ControlCard> {
     );
   }
 
-  String controlStatusString(Control c) {
+  String controlStatusString() {
     DateTime now = DateTime.now();
+    var c = widget.control;
     int controlKey = c.index;
     var activeEvent = widget.pastEvent;
     var open = activeEvent.openActual(controlKey);
     var close = activeEvent.closeActual(controlKey);
     if ((open ?? close) == null) return ""; // Pre ride undefined open/close
+    if (c.style.isUntimed) return "Open (untimed)";
     if (open!.isAfter(now)) {
       // Open in future
       var tt = TimeTill(open);
@@ -132,10 +131,11 @@ class _ControlCardState extends State<ControlCard> {
     return ('Dir: ${cLoc.crowDistString} ${cLoc.crowCompassHeadingString}');
   }
 
-  Widget showControlName(Control control) {
+  Widget showControlName() {
+    var control = widget.control;
     return GestureDetector(
       onTap: () {
-        openControlNameDialog(control);
+        openControlNameDialog();
       },
       child: Text(
         control.name,
@@ -147,8 +147,9 @@ class _ControlCardState extends State<ControlCard> {
     );
   }
 
-  Future openControlNameDialog(Control control) {
+  Future openControlNameDialog() {
     var activeEvent = widget.pastEvent;
+    var control = widget.control;
     var checkInTime = activeEvent.controlCheckInTime(control);
 
     Widget? checkInRow;
@@ -176,23 +177,24 @@ class _ControlCardState extends State<ControlCard> {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(widget.control.name),
+        title: Text(control.name),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                "Control: ${1 + widget.control.index} of ${widget.pastEvent.event.controls.length}"),
-            Text("Address: ${widget.control.address}"),
-            Text("Style: ${widget.control.style}"),
-            Text('Course distance: ${widget.control.distMi.toString()} mi'),
-            Text(exactDistanceString(widget.control.cLoc)),
-            Text("Location: ${widget.control.lat} N;  ${widget.control.long}E"),
-            Text(controlStatusString(widget.control)),
-            Text(
-                'Open Time: ${widget.pastEvent.openActualString(widget.control.index)}'),
-            Text(
-                'Close Time: ${widget.pastEvent.closeActualString(widget.control.index)}'),
+                "Control: ${1 + control.index} of ${activeEvent.event.controls.length}"),
+            Text("Address: ${control.address}"),
+            Text("Style: ${control.style}"),
+            Text('Course distance: ${control.distMi.toString()} mi'),
+            Text(exactDistanceString(control.cLoc)),
+            Text("Location: ${control.lat} N;  ${control.long}E"),
+            Text(controlStatusString()),
+            if (!control.style.isUntimed)
+              Text('Open Time: ${activeEvent.openActualString(control.index)}'),
+            if (!control.style.isUntimed)
+              Text(
+                  'Close Time: ${activeEvent.closeActualString(control.index)}'),
             checkInRow ?? const Text('Not checked in.'),
           ],
         ),
@@ -207,9 +209,11 @@ class _ControlCardState extends State<ControlCard> {
     );
   }
 
-  Widget checkInButton(Control c, DateTime? lastUpload) {
+  Widget checkInButton() {
     final activeEvent = widget.pastEvent;
+    final c = widget.control;
     final checkInTime = activeEvent.controlCheckInTime(c);
+    final lastUpload = activeEvent.outcomes.lastUpload;
 
     if (checkInTime != null) {
       var checkInIcon = (lastUpload != null &&
@@ -273,7 +277,7 @@ class _ControlCardState extends State<ControlCard> {
             size: 64,
           ),
           title: const Text('Check In to Control'),
-          content: checkInDialogContent(widget.control),
+          content: checkInDialogContent(),
           actions: [
             TextButton(
                 onPressed: () {
@@ -284,7 +288,8 @@ class _ControlCardState extends State<ControlCard> {
         ),
       );
 
-  Column checkInDialogContent(Control control) {
+  Column checkInDialogContent() {
+    final control = widget.control;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -294,7 +299,7 @@ class _ControlCardState extends State<ControlCard> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        Text(controlStatusString(control)),
+        Text(controlStatusString()),
         Text(exactDistanceString(control.cLoc)),
         if (control.cLoc.isNearby)
           const Text(

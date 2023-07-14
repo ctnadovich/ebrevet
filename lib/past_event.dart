@@ -277,6 +277,11 @@ class PastEvent {
     if (startDateTimeActual == null) return false;
 
     Control control = _event.controls[controlKey];
+
+    // untimed controls are always open
+    if (control.style.isUntimed) return true;
+
+    // otherwise, calulate open/close and compare
     var openDur = control.openDuration(_event.controls.first.open);
     var closeDur = control.closeDuration(_event.controls.first.open);
     var openActual = startDateTimeActual!.add(openDur);

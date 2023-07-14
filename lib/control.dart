@@ -21,12 +21,24 @@ import 'location.dart';
 // Where is this control in the scheme of thngs
 // enum SIF { start, intermediate, finish, unknown }
 
+enum ControlStyle {
+  staffed,
+  overnight,
+  merchant,
+  photo,
+  open,
+  info,
+  postcard;
+
+  bool get isUntimed => (this == info || this == postcard || this == photo);
+}
+
 class Control {
   late double distMi;
   late double long;
   late double lat;
   late String name;
-  late String style;
+  late ControlStyle style;
   late String address;
   late DateTime open;
   late DateTime close;
@@ -40,7 +52,7 @@ class Control {
         'long': long,
         'lat': lat,
         'name': name,
-        'style': style,
+        'style': style.name,
         'address': address,
         'open': open.toUtc().toIso8601String(),
         'close': close.toUtc().toIso8601String(),
@@ -60,7 +72,7 @@ class Control {
       } else {
         throw FormatException('Control $index has no name.');
       }
-      style = m['style'] ?? '';
+      style = ControlStyle.values.byName(m['style']);
       address = m['address'] ?? '';
       open = DateTime.parse(m['open'] ?? '').toLocal();
       close = DateTime.parse(m['close'] ?? '').toLocal();
