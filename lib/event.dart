@@ -310,8 +310,8 @@ class Event {
   }
 
   Region get region => Region(regionID: regionID);
-  // String get ebrevetServerURL => region.ebrevetServerURL;
-  // String get secret => region.secret;
+
+  bool get isGravel => (gravelDistance > 0);
 
   // Time window +/- from the official start time that
   // starts will be allowed. In minutes.

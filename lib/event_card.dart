@@ -79,7 +79,12 @@ class _EventCardState extends State<EventCard> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: const Icon(Icons.pedal_bike),
+            leading: IconButton(
+              onPressed: () {
+                openEventNameDialog(event);
+              },
+              icon: const Icon(Icons.info_outline),
+            ),
             trailing: widget.hasDelete == true
                 ? IconButton(
                     onPressed: () async {
@@ -431,20 +436,20 @@ class _EventCardState extends State<EventCard> {
     controller.clear();
   }
 
-  Widget showEventName(Event event) {
-    return GestureDetector(
-      onTap: () {
-        openEventNameDialog(event);
-      },
-      child: Text(
-        event.nameDist,
-        style: TextStyle(
-            fontSize:
-                Theme.of(context).primaryTextTheme.bodyLarge?.fontSize ?? 16,
-            color: Theme.of(context).colorScheme.primary),
-      ),
-    );
-  }
+  // Widget showEventName(Event event) {
+  //   return GestureDetector(
+  //     onTap: () {
+  //       openEventNameDialog(event);
+  //     },
+  //     child: Text(
+  //       event.nameDist,
+  //       style: TextStyle(
+  //           fontSize:
+  //               Theme.of(context).primaryTextTheme.bodyLarge?.fontSize ?? 16,
+  //           color: Theme.of(context).colorScheme.primary),
+  //     ),
+  //   );
+  // }
 
   Future openEventNameDialog(Event event) {
     // final eventID = widget.event.eventID;

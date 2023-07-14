@@ -62,8 +62,9 @@ class _RidePageState extends State<RidePage> {
   @override
   Widget build(BuildContext context) {
     var activeEvent = widget.activeEvent;
-    var startStyle = activeEvent.startStyle;
     var event = activeEvent.event;
+
+    var startStyle = activeEvent.startStyle;
     var outcomes = activeEvent.outcomes;
     var isFinished = activeEvent.isFinished;
     var isDNQ = activeEvent.outcomes.overallOutcome == OverallOutcome.dnq;
@@ -71,6 +72,9 @@ class _RidePageState extends State<RidePage> {
     var eventText = event.nameDist;
     var dayNight = context.watch<DayNight>();
     var lastLocationUpdate = RiderLocation.lastLocationUpdate;
+
+    var gpct =
+        ((100.0 * event.gravelDistance) / (1.0 * event.distance)).round();
 
     var controlState = context.watch<ControlState>();
 
@@ -123,6 +127,11 @@ class _RidePageState extends State<RidePage> {
                       'DISQUALIFIED',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Theme.of(context).colorScheme.error),
+                      textAlign: TextAlign.center,
+                    ),
+                  if (event.isGravel)
+                    Text(
+                      "${event.gravelDistance}/${event.distance}K $gpct% Gravel",
                       textAlign: TextAlign.center,
                     ),
                   if (isFinished)
