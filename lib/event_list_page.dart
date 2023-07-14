@@ -34,26 +34,6 @@ class EventListPage extends StatefulWidget {
 }
 
 class _EventListPageState extends State<EventListPage> {
-  Ticker ticker = Ticker();
-
-  @override
-  void initState() {
-    super.initState();
-
-    ticker.init(
-      period: AppSettings.timeRefreshPeriod,
-      onTick: () {
-        if (mounted) setState(() {});
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    ticker.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     var dayNight = context.watch<DayNight>();
@@ -99,6 +79,26 @@ class LatestEventList extends StatefulWidget {
 
 class _LatestEventListState extends State<LatestEventList> {
   bool fetchingFromServerNow = false;
+
+  Ticker ticker = Ticker();
+
+  @override
+  void initState() {
+    super.initState();
+
+    ticker.init(
+      period: AppSettings.timeRefreshPeriod,
+      onTick: () {
+        if (mounted) setState(() {});
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    ticker.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
