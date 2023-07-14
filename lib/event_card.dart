@@ -89,13 +89,28 @@ class _EventCardState extends State<EventCard> {
                     },
                     icon: const Icon(Icons.delete))
                 : null,
-            title: showEventName(event),
+            // title: showEventName(event),
+            title: Text(
+              event.nameDist,
+              style: TextStyle(
+                fontSize:
+                    Theme.of(context).primaryTextTheme.bodyLarge?.fontSize ??
+                        16,
+                // color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(regionName),
                 Text('${event.startCity}, ${event.startState}'),
-                Text(event.startTimeWindow.startStyle.description),
+                Row(
+                  children: [
+                    Text(event.startTimeWindow.startStyle.description),
+                    if (event.gravelDistance > 0)
+                      Text(' (${event.gravelDistance}K gravel)'),
+                  ],
+                ),
                 if (event.startTimeWindow.onTime != null)
                   Text('${event.dateTime} (${event.eventStatusText})'),
                 Text('Latest Cue Ver: ${event.cueVersionString}'),
@@ -224,10 +239,10 @@ class _EventCardState extends State<EventCard> {
 
     if (buttonText == null) return const SizedBox.shrink(); // No button
 
-    return TextButton(
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.zero,
-      ),
+    return ElevatedButton(
+      // style: TextButton.styleFrom(
+      //   padding: EdgeInsets.zero,
+      // ),
       onPressed: () async {
         if (AppSettings.isRusaIDSet == false) {
           SnackbarGlobal.show("Can't RIDE. Rider ID not set.");
