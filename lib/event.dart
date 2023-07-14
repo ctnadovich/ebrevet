@@ -107,7 +107,8 @@ class Event {
   late String name;
   late TimeWindow startTimeWindow;
   // late DateTime endDateTime;
-  late String distance; // Official distance in KM
+  late int distance; // Official distance in KM
+  late int gravelDistance; // Official gravel in integer KM
   late String startCity;
   late String startState;
   late String eventSanction;
@@ -135,6 +136,7 @@ class Event {
         'start_time_window': startTimeWindow.toJson(),
         // 'end_datetime_utc': endDateTime.toUtc().toIso8601String(),
         'distance': distance,
+        'gravel_distance': gravelDistance,
         'start_city': startCity,
         'start_state': startState,
         'sanction': eventSanction,
@@ -163,7 +165,12 @@ class Event {
       startTimeWindow = TimeWindow.fromJson(json['start_time_window']);
     }
     // endDateTime = DateTime.parse(endDateTimeUTCString);
-    distance = json['distance'];
+    distance = (json['distance'] is int)
+        ? json['distance']
+        : int.tryParse(json['distance'])!;
+    gravelDistance = (json['gravel_distance'] is int)
+        ? json['gravel_distance']
+        : int.tryParse(json['gravel_distance'])!;
     startCity = json['start_city'];
     startState = json['start_state'];
     eventSanction = json['sanction'] ?? "?";
