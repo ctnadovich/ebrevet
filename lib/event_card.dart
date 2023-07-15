@@ -81,7 +81,7 @@ class _EventCardState extends State<EventCard> {
           ListTile(
             leading: IconButton(
               onPressed: () {
-                openEventNameDialog(event);
+                openEventInfoDialog(event);
               },
               icon: const Icon(Icons.info_outline),
             ),
@@ -451,7 +451,7 @@ class _EventCardState extends State<EventCard> {
   //   );
   // }
 
-  Future openEventNameDialog(Event event) {
+  Future openEventInfoDialog(Event event) {
     // final eventID = widget.event.eventID;
     final we = event;
     final regionID = we.regionID;
@@ -474,6 +474,10 @@ class _EventCardState extends State<EventCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('${we.eventSanction} ${we.eventType}', style: bigItalic),
+            Text(event.startTimeWindow.startStyle.description),
+            if (event.gravelDistance > 0)
+              Text('Gravel: ${event.gravelDistance}/${event.distance}K, '
+                  '${(100.0 * event.gravelDistance / event.distance).round()}% unpaved'),
             Text('Region: $regionName'),
             Text('Club: $clubName'),
             Text('Location: ${we.startCity}, ${we.startState}'),
