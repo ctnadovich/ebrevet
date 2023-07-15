@@ -185,16 +185,15 @@ class _ControlCardState extends State<ControlCard> {
             Text(
                 "Control: ${1 + control.index} of ${activeEvent.event.controls.length}"),
             Text("Address: ${control.address}"),
-            Text("Style: ${control.style}"),
+            Text("Style: ${control.style.name}"),
             Text('Course distance: ${control.distMi.toString()} mi'),
             Text(exactDistanceString(control.cLoc)),
             Text("Location: ${control.lat} N;  ${control.long}E"),
             Text(controlStatusString()),
-            if (!control.style.isUntimed)
-              Text('Open Time: ${activeEvent.openActualString(control.index)}'),
-            if (!control.style.isUntimed)
-              Text(
-                  'Close Time: ${activeEvent.closeActualString(control.index)}'),
+            Text(
+                '${control.style.isUntimed ? 'Suggested ' : ''}Open Time: ${activeEvent.openActualString(control.index)}'),
+            Text(
+                '${control.style.isUntimed ? 'Suggested ' : ''}Close Time: ${activeEvent.closeActualString(control.index)}'),
             checkInRow ?? const Text('Not checked in.'),
           ],
         ),
