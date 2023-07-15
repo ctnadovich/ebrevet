@@ -52,7 +52,7 @@ class TimeTill {
         s = 's';
       }
     } else if (minutes >= 1) {
-      interval = Utility.toStringAsFixed(seconds / 60.0);
+      interval = Utility.toStringAsFixed(seconds / 60.0, n: 0);
       unit = 'min';
       if (interval == '1' || interval == '1.0') {
         s = '';
