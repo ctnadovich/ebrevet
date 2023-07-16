@@ -144,9 +144,9 @@ class _EventCardState extends State<EventCard> {
               const SizedBox(width: 8),
             ],
           ),
-          if (overallOutcomeInHistory != OverallOutcome.dns)
+          // And finally in the column is a bunch of optional messages and buttons
+          if (overallOutcomeInHistory != OverallOutcome.dns) ...[
             Text(pe?.checkInFractionString ?? ''),
-          if (overallOutcomeInHistory != OverallOutcome.dns)
             Text(
               pe?.isFullyUploadedString ?? '',
               style: TextStyle(
@@ -154,6 +154,7 @@ class _EventCardState extends State<EventCard> {
                       ? FontWeight.normal
                       : FontWeight.bold),
             ),
+          ],
 
           if (widget.hasDelete == true)
             IconButton(
