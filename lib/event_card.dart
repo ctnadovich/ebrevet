@@ -214,6 +214,7 @@ class _EventCardState extends State<EventCard> {
     final isFinished = overallOutcomeInHistory == OverallOutcome.finish;
     final notYetFinished = !isFinished;
     final isRiding = overallOutcomeInHistory == OverallOutcome.active;
+    final isDisqualified = overallOutcomeInHistory == OverallOutcome.dnq;
 
     String? buttonText;
     var isPreride = false;
@@ -221,6 +222,8 @@ class _EventCardState extends State<EventCard> {
       buttonText = "CERTIFICATE";
     } else if (isRiding) {
       buttonText = "CONTINUE RIDE";
+    } else if (isDisqualified) {
+      buttonText = "RESUME RIDE";
     } else if (isPreridable) {
       buttonText = "PRE-RIDE";
       isPreride = true;
@@ -253,7 +256,9 @@ class _EventCardState extends State<EventCard> {
 
           if (notYetFinished) {
             if (pastEvent != null) {
-              EventHistory.addActivate(event); // re-activate
+              if (!isDisqualified) {
+                EventHistory.addActivate(event); // re-activate
+              }
             } else {
               pastEvent = EventHistory.addActivate(widget.event,
                   riderID: AppSettings.rusaID.value,
@@ -279,6 +284,8 @@ class _EventCardState extends State<EventCard> {
                     checkInTime:
                         event.startTimeWindow.onTime, // check in time override
                   );
+                  SnackbarGlobal.show("Automatic Start Control Check In at "
+                      "${Utility.toBriefTimeString(event.startTimeWindow.onTime!.toLocal())}");
                   break;
                 case StartStyle.preRide:
                 case StartStyle.freeStart:

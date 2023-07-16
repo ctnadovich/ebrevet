@@ -88,12 +88,12 @@ class ActivatedEvent {
 
     // Detect FINISH, or misordered controls at finish  (TODO Does this go here?)
     if (isFinishControl(control)) {
-      if (isAllChecked && isAllCheckedInOrder()) {
+      if (areAllChecked() && isAllCheckedInOrder()) {
         outcomes.overallOutcome = OverallOutcome.finish;
         SnackbarGlobal.show(
             'Congratulations! You have finished the ${_event.nameDist}. Your '
             'elapsed time: $elapsedTimeString');
-      } else if (isAllChecked && !isAllCheckedInOrder()) {
+      } else if (areAllChecked() && !isAllCheckedInOrder()) {
         outcomes.overallOutcome = OverallOutcome.dnq;
         SnackbarGlobal.show('Controls checked in wrong order. DISQUALIFIED!');
       } else {
@@ -131,21 +131,43 @@ class ActivatedEvent {
 
   int? get lastCheckInControlKey {
     int k;
-    for (k = event.startControlKey; k <= event.finishControlKey; k++) {
-      if (outcomes.getControlCheckInTime(k) == null) {
-        break;
+    for (k = event.finishControlKey; k >= event.startControlKey; k--) {
+      if (outcomes.getControlCheckInTime(k) != null) {
+        return k;
       }
     }
-    return k == event.startControlKey ? null : k - 1;
+    return null;
+  }
+
+  bool isChecked(Control control) {
+    return controlCheckInTime(control) != null;
+  }
+
+  bool wasSkipped(Control control) {
+    if (isChecked(control)) return false; // if checked, not skipped
+    var last = lastCheckInControlKey;
+    if (last == null) return false; // if none checked, none skipped
+    if (last > control.index) return true;
+    return false;
   }
 
   int get numberOfCheckIns {
-    var last = lastCheckInControlKey;
-    if (last == null) {
-      return 0;
-    } else {
-      return 1 + last - event.startControlKey;
+    int tot = 0;
+    for (var k = event.startControlKey; k <= event.finishControlKey; k++) {
+      if (outcomes.getControlCheckInTime(k) != null) {
+        tot++;
+      }
     }
+    return tot;
+  }
+
+  int? get lastSkippedControlIndex {
+    var last = lastCheckInControlKey;
+    if (last == null) return null; // if none checked, none skipped
+    for (var k = last; k >= event.startControlKey; k--) {
+      if (outcomes.getControlCheckInTime(k) == null) return k;
+    }
+    return null;
   }
 
   int get numberOfControls =>
@@ -167,8 +189,9 @@ class ActivatedEvent {
         : "Checked into $numberOfCheckIns/$numberOfControls controls";
   }
 
-  bool get isAllChecked {
+  bool areAllChecked({int? upToIndex}) {
     for (var control in _event.controls) {
+      if (control.index > (upToIndex ?? _event.finishControlKey)) return true;
       if (false == controlIsChecked(control)) return false;
     }
     return true;

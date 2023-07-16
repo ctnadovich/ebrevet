@@ -60,8 +60,11 @@ class _ControlCardState extends State<ControlCard> {
     var activeEvent = widget.activeEvent;
     var control = widget.control;
     var checkInTime = activeEvent.controlCheckInTime(control);
+
     var isNotFinished =
         activeEvent.isIntermediateControl(control) || !activeEvent.isFinished;
+
+    var isDisqualified = activeEvent.isDisqualified;
 
     var startIndex = activeEvent.event.startControlKey;
     var finishIndex = activeEvent.event.finishControlKey;
@@ -86,11 +89,12 @@ class _ControlCardState extends State<ControlCard> {
               children: [
                 Text(exactDistanceString(control.cLoc)),
                 Text(controlStatusString()),
-                (checkInTime != null)
-                    ? Text(isNotFinished
-                        ? "Check-in Code: ($checkInSignatureString)"
-                        : "Finish Code: ($checkInSignatureString)")
-                    : const SizedBox.shrink(),
+                if (checkInTime != null)
+                  Text(isDisqualified && activeEvent.isFinishControl(control)
+                      ? "DISQUALIFIED!"
+                      : (isNotFinished
+                          ? "Check-in Code: ($checkInSignatureString)"
+                          : "Finish Code: ($checkInSignatureString)")),
               ],
             ),
             trailing: checkInButton(),
@@ -213,6 +217,14 @@ class _ControlCardState extends State<ControlCard> {
     final c = widget.control;
     final checkInTime = activeEvent.controlCheckInTime(c);
     final lastUpload = activeEvent.outcomes.lastUpload;
+
+    if (activeEvent.wasSkipped(c)) {
+      return Text('SKIPPED!',
+          style: TextStyle(
+            fontSize:
+                Theme.of(context).primaryTextTheme.bodyLarge?.fontSize ?? 16,
+          ));
+    }
 
     if (checkInTime != null) {
       var checkInIcon = (lastUpload != null &&
@@ -359,7 +371,7 @@ class _ControlCardState extends State<ControlCard> {
               : (isNotFinished
                   ? Signature.checkInCode(activeEvent, control)
                   : Signature.forCert(activeEvent));
-          var checkInSignatureString = checkInSignature?.xyText ?? 'DNQ"';
+          var checkInSignatureString = checkInSignature?.xyText ?? 'DNQ!';
           var checkInPlaintext = checkInSignature?.plainText ?? "Disqualified!";
 
           MyLogger.entry("Control check-in: $checkInPlaintext");
