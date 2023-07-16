@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +27,7 @@ import 'ticker.dart';
 import 'time_till.dart';
 import 'side_menu.dart';
 import 'settings_page.dart';
+import 'location.dart';
 
 class EventListPage extends StatefulWidget {
   const EventListPage({super.key});
@@ -34,6 +36,29 @@ class EventListPage extends StatefulWidget {
 }
 
 class _EventListPageState extends State<EventListPage> {
+  @override
+  void initState() {
+    super.initState();
+    checkPerms();
+  }
+
+  void checkPerms() async {
+    bool tryAgain = true;
+    String? permStatus;
+
+    while (tryAgain) {
+      permStatus = await RiderLocation.checkLocationPermissions();
+      if (permStatus == null) {
+        tryAgain = false;
+      } else {
+        // MyLogger.entry('GPS Check Failed: $permStatus');
+        tryAgain = await openPermErrorDialog(permStatus);
+        MyLogger.entry(
+            "GPS Fail Dialog: ${tryAgain ? 'try again' : 'give up'}");
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var dayNight = context.watch<DayNight>();
@@ -63,6 +88,36 @@ class _EventListPageState extends State<EventListPage> {
                 collapsed: false,
                 onContinue: () => setState(() {}),
               ),
+      ),
+    );
+  }
+
+  Future<bool> openPermErrorDialog(String msg) async {
+    return await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(
+          Icons.error,
+          size: 64,
+        ),
+        title: const Text("Can't Get Location"),
+        content: const Text('I tried to request permission to use the '
+            'GPS on this phone to determine your Location, but the request was '
+            'DENIED. This app can\'t work without Location permission. '
+            'Make sure Location permission is granted to this '
+            'app in App Settings.'),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('TRY AGAIN')),
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('IGNORE'))
+        ],
       ),
     );
   }

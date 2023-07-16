@@ -20,12 +20,48 @@ import 'control.dart';
 import 'exception.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
+import 'snackbarglobal.dart';
 
 class RiderLocation {
   static Position? riderLocation;
   static DateTime? lastLocationUpdate;
 
   static bool gpsServiceEnabled = false;
+
+  static Future<String?> checkLocationPermissions() async {
+    String? locError;
+    LocationPermission permission;
+    MyLogger.entry('Checking Location permissions...');
+    try {
+      gpsServiceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (gpsServiceEnabled == false) {
+        throw GPSException('GPS service not available.');
+      } else {
+        // MyLogger.entry('Location available, perm check...');
+
+        permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          MyLogger.entry('Location permission denied, requesting...');
+
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.denied) {
+            throw GPSException('GPS permission refused.');
+          }
+          // MyLogger.entry('Checking loc perm again...');
+          permission = await Geolocator.checkPermission();
+          if (permission == LocationPermission.denied) {
+            locError = "Location permission still denied.";
+          }
+        }
+      }
+    } catch (e) {
+      locError = e.toString();
+    }
+
+    MyLogger.entry('... Location permissions: ${locError ?? "OK"}');
+
+    return locError;
+  }
 
 // Consider automatic periodic report to remote server?
   // of location not just when checiking in
@@ -52,8 +88,8 @@ class RiderLocation {
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
       }
     } catch (e) {
-      // SnackbarGlobal.show(e.toString());
-      MyLogger.entry('GPS Error: ${e.toString()}');
+      SnackbarGlobal.show('GPS Error: ${e.toString()}');
+      // MyLogger.entry('GPS Error: ${e.toString()}');
     }
   }
 
