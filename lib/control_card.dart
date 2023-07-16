@@ -25,13 +25,13 @@ import 'control.dart';
 import 'time_till.dart';
 import 'location.dart';
 import 'app_settings.dart';
-import 'past_event.dart';
+import 'activated_event.dart';
 import 'control_state.dart';
 import 'utility.dart';
 
 class ControlCard extends StatefulWidget {
   final Control control;
-  final PastEvent pastEvent;
+  final ActivatedEvent pastEvent;
 
   const ControlCard(this.control, this.pastEvent, {super.key});
 

@@ -26,11 +26,11 @@ import 'day_night.dart';
 import 'ticker.dart';
 import 'outcome.dart';
 import 'report.dart';
-import 'past_event.dart';
+import 'activated_event.dart';
 import 'control_state.dart';
 
 class RidePage extends StatefulWidget {
-  final PastEvent activeEvent;
+  final ActivatedEvent activeEvent;
   const RidePage(this.activeEvent, {super.key});
 
   @override

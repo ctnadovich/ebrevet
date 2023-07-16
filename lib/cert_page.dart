@@ -18,7 +18,7 @@ import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'past_event.dart';
+import 'activated_event.dart';
 import 'day_night.dart';
 import 'view_page.dart';
 import 'control_state.dart';
@@ -26,7 +26,7 @@ import 'app_settings.dart';
 import 'screen_shot.dart';
 
 class CertificatePage extends StatefulWidget {
-  final PastEvent pastEvent;
+  final ActivatedEvent pastEvent;
   const CertificatePage(this.pastEvent, {super.key});
   @override
   State<CertificatePage> createState() => _CertificatePageState();

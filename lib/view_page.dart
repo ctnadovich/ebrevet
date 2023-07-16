@@ -20,7 +20,7 @@
 // import 'dart:io';
 import 'package:ebrevet_card/screen_shot.dart';
 
-import 'past_event.dart';
+import 'activated_event.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'control.dart';
@@ -34,7 +34,7 @@ import 'app_settings.dart';
 // TODO This really should be the same widget (or a child) as Ride Page
 
 class ControlDetailPage extends StatelessWidget {
-  final PastEvent pastEvent;
+  final ActivatedEvent pastEvent;
   // final ScreenshotController screenshotController = ScreenshotController();
   static GlobalKey previewContainer = GlobalKey();
 

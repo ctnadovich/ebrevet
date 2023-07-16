@@ -22,18 +22,18 @@ import 'control.dart';
 import 'snackbarglobal.dart';
 import 'location.dart';
 import 'event_history.dart';
-import 'past_event.dart';
+import 'activated_event.dart';
 import 'app_settings.dart';
 import 'outcome.dart';
 import 'mylogger.dart';
 import 'signature.dart';
 
 class Report {
-  static late PastEvent _reportingEvent;
+  static late ActivatedEvent _reportingEvent;
   static String? reportURL;
 
   static void constructReportAndSend(
-    PastEvent pe, {
+    ActivatedEvent pe, {
     Control? control,
     String? comment,
     Function? onUploadDone,

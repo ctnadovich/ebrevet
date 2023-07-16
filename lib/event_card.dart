@@ -26,7 +26,7 @@ import 'outcome.dart';
 import 'ride_page.dart';
 import 'region.dart';
 import 'event_history.dart';
-import 'past_event.dart';
+import 'activated_event.dart';
 import 'signature.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
@@ -187,7 +187,7 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  Future<bool?> confirmDeleteDialog(BuildContext context, PastEvent pe) =>
+  Future<bool?> confirmDeleteDialog(BuildContext context, ActivatedEvent pe) =>
       showDialog<bool>(
           context: context,
           builder: (BuildContext ctx) {
@@ -216,7 +216,8 @@ class _EventCardState extends State<EventCard> {
             );
           });
 
-  Widget rideButton(BuildContext context, Event event, {PastEvent? pastEvent}) {
+  Widget rideButton(BuildContext context, Event event,
+      {ActivatedEvent? pastEvent}) {
     var controlState = context
         .read<ControlState>(); // So addActivate can dirty the control card
 
@@ -352,7 +353,7 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  Future<bool?> confirmAutoCheckinDialog(PastEvent pe) => showDialog<bool>(
+  Future<bool?> confirmAutoCheckinDialog(ActivatedEvent pe) => showDialog<bool>(
       context: context,
       builder: (BuildContext ctx) {
         return AlertDialog(

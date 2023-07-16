@@ -19,12 +19,13 @@ import 'package:ebrevet_card/files.dart';
 import 'event.dart';
 import 'outcome.dart';
 import 'mylogger.dart';
-import 'past_event.dart';
+import 'activated_event.dart';
 import 'app_settings.dart';
 import 'control_state.dart';
 
 class EventHistory {
-  static Map<String, PastEvent> _pastEventMap = {}; // Key is EventID string
+  static Map<String, ActivatedEvent> _pastEventMap =
+      {}; // Key is EventID string
 
   // START AN EVENT -- this method turns a mere event, into an activated
   // PastEvent.   The name PastEvent is misleading since it also could
@@ -33,7 +34,7 @@ class EventHistory {
   // mere Events do not have outcomes.   Probably PastEvent should
   // be refactored as a child object of Event.
 
-  static PastEvent addActivate(Event e,
+  static ActivatedEvent addActivate(Event e,
       {String? riderID, StartStyle? startStyle, ControlState? controlState}) {
     var pe = lookupPastEvent(e.eventID);
     if (pe != null) {
@@ -58,9 +59,9 @@ class EventHistory {
     return pe;
   }
 
-  static Map<String, PastEvent> fromJsonMap(Map<String, dynamic> jsonMap) {
-    var m =
-        jsonMap.map((key, value) => MapEntry(key, PastEvent.fromJson(value)));
+  static Map<String, ActivatedEvent> fromJsonMap(Map<String, dynamic> jsonMap) {
+    var m = jsonMap
+        .map((key, value) => MapEntry(key, ActivatedEvent.fromJson(value)));
     return m;
   }
 
@@ -97,7 +98,7 @@ class EventHistory {
     }
   }
 
-  static PastEvent? lookupPastEvent(String eventID) {
+  static ActivatedEvent? lookupPastEvent(String eventID) {
     return _pastEventMap[eventID];
   }
 
@@ -122,15 +123,15 @@ class EventHistory {
     return _pastEventMap.containsKey(eventID);
   }
 
-  static List<PastEvent> get pastEventList {
+  static List<ActivatedEvent> get pastEventList {
     var eventList = _pastEventMap.values.toList();
-    eventList.sort(PastEvent.sort);
+    eventList.sort(ActivatedEvent.sort);
     return eventList;
   }
 
   // When using this, don't forget to call EventHistory.save() afterwards
 
-  static PastEvent _add(
+  static ActivatedEvent _add(
     Event e,
     String riderID,
     StartStyle startStyle, {
@@ -142,14 +143,14 @@ class EventHistory {
           "Existing event ID ${e.eventID} in _pastEventMap. Can't add again.");
     } else {
       var o = EventOutcomes(overallOutcome: overallOutcome);
-      var pe = PastEvent(e, riderID, o, startStyle);
+      var pe = ActivatedEvent(e, riderID, o, startStyle);
       _pastEventMap[e.eventID] = pe;
 
       return pe;
     }
   }
 
-  static deletePastEvent(PastEvent pe) {
+  static deletePastEvent(ActivatedEvent pe) {
     if (_pastEventMap.containsKey(pe.event.eventID)) {
       _pastEventMap.remove(pe.event.eventID);
       save();

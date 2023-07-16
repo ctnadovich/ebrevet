@@ -20,7 +20,7 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
 import 'event.dart';
-import 'past_event.dart';
+import 'activated_event.dart';
 import 'control.dart';
 
 class Signature {
@@ -39,7 +39,7 @@ class Signature {
 
   // Finish Certificates
 
-  factory Signature.forCert(PastEvent pastEvent) => Signature(
+  factory Signature.forCert(ActivatedEvent pastEvent) => Signature(
       event: pastEvent.event,
       riderID: pastEvent.riderID,
       data:
@@ -57,7 +57,7 @@ class Signature {
 
   // Check in code
 
-  factory Signature.checkInCode(PastEvent pe, Control ctrl) {
+  factory Signature.checkInCode(ActivatedEvent pe, Control ctrl) {
     var checkInTime = pe.controlCheckInTime(ctrl);
     var checkInData = "Never";
 
@@ -94,7 +94,8 @@ class Signature {
 
   // Report
 
-  factory Signature.forReport(PastEvent reportingEvent, String timestamp) =>
+  factory Signature.forReport(
+          ActivatedEvent reportingEvent, String timestamp) =>
       Signature(
           riderID: reportingEvent.riderID, // non null by assertion above
           event: reportingEvent.event,
