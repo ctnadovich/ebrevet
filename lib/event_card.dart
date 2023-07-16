@@ -223,7 +223,7 @@ class _EventCardState extends State<EventCard> {
     } else if (isRiding) {
       buttonText = "CONTINUE RIDE";
     } else if (isDisqualified) {
-      buttonText = "RESUME RIDE";
+      buttonText = "VIEW RIDE";
     } else if (isPreridable) {
       buttonText = "PRE-RIDE";
       isPreride = true;
