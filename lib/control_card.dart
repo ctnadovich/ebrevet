@@ -31,9 +31,9 @@ import 'utility.dart';
 
 class ControlCard extends StatefulWidget {
   final Control control;
-  final ActivatedEvent pastEvent;
+  final ActivatedEvent activeEvent;
 
-  const ControlCard(this.control, this.pastEvent, {super.key});
+  const ControlCard(this.control, this.activeEvent, {super.key});
 
   @override
   State<ControlCard> createState() => _ControlCardState();
@@ -57,7 +57,7 @@ class _ControlCardState extends State<ControlCard> {
   @override
   Widget build(BuildContext context) {
     context.watch<ControlState>();
-    var activeEvent = widget.pastEvent;
+    var activeEvent = widget.activeEvent;
     var control = widget.control;
     var checkInTime = activeEvent.controlCheckInTime(control);
     var isNotFinished =
@@ -107,7 +107,7 @@ class _ControlCardState extends State<ControlCard> {
     DateTime now = DateTime.now();
     var c = widget.control;
     int controlKey = c.index;
-    var activeEvent = widget.pastEvent;
+    var activeEvent = widget.activeEvent;
     var open = activeEvent.openActual(controlKey);
     var close = activeEvent.closeActual(controlKey);
     if ((open ?? close) == null) return ""; // Pre ride undefined open/close
@@ -148,7 +148,7 @@ class _ControlCardState extends State<ControlCard> {
   }
 
   Future openControlNameDialog() {
-    var activeEvent = widget.pastEvent;
+    var activeEvent = widget.activeEvent;
     var control = widget.control;
     var checkInTime = activeEvent.controlCheckInTime(control);
 
@@ -209,7 +209,7 @@ class _ControlCardState extends State<ControlCard> {
   }
 
   Widget checkInButton() {
-    final activeEvent = widget.pastEvent;
+    final activeEvent = widget.activeEvent;
     final c = widget.control;
     final checkInTime = activeEvent.controlCheckInTime(c);
     final lastUpload = activeEvent.outcomes.lastUpload;
@@ -318,7 +318,7 @@ class _ControlCardState extends State<ControlCard> {
 
   void submitCheckInDialog() {
     var controlState = context.read<ControlState>();
-    widget.pastEvent.controlCheckIn(
+    widget.activeEvent.controlCheckIn(
       control: widget.control,
       comment: controller.text,
       controlState: controlState,
@@ -332,17 +332,17 @@ class _ControlCardState extends State<ControlCard> {
   Future openPostCheckInDialog() => showDialog(
         context: context,
         builder: (context) {
-          final activeEvent = widget.pastEvent;
+          final activeEvent = widget.activeEvent;
           final control = widget.control;
           final checkInDateTime =
               activeEvent.outcomes.getControlCheckInTime(control.index);
           final checkInTimeString = Utility.toBriefTimeString(checkInDateTime);
-          var textTheme = Theme.of(context).textTheme;
-          var signatureStyle = textTheme.headlineLarge;
-          var signatureColor = Theme.of(context).colorScheme.onError;
-          var titleStyle = textTheme.headlineMedium;
-          var smallPrint = textTheme.bodySmall;
-          var overallOutcome = activeEvent.outcomes.overallOutcome;
+          final textTheme = Theme.of(context).textTheme;
+          final signatureStyle = textTheme.headlineLarge;
+          final signatureColor = Theme.of(context).colorScheme.onError;
+          final titleStyle = textTheme.headlineMedium;
+          final smallPrint = textTheme.bodySmall;
+          final overallOutcome = activeEvent.outcomes.overallOutcome;
           const spaceBox = SizedBox(
             height: 16,
           );
@@ -350,14 +350,17 @@ class _ControlCardState extends State<ControlCard> {
             height: 8,
           );
 
-          var isNotFinished = activeEvent.isIntermediateControl(control) ||
+          final isDisqualified = activeEvent.isDisqualified;
+          final isNotFinished = activeEvent.isIntermediateControl(control) ||
               !activeEvent.isFinished;
 
-          var checkInSignature = (isNotFinished)
-              ? Signature.checkInCode(activeEvent, control)
-              : Signature.forCert(activeEvent);
-          var checkInSignatureString = checkInSignature.xyText;
-          var checkInPlaintext = checkInSignature.plainText;
+          Signature? checkInSignature = isDisqualified
+              ? null
+              : (isNotFinished
+                  ? Signature.checkInCode(activeEvent, control)
+                  : Signature.forCert(activeEvent));
+          var checkInSignatureString = checkInSignature?.xyText ?? 'DNQ"';
+          var checkInPlaintext = checkInSignature?.plainText ?? "Disqualified!";
 
           MyLogger.entry("Control check-in: $checkInPlaintext");
 

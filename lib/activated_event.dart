@@ -26,7 +26,7 @@ import 'signature.dart';
 
 import 'mylogger.dart';
 
-// PastEvents are events with outcomes
+// ActivatedEvent s are events with outcomes
 // when a plain Event is "activated" it becomes
 // a past event in the EventHistory map
 
@@ -53,53 +53,53 @@ class ActivatedEvent {
         _event = Event.fromJson(json['event']),
         outcomes = EventOutcomes.fromJson(json['outcomes']);
 
-  // factory PastEvent.fromJson(Map<String, dynamic> jsonMap) {
-  //   var eventMap = jsonMap['event'];
-  //   var outcomeMap = jsonMap['outcomes'];
-  //   var isPreride = jsonMap['preride'];
-  //   var riderID = jsonMap['rider_id'];
-  //   var e = Event.fromMap(eventMap);
-  //   var o = EventOutcomes.fromMap(outcomeMap);
-  //   return PastEvent(e, riderID, o, isPreride);
-  // }
-
   static int sort(ActivatedEvent a, ActivatedEvent b) =>
       Event.sort(a._event, b._event);
 
-// CONTROL CHECK IN is a method of an activated event
+  // CONTROL CHECK IN -- one of the most important methods in the app!
+  // CONTROL CHECK IN -- one of the most important methods in the app!
+  // CONTROL CHECK IN -- one of the most important methods in the app!
+  // CONTROL CHECK IN -- one of the most important methods in the app!
 
-  void controlCheckIn(
-      {required Control control,
-      String? comment,
-      // Function? onUploadDone,
-      ControlState? controlState,
-      DateTime? checkInTime}) {
-    // assert(isAvailable(control.index)); // not assumed
+  void controlCheckIn({
+    required Control control,
+    String? comment,
+    DateTime? checkInTime,
+    ControlState? controlState,
+  }) {
     var eventID = _event.eventID;
-    assert(null != EventHistory.lookupPastEvent(eventID));
-    // Trying to check into a never activated event
+
+    assert(null != EventHistory.lookupPastEvent(eventID)); // Event in history
+    assert(null == controlCheckInTime(control)); // shouldn't be set yet
 
     // for an auto-checkin of the first control, "now" is defined as the onTime for the event
+    // passed in as a checkInTime parameter, otherwise now is now()
     var now = checkInTime?.toUtc() ?? DateTime.now().toUtc();
 
+    // do the actual check-in
     outcomes.setControlCheckInTime(control.index, now);
+    MyLogger.entry(
+        "Checking into control ${control.index} at ${now.toString()}");
 
+    // notify watchers
     if (controlState != null) {
       controlState.checkIn();
-      MyLogger.entry(
-          "Checking into control ${control.index} at ${now.toString()}");
     }
-    if (isAllChecked) {
-      if (isAllCheckedInOrder()) {
+
+    // Detect FINISH, or misordered controls at finish  (TODO Does this go here?)
+    if (isFinishControl(control)) {
+      if (isAllChecked && isAllCheckedInOrder()) {
         outcomes.overallOutcome = OverallOutcome.finish;
-        // Current.deactivate();
         SnackbarGlobal.show(
             'Congratulations! You have finished the ${_event.nameDist}. Your '
             'elapsed time: $elapsedTimeString');
+      } else if (isAllChecked && !isAllCheckedInOrder()) {
+        outcomes.overallOutcome = OverallOutcome.dnq;
+        SnackbarGlobal.show('Controls checked in wrong order. DISQUALIFIED!');
       } else {
         outcomes.overallOutcome = OverallOutcome.dnq;
-        // Current.deactivate();
-        SnackbarGlobal.show('Controls checked in wrong order. Disqualified!');
+        SnackbarGlobal.show(
+            'Failed to check into one or more intermediate controls. DISQUALIFIED!');
       }
     }
 
@@ -109,14 +109,14 @@ class ActivatedEvent {
         onUploadDone: () {
       if (controlState != null) controlState.reportUploaded();
     });
-
-    // return outcomes.overallOutcome;
   }
 
   String makeCheckInSignature(Control ctrl) =>
       Signature.checkInCode(this, ctrl).xyText;
 
   bool get isFinished => (outcomes.overallOutcome == OverallOutcome.finish);
+  bool get isDisqualified => (outcomes.overallOutcome == OverallOutcome.dnq);
+
   bool isIntermediateControl(control) =>
       control.index != event.finishControlKey;
   bool isFinishControl(control) => control.index == event.finishControlKey;

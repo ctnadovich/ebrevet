@@ -75,9 +75,11 @@ class _EventCardState extends State<EventCard> {
         pe?.isCurrentOutcomeFullyUploaded ?? false;
 
     return Card(
+      // Overall the Card is a Column
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          // Main body of Card is a List Tile
           ListTile(
             leading: IconButton(
               onPressed: () {
@@ -85,23 +87,12 @@ class _EventCardState extends State<EventCard> {
               },
               icon: const Icon(Icons.info_outline),
             ),
-            trailing: widget.hasDelete == true
-                ? IconButton(
-                    onPressed: () async {
-                      var deleted =
-                          await confirmDeleteDialog(context, pe!) ?? false;
-                      if (deleted) controlState.pastEventDeleted();
-                    },
-                    icon: const Icon(Icons.delete))
-                : null,
-            // title: showEventName(event),
             title: Text(
               event.nameDist,
               style: TextStyle(
                 fontSize:
                     Theme.of(context).primaryTextTheme.bodyLarge?.fontSize ??
                         16,
-                // color: Theme.of(context).colorScheme.primary,
               ),
             ),
             subtitle: Column(
@@ -109,76 +100,69 @@ class _EventCardState extends State<EventCard> {
               children: [
                 Text(regionName),
                 Text('${event.startCity}, ${event.startState}'),
-                Row(
-                  children: [
-                    Text(event.startTimeWindow.startStyle.description),
-                    if (event.gravelDistance > 0)
-                      Text(' (${event.gravelDistance}K gravel)'),
-                  ],
-                ),
+                Text(event.startTimeWindow.startStyle.description),
+                if (event.gravelDistance > 0)
+                  Text('Gravel: ${event.gravelDistance}K of ${event.distance}K'
+                      ' (${(100.0 * event.gravelDistance / event.distance).round()}%) unpaved'),
                 if (event.startTimeWindow.onTime != null)
                   Text('${event.dateTime} (${event.eventStatusText})'),
                 Text('Latest Cue Ver: ${event.cueVersionString}'),
               ],
             ),
           ),
-          Column(
+          // Below the List tile is a row with the ride button
+          Row(
             children: [
-              Row(
-                children: [
-                  const SizedBox(
-                    width: 16,
-                  ),
-                  Text(
-                    overallOutcomeDescriptionInHistory,
-                    style: overallOutcomeInHistory == OverallOutcome.active
-                        ? const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          )
-                        : null,
-                  ),
-                  overallOutcomeInHistory == OverallOutcome.finish
-                      ? Text(
-                          " ${EventHistory.getElapsedTimeString(event.eventID)}")
-                      : const SizedBox.shrink(),
-                  overallOutcomeInHistory == OverallOutcome.active
-                      ? IconButton(
-                          onPressed: () {
-                            setState(() {
-                              pe!.overallOutcome = OverallOutcome.dnf;
-                              // pe can't be null because overallOutcomeInHistory wasn't unknown
-                            });
-                            EventHistory.save();
-                            // Current.deactivate();
-                          },
-                          icon: const Icon(Icons.cancel),
-                          tooltip: 'Abandon the event',
-                        )
-                      : const SizedBox.shrink(),
-                  //     ],
-                  //   ),
-                  // ),
-                  const Spacer(),
-                  rideButton(context, event, pastEvent: pe),
-                  const SizedBox(width: 8),
-                ],
+              const SizedBox(
+                width: 16,
               ),
-              (overallOutcomeInHistory == OverallOutcome.dns)
-                  ? const SizedBox.shrink()
-                  : Column(
-                      children: [
-                        Text(pe?.checkInFractionString ?? ''),
-                        Text(
-                          pe?.isFullyUploadedString ?? '',
-                          style: TextStyle(
-                              fontWeight: isOutcomeFullyUploaded
-                                  ? FontWeight.normal
-                                  : FontWeight.bold),
-                        ),
-                      ],
-                    ),
+              Text(
+                overallOutcomeDescriptionInHistory,
+                style: overallOutcomeInHistory == OverallOutcome.active
+                    ? const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      )
+                    : null,
+              ),
+              if (overallOutcomeInHistory == OverallOutcome.finish)
+                Text(" ${EventHistory.getElapsedTimeString(event.eventID)}"),
+              if (overallOutcomeInHistory == OverallOutcome.active)
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      pe!.overallOutcome = OverallOutcome.dnf;
+                      // pe can't be null because overallOutcomeInHistory wasn't unknown
+                    });
+                    EventHistory.save();
+                    // Current.deactivate();
+                  },
+                  icon: const Icon(Icons.cancel),
+                  tooltip: 'Abandon the event',
+                ),
+              const Spacer(),
+              rideButton(context, event, pastEvent: pe),
+              const SizedBox(width: 8),
             ],
           ),
+          if (overallOutcomeInHistory != OverallOutcome.dns)
+            Text(pe?.checkInFractionString ?? ''),
+          if (overallOutcomeInHistory != OverallOutcome.dns)
+            Text(
+              pe?.isFullyUploadedString ?? '',
+              style: TextStyle(
+                  fontWeight: isOutcomeFullyUploaded
+                      ? FontWeight.normal
+                      : FontWeight.bold),
+            ),
+
+          if (widget.hasDelete == true)
+            IconButton(
+              onPressed: () async {
+                var deleted = await confirmDeleteDialog(context, pe!) ?? false;
+                if (deleted) controlState.pastEventDeleted();
+              },
+              icon: const Icon(Icons.delete),
+            ),
           const SizedBox(
             height: 8,
           ),
