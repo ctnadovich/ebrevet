@@ -291,6 +291,11 @@ class ActivatedEvent {
   String closeActualString(int controlKey) =>
       closeActual(controlKey)?.toLocal().toString().substring(0, 16) ?? '';
 
+  bool isUntimedControl(Control c) {
+    return c.style.isUntimed ||
+        (isIntermediateControl(c) && _event.gravelDistance > 0);
+  }
+
   bool isControlOpen(int controlKey) {
     // can start perm / preride any time
     if ((startStyle == StartStyle.preRide ||
@@ -303,7 +308,7 @@ class ActivatedEvent {
     Control control = _event.controls[controlKey];
 
     // untimed controls are always open
-    if (control.style.isUntimed) return true;
+    if (isUntimedControl(control)) return true;
 
     // otherwise, calulate open/close and compare
     var openDur = control.openDuration(_event.controls.first.open);

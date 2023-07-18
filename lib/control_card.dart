@@ -115,7 +115,7 @@ class _ControlCardState extends State<ControlCard> {
     var open = activeEvent.openActual(controlKey);
     var close = activeEvent.closeActual(controlKey);
     if ((open ?? close) == null) return ""; // Pre ride undefined open/close
-    if (c.style.isUntimed) return "Open (untimed)";
+    if (activeEvent.isUntimedControl(c)) return "Open (untimed)";
     if (open!.isAfter(now)) {
       // Open in future
       var tt = TimeTill(open);
@@ -195,9 +195,9 @@ class _ControlCardState extends State<ControlCard> {
             Text("Location: ${control.lat} N;  ${control.long}E"),
             Text(controlStatusString()),
             Text(
-                '${control.style.isUntimed ? 'Suggested ' : ''}Open Time: ${activeEvent.openActualString(control.index)}'),
+                '${activeEvent.isUntimedControl(control) ? 'Suggested ' : ''}Open Time: ${activeEvent.openActualString(control.index)}'),
             Text(
-                '${control.style.isUntimed ? 'Suggested ' : ''}Close Time: ${activeEvent.closeActualString(control.index)}'),
+                '${activeEvent.isUntimedControl(control) ? 'Suggested ' : ''}Close Time: ${activeEvent.closeActualString(control.index)}'),
             checkInRow ?? const Text('Not checked in.'),
           ],
         ),
