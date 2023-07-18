@@ -198,7 +198,7 @@ class FutureEvents {
   }
 
   static Future<bool> refreshEventsFromServer(
-      FutureEventsSource futureEventsSource) async {
+      FutureEventsSource futureEventsSource, BuildContext context) async {
     try {
       MyLogger.entry(
           "Refreshing events from SERVER for ${futureEventsSource.description} with"
@@ -221,13 +221,41 @@ class FutureEvents {
       // refreshCount.value++;
       MyLogger.entry("Refresh complete. Write status: $writeStatus");
     } catch (error) {
-      // events.clear();
-      SnackbarGlobal.show(error.toString());
+      if (error is IncompatibleVersionException) {
+        versionErrorDialog(error, futureEventsSource, context);
+        events.clear();
+      } else {
+        SnackbarGlobal.show(error.toString());
+      }
       MyLogger.entry("Error refreshing events: $error");
+
       return false;
     }
     return true;
   }
+
+  static Future<bool?> versionErrorDialog(IncompatibleVersionException error,
+          FutureEventsSource futureEventsSource, BuildContext context) =>
+      showDialog<bool>(
+          context: context,
+          builder: (BuildContext ctx) {
+            return AlertDialog(
+              icon: const Icon(Icons.error, size: 62.0),
+              title: const Text('Incompatible App Version'),
+              content: Text(
+                  "You have version ${error.actual} of this app installed, "
+                  "but the ${futureEventsSource.fullDescription} event data server requires "
+                  "version ${error.required} or newer. Please update this app to the latest version."),
+              actions: [
+                // The "Yes" button
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: const Text('Continue'))
+              ],
+            );
+          });
 
   // The first event in the "future events" list needs to be available sufficiently after start time
   // or the event ends.  We don't want it to "disappear" before we are done with it should
@@ -299,12 +327,12 @@ class FutureEvents {
             'Missing app version value in response from $url');
       }
 
-      var minimumAppVersion = decodedResponse['minimum_app_version'];
+      String minimumAppVersion = decodedResponse['minimum_app_version'];
 
       if (isIncompatibleAppVersion(minimumAppVersion)) {
-        throw ServerException(
-            'Incompatible App Version: server requires at least v$minimumAppVersion '
-            'but this app is v${AppSettings.version}');
+        throw IncompatibleVersionException(
+            actual: AppSettings.version ?? 'unknown',
+            required: minimumAppVersion);
       }
 
       if (false == decodedResponse.containsKey('event_list')) {

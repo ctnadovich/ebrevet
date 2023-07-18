@@ -20,15 +20,19 @@ import 'utility.dart';
 enum OverallOutcome {
   dns,
   dnf,
-  dnq,
+  dnqSkipped,
+  dnqScrambled,
   finish,
   active,
   unknown;
 
+  bool get isDNQ => this == dnqSkipped || this == dnqScrambled;
+
   static Map _description = {
     dns: 'Not Started',
     dnf: 'Did Not Finish',
-    dnq: 'Disqualified',
+    dnqSkipped: 'DNQ: skipped Control',
+    dnqScrambled: 'DNQ: wrong control order',
     finish: 'Finished',
     active: 'Riding Now',
     unknown: 'Unknown',

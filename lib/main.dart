@@ -31,9 +31,6 @@ import 'event_list_page.dart';
 /////////////////
 // APP RELATED
 
-// TODO DENY any finish control codes if any intermediate control
-// was missed or controls were checked out of order.
-
 // TODO Update README for recent changes
 
 void main() {

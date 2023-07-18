@@ -91,7 +91,7 @@ class _ControlCardState extends State<ControlCard> {
                 Text(controlStatusString()),
                 if (checkInTime != null)
                   Text(isDisqualified && activeEvent.isFinishControl(control)
-                      ? "DISQUALIFIED!"
+                      ? activeEvent.overallOutcomeDescription
                       : (isNotFinished
                           ? "Check-in Code: ($checkInSignatureString)"
                           : "Finish Code: ($checkInSignatureString)")),

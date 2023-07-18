@@ -213,7 +213,7 @@ class _LatestEventListState extends State<LatestEventList> {
               });
 
               FutureEvents.refreshEventsFromServer(
-                      sourceSelection.eventInfoSource)
+                      sourceSelection.eventInfoSource, context)
                   .then(
                       (value) => setState(() => fetchingFromServerNow = false));
 

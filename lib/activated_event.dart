@@ -94,10 +94,10 @@ class ActivatedEvent {
             'Congratulations! You have finished the ${_event.nameDist}. Your '
             'elapsed time: $elapsedTimeString');
       } else if (areAllChecked() && !isAllCheckedInOrder()) {
-        outcomes.overallOutcome = OverallOutcome.dnq;
+        outcomes.overallOutcome = OverallOutcome.dnqScrambled;
         SnackbarGlobal.show('Controls checked in wrong order. DISQUALIFIED!');
       } else {
-        outcomes.overallOutcome = OverallOutcome.dnq;
+        outcomes.overallOutcome = OverallOutcome.dnqSkipped;
         SnackbarGlobal.show(
             'Failed to check into one or more intermediate controls. DISQUALIFIED!');
       }
@@ -115,7 +115,7 @@ class ActivatedEvent {
       Signature.checkInCode(this, ctrl).xyText;
 
   bool get isFinished => (outcomes.overallOutcome == OverallOutcome.finish);
-  bool get isDisqualified => (outcomes.overallOutcome == OverallOutcome.dnq);
+  bool get isDisqualified => outcomes.overallOutcome.isDNQ;
 
   bool isIntermediateControl(control) =>
       control.index != event.finishControlKey;

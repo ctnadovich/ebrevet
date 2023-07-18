@@ -214,7 +214,7 @@ class _EventCardState extends State<EventCard> {
     final isFinished = overallOutcomeInHistory == OverallOutcome.finish;
     final notYetFinished = !isFinished;
     final isRiding = overallOutcomeInHistory == OverallOutcome.active;
-    final isDisqualified = overallOutcomeInHistory == OverallOutcome.dnq;
+    final isDisqualified = overallOutcomeInHistory.isDNQ;
 
     String? buttonText;
     var isPreride = false;
@@ -229,6 +229,8 @@ class _EventCardState extends State<EventCard> {
       isPreride = true;
     } else if (isStartable) {
       buttonText = "RIDE";
+    } else {
+      // buttonText = "?";
     }
 
     if (buttonText == null) return const SizedBox.shrink(); // No button

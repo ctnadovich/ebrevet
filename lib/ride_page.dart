@@ -67,7 +67,7 @@ class _RidePageState extends State<RidePage> {
     var startStyle = activeEvent.startStyle;
     var outcomes = activeEvent.outcomes;
     var isFinished = activeEvent.isFinished;
-    var isDNQ = activeEvent.outcomes.overallOutcome == OverallOutcome.dnq;
+    var isDNQ = outcomes.overallOutcome.isDNQ;
     var controlList = event.controls;
     var eventText = event.nameDist;
     var dayNight = context.watch<DayNight>();
@@ -124,7 +124,7 @@ class _RidePageState extends State<RidePage> {
                   ),
                   if (isDNQ)
                     Text(
-                      'DISQUALIFIED',
+                      outcomes.overallOutcome.description,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Theme.of(context).colorScheme.error),
                       textAlign: TextAlign.center,

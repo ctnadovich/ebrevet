@@ -35,6 +35,15 @@ class ServerException implements Exception {
   String toString() => message;
 }
 
+class IncompatibleVersionException implements Exception {
+  String required;
+  String actual;
+  IncompatibleVersionException({required this.required, required this.actual});
+  @override
+  String toString() => "Incompatible app version. "
+      "Server requires version $required, but this is version $actual";
+}
+
 class NoInternetException implements Exception {
   String message;
   Object? error;
