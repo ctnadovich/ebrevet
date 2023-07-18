@@ -206,28 +206,25 @@ class _EventCardState extends State<EventCard> {
     var controlState = context
         .read<ControlState>(); // So addActivate can dirty the control card
 
-    final isStartable = event.isStartable;
-    final isPreridable = event.isPreridable;
     final OverallOutcome overallOutcomeInHistory =
         pastEvent?.outcomes.overallOutcome ?? OverallOutcome.dns;
     final notYetStarted = overallOutcomeInHistory == OverallOutcome.dns;
     final isFinished = overallOutcomeInHistory == OverallOutcome.finish;
     final notYetFinished = !isFinished;
     final isRiding = overallOutcomeInHistory == OverallOutcome.active;
-    final isDisqualified = overallOutcomeInHistory.isDNQ;
-
-    String? buttonText;
     var isPreride = false;
+    String? buttonText;
+
     if (isFinished) {
       buttonText = "CERTIFICATE";
     } else if (isRiding) {
       buttonText = "CONTINUE RIDE";
-    } else if (isDisqualified) {
+    } else if (overallOutcomeInHistory.isDNQ) {
       buttonText = "VIEW RIDE";
-    } else if (isPreridable) {
+    } else if (event.isPreridable) {
       buttonText = "PRE-RIDE";
       isPreride = true;
-    } else if (isStartable) {
+    } else if (event.isStartable) {
       buttonText = "RIDE";
     } else {
       // buttonText = "?";
@@ -258,10 +255,22 @@ class _EventCardState extends State<EventCard> {
 
           if (notYetFinished) {
             if (pastEvent != null) {
-              if (!isDisqualified) {
+              // Restarting event (unless DNQ)
+              if (false == overallOutcomeInHistory.isDNQ) {
                 EventHistory.addActivate(event); // re-activate
               }
             } else {
+              // Starting event (unless not allowed)
+              if (isPreride && !event.isPreridable) {
+                SnackbarGlobal.show("Can't Pre Ride now.");
+                return;
+              }
+
+              if (!isPreride && !event.isStartable) {
+                SnackbarGlobal.show("Can't start now.");
+                return;
+              }
+
               pastEvent = EventHistory.addActivate(widget.event,
                   riderID: AppSettings.rusaID.value,
                   startStyle: isPreride
@@ -272,7 +281,7 @@ class _EventCardState extends State<EventCard> {
 
             // Auto first-control check in
             if (pastEvent!.outcomes.checkInTimeList.isEmpty &&
-                (isPreridable || isStartable)) {
+                (event.isPreridable || event.isStartable)) {
               // no checkins yet, but starting OK
 
               switch (pastEvent!.startStyle) {
