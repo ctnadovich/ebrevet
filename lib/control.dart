@@ -30,7 +30,7 @@ enum ControlStyle {
   info,
   postcard;
 
-  bool get isUntimed => (this == info || this == postcard || this == photo);
+  bool get isUntimed => (this == info || this == postcard);
 }
 
 class Control {
