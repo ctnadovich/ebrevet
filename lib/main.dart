@@ -28,11 +28,6 @@ import 'control_state.dart';
 import 'my_settings.dart';
 import 'event_list_page.dart';
 
-/////////////////
-// APP RELATED
-
-// TODO Update README for recent changes
-
 void main() {
   initSettings().then((_) {
     MyLogger.entry("** runApp(MyApp)");
