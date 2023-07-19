@@ -66,8 +66,10 @@ class _ControlCardState extends State<ControlCard> {
 
     var isDisqualified = activeEvent.isDisqualified;
 
-    var startIndex = activeEvent.event.startControlKey;
-    var finishIndex = activeEvent.event.finishControlKey;
+    final startIndex = activeEvent.event.startControlKey;
+    final finishIndex = activeEvent.event.finishControlKey;
+    final isStart = control.index == startIndex;
+    final isFinish = control.index == finishIndex;
 
     var checkInSignatureString = (isNotFinished)
         ? Signature.checkInCode(activeEvent, control).xyText
@@ -84,13 +86,31 @@ class _ControlCardState extends State<ControlCard> {
               },
               icon: const Icon(Icons.info_outline),
             ),
-            title: Text(
-              control.name,
-              style: TextStyle(
-                fontSize:
-                    Theme.of(context).primaryTextTheme.bodyLarge?.fontSize ??
-                        16,
-                // color: Theme.of(context).colorScheme.primary,
+            title: Text.rich(
+              TextSpan(
+                children: [
+                  // if (isStart) const WidgetSpan(child: Icon(Icons.play_arrow)),
+                  // if (isFinish) const WidgetSpan(child: Icon(Icons.stop)),
+                  if (isStart)
+                    const TextSpan(
+                        text: 'Start: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  if (isFinish)
+                    const TextSpan(
+                        text: 'Finish: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(
+                    text: control.name,
+                    style: TextStyle(
+                      fontSize: Theme.of(context)
+                              .primaryTextTheme
+                              .bodyLarge
+                              ?.fontSize ??
+                          16,
+                      // color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
               ),
             ),
             subtitle: Column(
