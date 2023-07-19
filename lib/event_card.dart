@@ -485,6 +485,7 @@ class _EventCardState extends State<EventCard> {
             Text('Region: $regionName'),
             Text('Club: $clubName'),
             Text('Location: ${we.startCity}, ${we.startState}'),
+            Text('Controls: ${event.controls.length}'),
             if (we.startTimeWindow.onTime != null)
               Text('Start: ${we.dateTime} (${we.eventStatusText})'),
             Text('Latest Cue Ver: ${we.cueVersionString}'),
