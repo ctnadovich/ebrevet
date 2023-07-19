@@ -78,12 +78,21 @@ class _ControlCardState extends State<ControlCard> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon((control.index == startIndex)
-                ? Icons.play_arrow
-                : ((control.index == finishIndex)
-                    ? Icons.stop
-                    : Icons.checklist)),
-            title: showControlName(),
+            leading: IconButton(
+              onPressed: () {
+                openControlInfoDialog();
+              },
+              icon: const Icon(Icons.info_outline),
+            ),
+            title: Text(
+              control.name,
+              style: TextStyle(
+                fontSize:
+                    Theme.of(context).primaryTextTheme.bodyLarge?.fontSize ??
+                        16,
+                // color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -135,23 +144,23 @@ class _ControlCardState extends State<ControlCard> {
     return ('Dir: ${cLoc.crowDistString} ${cLoc.crowCompassHeadingString}');
   }
 
-  Widget showControlName() {
-    var control = widget.control;
-    return GestureDetector(
-      onTap: () {
-        openControlNameDialog();
-      },
-      child: Text(
-        control.name,
-        style: TextStyle(
-            fontSize:
-                Theme.of(context).primaryTextTheme.bodyLarge?.fontSize ?? 16,
-            color: Theme.of(context).colorScheme.primary),
-      ),
-    );
-  }
+  // Widget showControlName() {
+  //   var control = widget.control;
+  //   return GestureDetector(
+  //     onTap: () {
+  //       openControlInfoDialog();
+  //     },
+  //     child: Text(
+  //       control.name,
+  //       style: TextStyle(
+  //           fontSize:
+  //               Theme.of(context).primaryTextTheme.bodyLarge?.fontSize ?? 16,
+  //           color: Theme.of(context).colorScheme.primary),
+  //     ),
+  //   );
+  // }
 
-  Future openControlNameDialog() {
+  Future openControlInfoDialog() {
     var activeEvent = widget.activeEvent;
     var control = widget.control;
     var checkInTime = activeEvent.controlCheckInTime(control);
@@ -244,32 +253,35 @@ class _ControlCardState extends State<ControlCard> {
       var openTimeOverride = AppSettings.openTimeOverride;
       var proximityOverride = AppSettings.controlProximityOverride.value;
 
-      return Text.rich(
-          TextSpan(style: const TextStyle(fontSize: 12), children: [
-        if (open || openTimeOverride.value)
-          TextSpan(
-            text: 'Open now${openTimeOverride.value ? "*" : ""}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        if (!open && !openTimeOverride.value)
-          const TextSpan(
-            text: 'Not open',
-          ),
-        const TextSpan(text: ' - '),
-        if (near)
-          TextSpan(
-            text: 'At control${proximityOverride ? "*" : ""}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        if (!near && RiderLocation.riderLocation != null)
-          const TextSpan(
-            text: 'Not near',
-          ),
-        if (RiderLocation.riderLocation == null)
-          const TextSpan(
-            text: 'Dist ??',
-          ),
-      ]));
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (open || openTimeOverride.value)
+            Text(
+              'Open now${openTimeOverride.value ? "*" : ""}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          if (!open && !openTimeOverride.value)
+            const Text(
+              'Not open',
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          if (near)
+            Text(
+              'At control${proximityOverride ? "*" : ""}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          if (!near && RiderLocation.riderLocation != null)
+            const Text(
+              'Not near',
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
+          if (RiderLocation.riderLocation == null)
+            const Text(
+              'Dist ??',
+            ),
+        ],
+      );
     } else {
       return ElevatedButton(
         onPressed: () {
