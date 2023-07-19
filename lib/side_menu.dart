@@ -111,7 +111,7 @@ class SideMenuDrawer extends StatelessWidget {
           width: 64,
         ),
         applicationVersion:
-            "v${AppSettings.version ?? '?'}(${AppSettings.buildNumber})",
+            "v${AppSettings.version ?? '?'} (${AppSettings.buildNumber})",
         applicationLegalese:
             '(c)2023 Chris Nadovich. This is free software licensed under GPLv3.',
         children: [
