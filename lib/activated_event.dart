@@ -118,7 +118,8 @@ class ActivatedEvent {
   bool get isDisqualified => outcomes.overallOutcome.isDNQ;
 
   bool isIntermediateControl(control) =>
-      control.index != event.finishControlKey;
+      control.index != event.finishControlKey &&
+      control.index != event.startControlKey;
   bool isFinishControl(control) => control.index == event.finishControlKey;
 
   bool get isFinalOutcomeFullyUploaded {
