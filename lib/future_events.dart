@@ -275,6 +275,7 @@ class FutureEvents {
     events.clear();
     for (var e in el) {
       var eventToAdd = Event.fromJson(e);
+
       if (eventToAdd.valid == false) {
         throw const FormatException('Invalid event data found.');
       }
@@ -286,7 +287,12 @@ class FutureEvents {
         var graceDuration =
             const Duration(hours: keepInFutureEventListAfterFinishHours);
         var eventReallyEnds = eventToAdd.latestFinishTime!.add(graceDuration);
-        if (eventReallyEnds.isAfter(now)) events.add(eventToAdd);
+        if (eventReallyEnds.isAfter(now)) {
+          events.add(eventToAdd);
+        } else {
+          MyLogger.entry(
+              "Ignoring past event ${eventToAdd.name} ${eventToAdd.distance}K on ${eventToAdd.startTimeWindow.onTime.toString()}");
+        }
       }
     }
     events.sort(Event.sort);
