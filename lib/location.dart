@@ -88,8 +88,8 @@ class RiderLocation {
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
       }
     } catch (e) {
-      SnackbarGlobal.show('GPS Error: ${e.toString()}');
-      // MyLogger.entry('GPS Error: ${e.toString()}');
+      // SnackbarGlobal.show('GPS Error: ${e.toString()}');
+      MyLogger.entry('GPS Error: ${e.toString()}');
     }
   }
 
