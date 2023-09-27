@@ -323,38 +323,42 @@ class Event {
     var late = startTimeWindow.late;
     var answer = true;
 
-    switch (startTimeWindow.startStyle) {
-      case StartStyle.freeStart:
-        if (onTime != null) {
-          if (early != null) {
-            var earlyTime = onTime.subtract(early);
-            if (now.isBefore(earlyTime)) answer = false;
-          } else if (late != null) {
-            var lateTime = onTime.add(late);
-            if (now.isAfter(lateTime)) answer = false;
+    if (cueVersion <= 0) {
+      answer = false; // Can't start without a published cuesheet
+    } else {
+      switch (startTimeWindow.startStyle) {
+        case StartStyle.freeStart:
+          if (onTime != null) {
+            if (early != null) {
+              var earlyTime = onTime.subtract(early);
+              if (now.isBefore(earlyTime)) answer = false;
+            } else if (late != null) {
+              var lateTime = onTime.add(late);
+              if (now.isAfter(lateTime)) answer = false;
+            }
           }
-        }
-        break;
+          break;
 
-      case StartStyle.massStart:
-        if (onTime == null) {
-          throw const InvalidConfigException(
-              'Mass start events must have a start time');
-        }
-        var graceDuration =
-            const Duration(minutes: AppSettings.advanceStartTimeGraceMinutes);
-        var graceOpenTime = onTime.subtract(graceDuration);
-        answer =
-            graceOpenTime.isBefore(now) && startControlCloseTime.isAfter(now);
-        break;
+        case StartStyle.massStart:
+          if (onTime == null) {
+            throw const InvalidConfigException(
+                'Mass start events must have a start time');
+          }
+          var graceDuration =
+              const Duration(minutes: AppSettings.advanceStartTimeGraceMinutes);
+          var graceOpenTime = onTime.subtract(graceDuration);
+          answer =
+              graceOpenTime.isBefore(now) && startControlCloseTime.isAfter(now);
+          break;
 
-      case StartStyle.preRide:
-        answer = isPreridable;
-        break;
+        case StartStyle.preRide:
+          answer = isPreridable;
+          break;
 
-      case StartStyle.permanent:
-        answer = true;
-        break;
+        case StartStyle.permanent:
+          answer = true;
+          break;
+      }
     }
 
     return answer;
