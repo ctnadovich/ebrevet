@@ -280,6 +280,11 @@ class FutureEvents {
         throw const FormatException('Invalid event data found.');
       }
 
+      if (eventToAdd.cueVersion <= 0) {
+        MyLogger.entry("Ignoring event with no cue sheet.");
+        continue;
+      }
+
       if (eventToAdd.startTimeWindow.onTime == null) {
         events.add(eventToAdd); // Permanent
       } else {
