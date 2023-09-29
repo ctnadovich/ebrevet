@@ -22,17 +22,20 @@ enum OverallOutcome {
   dnf,
   dnqSkipped,
   dnqScrambled,
+  dnqLateCheckIn,
   finish,
   active,
   unknown;
 
-  bool get isDNQ => this == dnqSkipped || this == dnqScrambled;
+  bool get isDNQ =>
+      this == dnqSkipped || this == dnqScrambled || this == dnqLateCheckIn;
 
   static Map _description = {
     dns: 'Not Started',
     dnf: 'Did Not Finish',
-    dnqSkipped: 'DNQ: skipped Control',
+    dnqSkipped: 'DNQ: skipped a control',
     dnqScrambled: 'DNQ: wrong control order',
+    dnqLateCheckIn: 'DNQ: late to a control',
     finish: 'Finished',
     active: 'Riding Now',
     unknown: 'Unknown',

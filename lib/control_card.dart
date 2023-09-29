@@ -118,12 +118,17 @@ class _ControlCardState extends State<ControlCard> {
               children: [
                 Text(exactDistanceString(control.cLoc)),
                 Text(controlStatusString()),
+                if (isDisqualified && activeEvent.isFinishControl(control))
+                  Text(
+                    activeEvent.overallOutcomeDescription,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 if (checkInTime != null)
-                  Text(isDisqualified && activeEvent.isFinishControl(control)
-                      ? activeEvent.overallOutcomeDescription
-                      : (isNotFinished
-                          ? "Check-in Code: ($checkInSignatureString)"
-                          : "Finish Code: ($checkInSignatureString)")),
+                  Text(isNotFinished
+                      ? (isDisqualified && isFinish
+                          ? "DNQ Check In: ($checkInSignatureString)"
+                          : "Check-in Code: ($checkInSignatureString)")
+                      : "Finish Code: ($checkInSignatureString)"),
               ],
             ),
             trailing: checkInButton(),
@@ -241,12 +246,17 @@ class _ControlCardState extends State<ControlCard> {
     );
   }
 
+  // Decide what sort of check in button, if any, should be displayed.
+  // This is also the "gateway" to checkin, deciding if the rider
+  // should be allowed to check in.
+
   Widget checkInButton() {
     final activeEvent = widget.activeEvent;
     final c = widget.control;
     final checkInTime = activeEvent.controlCheckInTime(c);
     final lastUpload = activeEvent.outcomes.lastUpload;
 
+    // Can't check in -- you skipped me
     if (activeEvent.wasSkipped(c)) {
       return Text('SKIPPED!',
           style: TextStyle(
@@ -255,6 +265,7 @@ class _ControlCardState extends State<ControlCard> {
           ));
     }
 
+    // Can't check in -- already did (show time, green/orange check etc..)
     if (checkInTime != null) {
       var checkInIcon = (lastUpload != null &&
               (lastUpload.isAfter(checkInTime) ||
@@ -265,9 +276,13 @@ class _ControlCardState extends State<ControlCard> {
         children: [
           checkInIcon,
           Text(Utility.toBriefTimeString(checkInTime)),
+          if (activeEvent.checkedInLate(c)) const Text('LATE!')
         ],
       );
+
+      // Control NOT available, figure out why and show
     } else if (false == activeEvent.isControlAvailable(c.index)) {
+      // || activeEvent.previousControlsAreAvailable(c.index)) {
       var open = activeEvent.isControlOpen(c.index);
       var near = activeEvent.isControlNearby(c.index);
       var openTimeOverride = AppSettings.openTimeOverride;
@@ -302,12 +317,18 @@ class _ControlCardState extends State<ControlCard> {
             ),
         ],
       );
+
+      // Otherwise, control is available. Gosh, let the cat check in.
     } else {
       return ElevatedButton(
         onPressed: () {
           openCheckInDialog();
         },
-        child: const Text('CHECK IN'),
+        child: activeEvent.lateCheckIn
+            ? const Column(
+                children: [Text('CHECK IN'), Text('LATE!')],
+              )
+            : const Text('CHECK IN'),
       );
     }
   }
@@ -331,37 +352,52 @@ class _ControlCardState extends State<ControlCard> {
         ),
       );
 
-  Column checkInDialogContent() {
+  Widget checkInDialogContent() {
     final control = widget.control;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          control.name,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(controlStatusString()),
-        Text(exactDistanceString(control.cLoc)),
-        if (control.cLoc.isNearby)
-          const Text(
-            'AT THIS CONTROL',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        TextField(
-          decoration: const InputDecoration(hintText: 'Comment (optional)'),
-          controller: controller,
-          onSubmitted: (_) => submitCheckInDialog(),
-        ),
-      ],
-    );
+    var activeEvent = widget.activeEvent;
+    var isAvailable = activeEvent
+        .isControlAvailable(control.index); // sets activeEvent.lateCheckIn
+
+    return isAvailable == false
+        ? const Text('Control NOT Available')
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                control.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(controlStatusString()),
+              Text(exactDistanceString(control.cLoc)),
+              if (control.cLoc.isNearby)
+                const Text(
+                  'AT THIS CONTROL',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              if (activeEvent.lateCheckIn)
+                Text('THIS IS A LATE CHECK IN!',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge!
+                        .copyWith(fontWeight: FontWeight.bold)),
+              TextField(
+                decoration:
+                    const InputDecoration(hintText: 'Comment (optional)'),
+                controller: controller,
+                onSubmitted: (_) => submitCheckInDialog(),
+              ),
+            ],
+          );
   }
 
   void submitCheckInDialog() {
     var controlState = context.read<ControlState>();
+
+    // this will do the actual check-in
     widget.activeEvent.controlCheckIn(
       control: widget.control,
       comment: controller.text,

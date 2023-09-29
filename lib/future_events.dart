@@ -222,7 +222,9 @@ class FutureEvents {
       MyLogger.entry("Refresh complete. Write status: $writeStatus");
     } catch (error) {
       if (error is IncompatibleVersionException) {
-        versionErrorDialog(error, futureEventsSource, context);
+        if (context.mounted) {
+          versionErrorDialog(error, futureEventsSource, context);
+        }
         events.clear();
       } else {
         SnackbarGlobal.show(error.toString());

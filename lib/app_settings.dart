@@ -171,6 +171,12 @@ class AppSettings {
       title: 'Can Delete Past Events',
       icon: const Icon(Icons.settings));
 
+  static MySetting<bool> canCheckInLate = MySetting(
+      key: 'key-check-in-late',
+      defaultValue: true,
+      title: 'Can Check In Late to Controls',
+      icon: const Icon(Icons.settings));
+
   static MySetting<bool> prerideDateWindowOverride = MySetting(
       key: 'key-preride-date-window-override',
       defaultValue: false,

@@ -61,6 +61,11 @@ class ActivatedEvent {
   // CONTROL CHECK IN -- one of the most important methods in the app!
   // CONTROL CHECK IN -- one of the most important methods in the app!
 
+  // This does the checkin itself. There's no verification whether this
+  // should be allowed other than the basic asserts.
+  // Presumably the caller has already verified the rider is near the
+  // control, etc...
+
   void controlCheckIn({
     required Control control,
     String? comment,
@@ -88,7 +93,7 @@ class ActivatedEvent {
 
     // Detect FINISH, or misordered controls at finish  (TODO Does this go here?)
     if (isFinishControl(control)) {
-      if (areAllChecked() && isAllCheckedInOrder()) {
+      if (areAllChecked() && isAllCheckedInOrder() && wereNoLateCheckIns()) {
         outcomes.overallOutcome = OverallOutcome.finish;
         SnackbarGlobal.show(
             'Congratulations! You have finished the ${_event.nameDist}. Your '
@@ -96,6 +101,10 @@ class ActivatedEvent {
       } else if (areAllChecked() && !isAllCheckedInOrder()) {
         outcomes.overallOutcome = OverallOutcome.dnqScrambled;
         SnackbarGlobal.show('Controls checked in wrong order. DISQUALIFIED!');
+      } else if (areAllChecked() && !wereNoLateCheckIns()) {
+        outcomes.overallOutcome = OverallOutcome.dnqLateCheckIn;
+        SnackbarGlobal.show(
+            'Checked in LATE to one or more controls. DISQUALIFIED!');
       } else {
         outcomes.overallOutcome = OverallOutcome.dnqSkipped;
         SnackbarGlobal.show(
@@ -193,7 +202,15 @@ class ActivatedEvent {
   bool areAllChecked({int? upToIndex}) {
     for (var control in _event.controls) {
       if (control.index > (upToIndex ?? _event.finishControlKey)) return true;
-      if (false == controlIsChecked(control)) return false;
+      if (false == controlIsChecked(control)) return false; // Found one!
+    }
+    return true;
+  }
+
+  bool wereNoLateCheckIns({int? upToIndex}) {
+    for (var control in _event.controls) {
+      if (control.index > (upToIndex ?? _event.finishControlKey)) return true;
+      if (checkedInLate(control)) return false; // Found one!
     }
     return true;
   }
@@ -297,7 +314,36 @@ class ActivatedEvent {
         (isIntermediateControl(c) && _event.gravelDistance > 0);
   }
 
+  bool checkedInLate(Control control) {
+    var checkInActual = controlCheckInTime(control);
+
+    // Can't be late till we're late
+    if (checkInActual == null) return false;
+
+    // untimed controls are always open
+    if (isUntimedControl(control)) return false;
+
+    // otherwise, calulate close and compare
+    var closeDur = control.closeDuration(_event.controls.first.open);
+    var closeActual = startDateTimeActual!.add(closeDur);
+
+    // Close time was before check in time
+    return closeActual.isBefore(checkInActual);
+  }
+
+  bool lateCheckIn = false; // Side effect of calling isControlOpen
+  // Maybe this should be wired into the return value?
+  // But it's so nice to have the return a simple bool
+  // And it seems silly to recalculate everything (with possible)
+  // "now" time skew ... but yeah, maybe return yes/no/late
+
+  // Is it possible now to check into this control?
   bool isControlOpen(int controlKey) {
+    Control control = _event.controls[controlKey];
+
+    // Already checked in -- can't do it again
+    if (null != controlCheckInTime(control)) return false;
+
     // can start perm / preride any time
     if ((startStyle == StartStyle.preRide ||
             startStyle == StartStyle.permanent) &&
@@ -305,8 +351,6 @@ class ActivatedEvent {
 
     // no controls are open till the first one is checked
     if (startDateTimeActual == null) return false;
-
-    Control control = _event.controls[controlKey];
 
     // untimed controls are always open
     if (isUntimedControl(control)) return true;
@@ -319,7 +363,15 @@ class ActivatedEvent {
 
     var now = DateTime.now();
 
-    return (openActual.isBefore(now) && closeActual.isAfter(now));
+    var isAvailableStrict =
+        openActual.isBefore(now) && closeActual.isAfter(now);
+
+    var isAvailable = (openActual.isBefore(now) &&
+        (closeActual.isAfter(now) || AppSettings.canCheckInLate.value));
+
+    lateCheckIn = (isAvailable != isAvailableStrict); // side effect
+
+    return isAvailable;
   }
 
   bool isControlNearby(int controlKey) =>
@@ -332,6 +384,23 @@ class ActivatedEvent {
 
   Event get event {
     return _event;
+  }
+
+  // This is used for hiding check in buttons if a previous
+  // control wasn't checked but is available. The idea
+  // is to not have two controls available for
+  // check-in at the same time. We want to avoid someone accidentally
+  // skipping a control by checking into the wrong available one.
+  // On the other hand, maybe you DID skip a control for some
+  // reason and want to continue.
+
+  bool previousControlsAreAvailable(int thisControlIndex) {
+    for (var control in _event.controls) {
+      if (control.index >= thisControlIndex) break;
+      var isAvailable = isControlAvailable(control.index);
+      if (isAvailable) return true; // Found one!
+    }
+    return false;
   }
 
   set overallOutcome(OverallOutcome o) {

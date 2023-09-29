@@ -187,6 +187,7 @@ class _AdvancedSettingsState extends State<AdvancedSettings> {
                   SwitchSettingsTile(AppSettings.openTimeOverride),
                   SwitchSettingsTile(AppSettings.prerideDateWindowOverride),
                   SwitchSettingsTile(AppSettings.canDeletePastEvents),
+                  SwitchSettingsTile(AppSettings.canCheckInLate),
                   SwitchSettingsTile(AppSettings.controlProximityOverride),
                   DialogInputSettingsTile(AppSettings.proximityRadius),
                   const SizedBox(
