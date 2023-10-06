@@ -28,7 +28,8 @@ enum ControlStyle {
   photo,
   open,
   info,
-  postcard;
+  postcard,
+  undefined;
 
   bool get isUntimed => (this == info || this == postcard);
 }
