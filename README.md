@@ -7,20 +7,20 @@ An electronic brevet card for randonneuring.
 ## Introduction
 
 This Android/iOS app serves as an automated brevet card that can
-provide Electronic Proof of Passage on a randonneuring brevet or permanent, while
+certify your control check-ins on a randonneuring brevet or permanent, while
 maintaining some of the "feel" of the traditional paper brevet card
 process.  The app only needs to be activated at controls and does
 not require Internet data service at controls. If network
 access is available, the app will report control check in times for
 the rider to a central server. When the event is completed successfully,
-the app generates a unique Proof of Passage Certificate that is sharable
+the app generates a unique Verification Certificate that is sharable
 on social media. 
 
 You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet" by "CTNadovich".
 
 ## Features include
 
-- Provides electronic proof of passage with a brevet card process requiring "check in" at controls.
+- Provides verification of a brevet card process requiring "check in" at controls.
 - Monitors distance to controls with GPS and open/close times versus clock time.  
 - Only allows control check in when near (~500m) a control, and the control is open.
 - Does not require anything physically at controls (eg no QR code, volunteer, etc... needed)
@@ -34,8 +34,8 @@ You can find the app on both the [Apple Store](https://www.apple.com/app-store/)
 - Secure. Needs location permission only. Minimal use of personal information.
 - Needs network access initially to download event details, and finally to upload results. 
 - Requires a "start code" so riders must be registerd for event to use the app
-- Check-in signature "codes" available for your paper brevet card as backup proof of passage.
-- Finish certificate sharable on social media with unique "finish code" proof of passage.
+- Check-in signature "codes" available for your paper brevet card as backup.
+- Finish certificate sharable on social media with unique "finish code" verification.
 - Reports control check ins back to server allowing rider progess monitoring.
 - Can be used by any club publishing event details in specified JSON format. 
 - Free, open source software.
@@ -125,7 +125,7 @@ Club/Region's server. After you dismiss the check-in dialogs and
 return to the ride page, you will see either a orange three-dots icon,
 or a green check next to the control. The green check means you've
 checked in and your check-in time has been uploaded to the Club/Region
-server. Ride on with confidence that your proof of passage by that
+server. Ride on with confidence that your check-in at that
 control is solid.
 
 On the other hand, if you see an orange three-dots icon, that means
@@ -166,11 +166,11 @@ attempt to finish.
 
 A check-in confirmation dialog appers with an official check in
 "signature" code. It's wise to write this code and the check-in time
-on your paper brevet card as proof of passage, particularly if you see
-orange dots indicating that your proof of passage hasn't been uploaded
+on your paper brevet card, particularly if you see
+orange dots indicating that your check-in hasn't been uploaded
 and backed up at the Club/Region. Should something happen to your
 phone, writing down the check in signature code is
-proof you were at the control at the required time. 
+evidence you were at the control at the required time. 
 
 If for some reason uploads fail and you don't have green checks on all
 your controls when you've finished an event, now it's *really* a good
@@ -232,7 +232,7 @@ The app presents a list of regions in the US. The default is PA:
 Eastern, but any US region can be selected. Please only select regions
 that support eBrevet.  If a region does not support eBrevet, you will
 not be able to use eBrevet for those events. Talk to your RBA and RUSA
-about supporting eBrevet EPP for the events you want to ride. More
+about supporting eBrevet for the events you want to ride. More
 supported regions are being added all the time.  
 
 There is also an option for selecting a Custom Event Data URL. This
@@ -264,7 +264,7 @@ erased.
 
 ### Sharable Finish Certificate
 
-A good way to finalize your proof of passage for a past event and make
+A good way to finalize your completion of a past event and make
 sure your results are also stored in Le Grand Livre for posterity is
 to share your certificate of completion. Each event you've finished
 will show a CERTIFICATE button. If you press this button, a
