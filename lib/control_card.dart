@@ -149,7 +149,9 @@ class _ControlCardState extends State<ControlCard> {
     var open = activeEvent.openActual(controlKey);
     var close = activeEvent.closeActual(controlKey);
     if ((open ?? close) == null) return ""; // Pre ride undefined open/close
-    if (activeEvent.isUntimedControl(c)) return "Open (untimed)";
+    if (activeEvent.isUntimedControl(c)) {
+      return "Open (untimed)";
+    }
     if (open!.isAfter(now)) {
       // Open in future
       var tt = TimeTill(open);
