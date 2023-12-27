@@ -47,6 +47,7 @@ class EventCard extends StatefulWidget {
 class _EventCardState extends State<EventCard> {
   late TextEditingController controller;
   String startCode = '';
+  final String invalidCodeText = "INVALID Start Code";
 
   @override
   void initState() {
@@ -246,7 +247,11 @@ class _EventCardState extends State<EventCard> {
             final startCode = await getStartCodeDialog();
             final msg = validateStartCode(startCode, event);
             if (null != msg) {
-              SnackbarGlobal.show(msg);
+              if (msg.contains(invalidCodeText)) {
+                await invalidStartCodeDialog(event, msg);
+              } else {
+                SnackbarGlobal.show(msg);
+              }
               return;
             }
           }
@@ -380,6 +385,43 @@ class _EventCardState extends State<EventCard> {
         );
       });
 
+  Future<bool?> invalidStartCodeDialog(Event event, String msg) => showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          icon: const Icon(Icons.error, size: 62.0),
+          title: Text(msg),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('When did you last update event data in this app?'),
+              const SizedBox(
+                height: 8,
+              ),
+              const Text('Maybe you need to update the event data in this app '
+                  'to match the cue version of your brevet card. '),
+              const SizedBox(
+                height: 8,
+              ),
+              const Text('To update event data, press '
+                  'the "Update Event Data" button at the top of the eBrevet Events page. '),
+              const SizedBox(
+                height: 8,
+              ),
+              Text('App Event Data: Cue Ver ${event.cueVersionString}'),
+            ],
+          ),
+          actions: [
+            // The "Yes" button
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Continue')),
+          ],
+        );
+      });
+
   String? validateStartCode(String? s, Event event) {
     if (s == null || s.isEmpty) return "Missing start code";
     if (false == AppSettings.isRusaIDSet) return "Rider not set.";
@@ -408,7 +450,7 @@ class _EventCardState extends State<EventCard> {
     MyLogger.entry(
         "Invalid Start Code $offeredCode; Valid code is '$validCode'; ",
         severity: Severity.hidden);
-    return "INVALID Start Code: $offeredCode";
+    return "$invalidCodeText: $offeredCode";
   }
 
   Future<String?> getStartCodeDialog() {
@@ -418,16 +460,19 @@ class _EventCardState extends State<EventCard> {
         title: const Text('Enter Brevet Start Code '),
         icon: const Icon(Icons.lock_person, size: 128),
         content: TextField(
-          decoration: const InputDecoration(
-              hintText: 'Enter start code from brevet card'),
-          autofocus: true,
-          controller: controller,
-          onSubmitted: (_) => submitDialog(),
-        ),
+            decoration: const InputDecoration(
+                hintText: 'Enter start code from brevet card'),
+            autofocus: true,
+            controller: controller,
+            onSubmitted: (_) {
+              Navigator.of(context).pop(controller.text);
+              controller.clear();
+            }),
         actions: [
           TextButton(
               onPressed: () {
-                submitDialog();
+                Navigator.of(context).pop(controller.text);
+                controller.clear();
               },
               child: const Text('SUBMIT'))
         ],
@@ -435,10 +480,10 @@ class _EventCardState extends State<EventCard> {
     );
   }
 
-  void submitDialog() {
-    Navigator.of(context).pop(controller.text);
-    controller.clear();
-  }
+  // void submitDialog() {
+  //   Navigator.of(context).pop(controller.text);
+  //   controller.clear();
+  // }
 
   // Widget showEventName(Event event) {
   //   return GestureDetector(
