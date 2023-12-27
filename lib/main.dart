@@ -20,6 +20,8 @@ import 'package:ebrevet_card/event_history.dart';
 import 'package:ebrevet_card/app_settings.dart';
 import 'package:provider/provider.dart';
 
+import 'package:upgrader/upgrader.dart';
+
 import 'snackbarglobal.dart';
 import 'future_events.dart';
 import 'day_night.dart';
@@ -74,7 +76,7 @@ class MyApp extends StatelessWidget {
         theme: dayNight.dayTheme,
         darkTheme: dayNight.nightTheme,
         themeMode: dayNight.mode,
-        home: const EventListPage(),
+        home: UpgradeAlert(child: const EventListPage()),
       );
     });
   }
