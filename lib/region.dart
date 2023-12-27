@@ -285,6 +285,13 @@ class Region {
       'club_name': 'Audax Kansas City',
       'website_url': 'http://www.audaxkc.com/',
     },
+    925006: {
+      'state_code': 'MO',
+      'state_name': 'Missouri',
+      'region_name': 'St. Louis',
+      'club_name': 'St Louis Randonneurs',
+      'website_url': 'http://stlbrevets.com/',
+    },
     926001: {
       'state_code': 'MT',
       'state_name': 'Montana',
