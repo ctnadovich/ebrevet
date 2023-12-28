@@ -16,10 +16,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:ebrevet_card/snackbarglobal.dart';
 
 import 'day_night.dart';
 import 'mylogger.dart';
-import 'screen_shot.dart';
 
 class LogPage extends StatefulWidget {
   const LogPage({
@@ -32,7 +33,7 @@ class LogPage extends StatefulWidget {
 }
 
 class LogPageState extends State<LogPage> {
-  static GlobalKey previewContainer = GlobalKey();
+  // static GlobalKey previewContainer = GlobalKey();
 
   final spacerBox = const SizedBox(
     height: 16,
@@ -41,7 +42,6 @@ class LogPageState extends State<LogPage> {
   @override
   Widget build(BuildContext context) {
     var dayNight = context.watch<DayNight>();
-    var fileName = "Log.png";
 
     return Scaffold(
       appBar: AppBar(
@@ -57,21 +57,38 @@ class LogPageState extends State<LogPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => ScreenShot.take(fileName, previewContainer),
+        onPressed: () =>
+            shareTextLog(), // ScreenShot.take(fileName, previewContainer),
         child: const Icon(Icons.share),
       ),
       body: Container(
         color: Theme.of(context).colorScheme.primaryContainer,
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        child: RepaintBoundary(
-          key: previewContainer,
-          child: ListView(
-            children: [
-              ...MyLogger.records.reversed.map((s) => (Text(s))),
-            ],
-          ),
+        child:
+            // RepaintBoundary(
+            //  key: previewContainer,
+            //   child:
+            ListView(
+          children: [
+            ...MyLogger.records.reversed.map((s) => (Text(s))),
+          ],
         ),
+        //),
       ),
     );
+  }
+
+  static void shareTextLog({String filename = 'eBrevetLog.txt'}) async {
+    MyLogger.entry("Sharing activity log");
+    var logList = MyLogger.records.reversed.toList();
+    var logText = logList.join('\n');
+    try {
+      ShareResult shareResult =
+          await Share.shareWithResult(logText, subject: "eBrevet Activity Log");
+      MyLogger.entry(shareResult.status.toString());
+    } catch (e) {
+      var message = "Failed to share activity log";
+      SnackbarGlobal.show(message);
+    }
   }
 }
