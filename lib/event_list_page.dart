@@ -66,7 +66,7 @@ class _EventListPageState extends State<EventListPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'eBrevet Events',
+          'Choose Event to Ride',
         ),
         actions: [
           IconButton(
