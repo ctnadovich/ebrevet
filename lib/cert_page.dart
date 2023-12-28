@@ -87,6 +87,25 @@ class _CertificatePageState extends State<CertificatePage> {
                     padding: const EdgeInsetsDirectional.all(12),
                     decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primaryContainer,
+                        gradient: LinearGradient(
+                            colors: [
+                              Colors.red[100]!,
+                              Colors.white,
+                              Colors.blue[100]!
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight),
+                        border: Border.all(
+                          color: Colors.yellowAccent,
+                          width: 2,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.blueAccent,
+                            offset: Offset(5, 5),
+                            blurRadius: 10,
+                          ),
+                        ],
                         borderRadius:
                             const BorderRadius.all(Radius.circular(20))),
                     child: Column(
@@ -95,8 +114,8 @@ class _CertificatePageState extends State<CertificatePage> {
                           'assets/images/eBrevet-128.png',
                           width: 64,
                         ),
-                        Text('Electronic', style: titleLarge),
-                        Text('Proof of Passage', style: titleLarge),
+                        Text('Finish Certificate', style: titleLarge),
+                        // Text('Proof of Passage', style: titleLarge),
                         const SizedBox(
                           height: 4,
                         ),
@@ -127,12 +146,12 @@ class _CertificatePageState extends State<CertificatePage> {
                         const SizedBox(
                           height: 4,
                         ),
-                        const Text('This', style: emStyle),
+                        // const Text('This', style: emStyle),
                         Text(
                           pastEvent.startStyle.description,
                           style: emStyle,
                         ),
-                        const Text('was completed in', style: emStyle),
+                        const Text('completed in', style: emStyle),
                         Text(pastEvent.elapsedTimeStringVerbose,
                             style: titleMedium),
                         const SizedBox(
