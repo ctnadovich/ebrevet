@@ -72,7 +72,7 @@ class _ControlCardState extends State<ControlCard> {
     final isFinish = control.index == finishIndex;
 
     var checkInSignatureString = (isNotFinished)
-        ? Signature.checkInCode(activeEvent, control).xyText
+        ? Signature.checkInCode(activeEvent, control).wordText
         : Signature.forCert(activeEvent).xyText;
 
     return Card(
@@ -127,7 +127,7 @@ class _ControlCardState extends State<ControlCard> {
                   Text(isNotFinished
                       ? (isDisqualified && isFinish
                           ? "DNQ Check In: ($checkInSignatureString)"
-                          : "Check-in Code: ($checkInSignatureString)")
+                          : "Check-in Phrase: ($checkInSignatureString)")
                       : "Finish Code: ($checkInSignatureString)"),
               ],
             ),
@@ -324,7 +324,11 @@ class _ControlCardState extends State<ControlCard> {
     } else {
       return ElevatedButton(
         onPressed: () {
-          openCheckInDialog();
+          if (AppSettings.allowCheckinComment.value) {
+            openCheckInDialog();
+          } else {
+            submitCheckInDialog();
+          }
         },
         child: activeEvent.lateCheckIn
             ? const Column(
@@ -406,7 +410,9 @@ class _ControlCardState extends State<ControlCard> {
       controlState: controlState,
     );
     controller.clear();
-    Navigator.of(context).pop();
+    // if submitCheckInDialog is called directly because
+    // there was no checkin comment option, then the pop isn't needed.
+    if (AppSettings.allowCheckinComment.value) Navigator.of(context).pop();
 
     openPostCheckInDialog();
   }
@@ -436,15 +442,18 @@ class _ControlCardState extends State<ControlCard> {
           final isNotFinished = activeEvent.isIntermediateControl(control) ||
               !activeEvent.isFinished;
 
-          Signature? checkInSignature = isDisqualified
-              ? null
-              : (isNotFinished
-                  ? Signature.checkInCode(activeEvent, control)
-                  : Signature.forCert(activeEvent));
-          var checkInSignatureString = checkInSignature?.xyText ?? 'DNQ!';
-          var checkInPlaintext = checkInSignature?.plainText ?? "Disqualified!";
+          var checkInPhrase =
+              Signature.checkInCode(activeEvent, control).wordText;
 
-          MyLogger.entry("Control check-in: $checkInPlaintext");
+          var checkInSignatureString = isDisqualified
+              ? 'DNQ!'
+              : (isNotFinished
+                  ? checkInPhrase
+                  : Signature.forCert(activeEvent).xyText);
+
+          // var checkInPlaintext = checkInSignature?.plainText ?? "Disqualified!";
+
+          MyLogger.entry("Control check-in: $checkInSignatureString");
 
           return AlertDialog(
             content: Column(
@@ -460,7 +469,9 @@ class _ControlCardState extends State<ControlCard> {
                 ),
                 spaceBox,
                 Text(
-                  (isNotFinished) ? 'Control Check-In Code' : 'Finish Code',
+                  isDisqualified
+                      ? "Disqualified"
+                      : ((isNotFinished) ? 'Check-In Phrase' : 'Finish Code'),
                 ),
                 thinSpaceBox,
                 Container(
@@ -472,14 +483,26 @@ class _ControlCardState extends State<ControlCard> {
                   ),
                 ),
                 spaceBox,
-                Text(
-                  'Write on Brevet Card',
-                  style: smallPrint,
-                ),
-                Text(
-                  'as EPP backup!',
-                  style: smallPrint,
-                ),
+                if (isDisqualified)
+                  Text(
+                    'Last Control Check-in Phrase:',
+                    style: smallPrint,
+                  ),
+                if (isDisqualified)
+                  Text(
+                    checkInPhrase,
+                    style: smallPrint,
+                  ),
+                if (!isDisqualified)
+                  Text(
+                    'Write on Brevet Card',
+                    style: smallPrint,
+                  ),
+                if (!isDisqualified)
+                  Text(
+                    'as EPP backup!',
+                    style: smallPrint,
+                  ),
                 spaceBox,
                 Text(activeEvent.checkInFractionString),
                 Text(

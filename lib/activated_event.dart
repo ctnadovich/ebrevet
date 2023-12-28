@@ -121,7 +121,7 @@ class ActivatedEvent {
   }
 
   String makeCheckInSignature(Control ctrl) =>
-      Signature.checkInCode(this, ctrl).xyText;
+      Signature.checkInCode(this, ctrl).wordText;
 
   bool get isFinished => (outcomes.overallOutcome == OverallOutcome.finish);
   bool get isDisqualified => outcomes.overallOutcome.isDNQ;

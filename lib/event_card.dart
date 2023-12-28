@@ -385,7 +385,8 @@ class _EventCardState extends State<EventCard> {
         );
       });
 
-  Future<bool?> invalidStartCodeDialog(Event event, String msg) => showDialog<bool>(
+  Future<bool?> invalidStartCodeDialog(Event event, String msg) => showDialog<
+          bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -394,11 +395,11 @@ class _EventCardState extends State<EventCard> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('When did you last update event data in this app?'),
+              const Text('Are you sure you typed the start code correctly?'),
               const SizedBox(
                 height: 8,
               ),
-              const Text('Maybe you need to update the event data in this app '
+              const Text('Maybe you need to UPDATE THE EVENT DATA in this app '
                   'to match the cue version of your brevet card. '),
               const SizedBox(
                 height: 8,
