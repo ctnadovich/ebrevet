@@ -19,9 +19,10 @@
 //   };
 // }
 import 'dart:async';
+import 'mylogger.dart';
 
 class Ticker {
-  static const int tickPeriod = 10;
+  static const int tickPeriod = 1;
 
   Timer? timer;
   int tTick = 0;
@@ -29,7 +30,14 @@ class Ticker {
   init({int period = tickPeriod, Function()? onTick}) {
     var tickDuration = const Duration(seconds: tickPeriod);
 
+// TODO it's unclear why this periodTicks modulous is used
+// as separate instances of ticker objects will use separate
+// instance of timers.
+
     int periodTicks = period.toDouble() ~/ tickPeriod;
+
+    MyLogger.entry(
+        "Initializing ticker: TickPeriod=$tickPeriod, periodTicks=$periodTicks");
 
     timer = Timer.periodic(tickDuration, (Timer t) {
       if (0 == tTick % periodTicks) {
