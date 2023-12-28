@@ -34,7 +34,7 @@ class AppSettings {
   static const int prerideTimeWindowDays = 15;
   static const int httpGetTimeoutSeconds = 30;
   static const int timeRefreshPeriod = 60;
-  static const int gpsRefreshPeriod = 20;
+  static const int gpsRefreshPeriodDefault = 20;
   static const int maxRUSAID = infinity;
   static const int maxACPCODE = infinity;
   static const int maxPERMID = infinity;
@@ -142,7 +142,24 @@ class AppSettings {
   static MySetting<Color> themeColor = MySetting(
       key: 'key-theme-color', defaultValue: Colors.blue, title: 'Theme Color');
 
-  // Advanced
+  // Preferences
+
+  static MySetting<int> gpsRefreshPeriod = MySetting(
+    key: 'key-gps-refresh-period',
+    defaultValue: gpsRefreshPeriodDefault,
+    title: 'GPS Refresh Seconds',
+    validator: gpsRefreshValidator,
+    icon: const Icon(Icons.watch),
+  );
+
+  static MySetting<bool> allowCheckinComment = MySetting(
+    key: 'key-allow-checkin-comment',
+    defaultValue: true,
+    title: 'Allow CheckIn Comment',
+    icon: const Icon(Icons.comment),
+  );
+
+  // Advanced Developer
 
   static MySetting<double> proximityRadius = MySetting(
     key: 'key-control-proximity-threshold',
@@ -234,6 +251,18 @@ class AppSettings {
     return null;
   }
 
+  static String? gpsRefreshValidator(String? value) {
+    int minVal = 1;
+    int maxVal = 60;
+    if (value == null || value.isEmpty) {
+      return 'Please enter between $minVal and $maxVal seconds';
+    }
+    if (false == isValidNumericID(value, minValue: minVal, maxValue: maxVal)) {
+      return 'Must be between $minVal and $maxVal seconds';
+    }
+    return null;
+  }
+
   static String? doubleValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a decimal number';
@@ -242,12 +271,13 @@ class AppSettings {
     return null;
   }
 
-  static bool isValidNumericID(String? value, {int maxValue = infinity}) {
+  static bool isValidNumericID(String? value,
+      {int maxValue = infinity, int minValue = 1}) {
     if (value == null) return false;
     final numericID = num.tryParse(value);
     if (numericID == null ||
         numericID is! int ||
-        numericID < 1 ||
+        numericID < minValue ||
         numericID > maxValue) {
       return false;
     }
