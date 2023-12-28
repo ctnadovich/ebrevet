@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'control.dart';
 import 'report.dart';
+import 'signature.dart';
 import 'control_state.dart';
 import 'utility.dart';
 // import 'mylogger.dart';
@@ -32,6 +33,7 @@ import 'app_settings.dart';
 // import 'snackbarglobal.dart';
 
 // TODO This really should be the same widget (or a child) as Ride Page
+// unless we commit to significantly different formatting.
 
 class ControlDetailPage extends StatelessWidget {
   final ActivatedEvent pastEvent;
@@ -45,6 +47,10 @@ class ControlDetailPage extends StatelessWidget {
     var controlState = context.watch<ControlState>();
     var fileName =
         "Control-Detail-${AppSettings.rusaID}-${pastEvent.event.eventID}.png";
+    var outcomes = pastEvent.outcomes;
+    var isFinished = pastEvent.isFinished;
+    var isDNQ = outcomes.overallOutcome.isDNQ;
+    var finishedWithCode = isFinished & !isDNQ;
 
     return Scaffold(
         appBar: AppBar(
@@ -67,7 +73,7 @@ class ControlDetailPage extends StatelessWidget {
 
               RepaintBoundary(
             key: previewContainer,
-            child: ListView(
+            child: Column(
               children: [
                 Row(
                   children: [
@@ -83,6 +89,9 @@ class ControlDetailPage extends StatelessWidget {
                         ),
                         Text(
                             'Overall result: ${pastEvent.overallOutcomeDescription}'),
+                        if (finishedWithCode)
+                          Text(
+                              'Finish Code: ${Signature.forCert(pastEvent).xyText}'),
                         Text('Elapsed time: ${pastEvent.elapsedTimeString}'),
                         Text(
                             'Last Upload: ${pastEvent.outcomes.lastUploadString}'),
@@ -103,8 +112,21 @@ class ControlDetailPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                for (var checkIn in pastEvent.outcomes.checkInTimeList)
-                  checkInCard(checkIn),
+                Divider(
+                  // color: Colors.black,
+                  height: 15,
+                  // thickness: 2,
+                  indent: MediaQuery.of(context).size.width * 0.15,
+                  endIndent: MediaQuery.of(context).size.width * 0.15,
+                ),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      for (var checkIn in pastEvent.outcomes.checkInTimeList)
+                        checkInCard(checkIn),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

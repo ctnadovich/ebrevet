@@ -114,77 +114,90 @@ class _RidePageState extends State<RidePage> {
       body: Container(
         color: Theme.of(context).colorScheme.primaryContainer,
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        child: Center(
-          child: ListView(
-            children: <Widget>[
-                  Text(
-                    startStyle.description,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  if (isDNQ)
-                    Text(
-                      outcomes.overallOutcome.description,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error),
-                      textAlign: TextAlign.center,
-                    ),
-                  if (event.isGravel)
-                    Text(
-                      "${event.gravelDistance}/${event.distance}K $gpct% Gravel",
-                      textAlign: TextAlign.center,
-                    ),
-                  if (isFinished)
-                    Text(
-                      'FINISHED',
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.center,
-                    )
-                  else
-                    Text(
-                      lastLocationUpdateText,
-                      textAlign: TextAlign.center,
-                      style: lastLocationUpdateTextStyle,
-                    ),
-                  (outcomes.overallOutcome == OverallOutcome.dns)
-                      ? const SizedBox.shrink()
-                      : Column(
-                          children: [
-                            Text(activeEvent.checkInFractionString),
-                            Text(
-                              activeEvent.isFullyUploadedString,
-                              style: TextStyle(
-                                  fontWeight: (activeEvent
-                                          .isCurrentOutcomeFullyUploaded)
-                                      ? FontWeight.normal
-                                      : FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                  Row(
+        child: Column(
+          children: [
+            Text(
+              "Riding ${startStyle.description}",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            if (isDNQ)
+              Text(
+                outcomes.overallOutcome.description,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: Theme.of(context).colorScheme.error),
+                textAlign: TextAlign.center,
+              ),
+            if (event.isGravel)
+              Text(
+                "${event.gravelDistance}/${event.distance}K $gpct% Gravel",
+                textAlign: TextAlign.center,
+              ),
+            if (isFinished)
+              Text(
+                'FINISHED',
+                style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
+              )
+            else
+              Text(
+                lastLocationUpdateText,
+                textAlign: TextAlign.center,
+                style: lastLocationUpdateTextStyle,
+              ),
+            (outcomes.overallOutcome == OverallOutcome.dns)
+                ? const SizedBox.shrink()
+                : Column(
                     children: [
-                      // RiderLocation.gpsServiceEnabled
-                      //     ?
-                      ElevatedButton(
-                          onPressed: () => RiderLocation.updateLocation()
-                              .then((_) => controlState.positionUpdated()),
-                          child: const Text("GPS Update")),
-                      //    const ElevatedButton(
-                      //       onPressed: null, child: Text("GPS Off")),
-                      const Spacer(),
-                      ElevatedButton(
-                          onPressed: () => Report.constructReportAndSend(
-                                activeEvent,
-                                onUploadDone: () {
-                                  controlState.reportUploaded;
-                                },
-                              ),
-                          child: const Text("Upload results")),
+                      Text(activeEvent.checkInFractionString),
+                      Text(
+                        activeEvent.isFullyUploadedString,
+                        style: TextStyle(
+                            fontWeight:
+                                (activeEvent.isCurrentOutcomeFullyUploaded)
+                                    ? FontWeight.normal
+                                    : FontWeight.bold),
+                      ),
                     ],
                   ),
-                ] +
-                [for (var c in controlList) ControlCard(c, activeEvent)],
-          ),
+            Row(
+              children: [
+                // RiderLocation.gpsServiceEnabled
+                //     ?
+                ElevatedButton(
+                    onPressed: () => RiderLocation.updateLocation()
+                        .then((_) => controlState.positionUpdated()),
+                    child: const Text("GPS Update")),
+                //    const ElevatedButton(
+                //       onPressed: null, child: Text("GPS Off")),
+                const Spacer(),
+                ElevatedButton(
+                    onPressed: () => Report.constructReportAndSend(
+                          activeEvent,
+                          onUploadDone: () {
+                            controlState.reportUploaded;
+                          },
+                        ),
+                    child: const Text("Upload results")),
+              ],
+            ),
+            Divider(
+              // color: Colors.black,
+              height: 15,
+              // thickness: 2,
+              indent: MediaQuery.of(context).size.width * 0.15,
+              endIndent: MediaQuery.of(context).size.width * 0.15,
+            ),
+            Expanded(
+              child: ListView(
+                children: [
+                  for (var c in controlList) ControlCard(c, activeEvent)
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
