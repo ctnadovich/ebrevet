@@ -493,14 +493,19 @@ class _ControlCardState extends State<ControlCard> {
                     checkInPhrase,
                     style: smallPrint,
                   ),
-                if (!isDisqualified)
+                if (!isDisqualified && isNotFinished)
                   Text(
-                    'Write on Brevet Card',
+                    'OPTIONAL: Write Phrase and Time',
                     style: smallPrint,
                   ),
-                if (!isDisqualified)
+                if (!isDisqualified && isNotFinished)
                   Text(
-                    'as EPP backup!',
+                    'on Brevet Card as backup!',
+                    style: smallPrint,
+                  ),
+                if (!isDisqualified && !isNotFinished)
+                  Text(
+                    'Record Finish Code as Proof',
                     style: smallPrint,
                   ),
                 spaceBox,
