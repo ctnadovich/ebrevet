@@ -71,6 +71,10 @@ class SettingsPageState extends State<SettingsPage> {
                 spacerBox,
                 const EventSearchSettings(),
                 spacerBox,
+                OptionalAppSettings(
+                  onClear: () => setState(() {}),
+                ),
+                spacerBox,
                 if (AppSettings.isMagicRusaID)
                   AdvancedSettings(
                     onClear: () => setState(() {}),
@@ -150,6 +154,42 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
               onChanged: sourceSelection.updateFromSettings,
             ),
           spacerBox
+        ],
+      ),
+    );
+  }
+}
+
+class OptionalAppSettings extends StatefulWidget {
+  final void Function() onClear;
+
+  const OptionalAppSettings({
+    super.key,
+    required this.onClear,
+  });
+
+  @override
+  State<OptionalAppSettings> createState() => _OptionalAppSettingsState();
+}
+
+class _OptionalAppSettingsState extends State<OptionalAppSettings> {
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: ExpansionTile(
+        title: const Text('Preferences'),
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 8, 8),
+            child: Container(
+                padding: const EdgeInsets.all(16),
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                child: Column(children: [
+                  SwitchSettingsTile(AppSettings.allowCheckinComment),
+                  DialogInputSettingsTile(AppSettings.gpsRefreshPeriod),
+                ])),
+          ),
         ],
       ),
     );
