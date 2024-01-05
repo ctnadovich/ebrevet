@@ -64,6 +64,7 @@ class _EventListPageState extends State<EventListPage> {
     var dayNight = context.watch<DayNight>();
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text(
           'Choose Event to Ride',
