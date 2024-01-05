@@ -366,37 +366,39 @@ class _ControlCardState extends State<ControlCard> {
 
     return isAvailable == false
         ? const Text('Control NOT Available')
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                control.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(controlStatusString()),
-              Text(exactDistanceString(control.cLoc)),
-              if (control.cLoc.isNearby)
-                const Text(
-                  'AT THIS CONTROL',
-                  style: TextStyle(
+        : SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  control.name,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              if (activeEvent.lateCheckIn)
-                Text('THIS IS A LATE CHECK IN!',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge!
-                        .copyWith(fontWeight: FontWeight.bold)),
-              TextField(
-                decoration:
-                    const InputDecoration(hintText: 'Comment (optional)'),
-                controller: controller,
-                onSubmitted: (_) => submitCheckInDialog(),
-              ),
-            ],
+                Text(controlStatusString()),
+                Text(exactDistanceString(control.cLoc)),
+                if (control.cLoc.isNearby)
+                  const Text(
+                    'AT THIS CONTROL',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                if (activeEvent.lateCheckIn)
+                  Text('THIS IS A LATE CHECK IN!',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge!
+                          .copyWith(fontWeight: FontWeight.bold)),
+                TextField(
+                  decoration:
+                      const InputDecoration(hintText: 'Comment (optional)'),
+                  controller: controller,
+                  onSubmitted: (_) => submitCheckInDialog(),
+                ),
+              ],
+            ),
           );
   }
 
@@ -426,7 +428,7 @@ class _ControlCardState extends State<ControlCard> {
               activeEvent.outcomes.getControlCheckInTime(control.index);
           final checkInTimeString = Utility.toBriefTimeString(checkInDateTime);
           final textTheme = Theme.of(context).textTheme;
-          final signatureStyle = textTheme.headlineLarge;
+          final signatureStyle = textTheme.headlineMedium;
           final signatureColor = Theme.of(context).colorScheme.onError;
           final titleStyle = textTheme.headlineMedium;
           final smallPrint = textTheme.bodySmall;
@@ -456,70 +458,72 @@ class _ControlCardState extends State<ControlCard> {
           MyLogger.entry("Control check-in: $checkInSignatureString");
 
           return AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  (isNotFinished) ? 'Check In Recorded' : 'Ride Completed',
-                  style: titleStyle,
-                ),
-                Text(
-                  "At $checkInTimeString",
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                spaceBox,
-                Text(
-                  isDisqualified
-                      ? "Disqualified"
-                      : ((isNotFinished) ? 'Check-In Phrase' : 'Finish Code'),
-                ),
-                thinSpaceBox,
-                Container(
-                  color: signatureColor,
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    checkInSignatureString,
-                    style: signatureStyle,
-                  ),
-                ),
-                spaceBox,
-                if (isDisqualified)
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Text(
-                    'Last Control Check-in Phrase:',
-                    style: smallPrint,
+                    (isNotFinished) ? 'Check In Recorded' : 'Ride Completed',
+                    style: titleStyle,
                   ),
-                if (isDisqualified)
                   Text(
-                    checkInPhrase,
-                    style: smallPrint,
+                    "At $checkInTimeString",
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                if (!isDisqualified && isNotFinished)
+                  spaceBox,
                   Text(
-                    'OPTIONAL: Write Phrase and Time',
-                    style: smallPrint,
+                    isDisqualified
+                        ? "Disqualified"
+                        : ((isNotFinished) ? 'Check-In Phrase' : 'Finish Code'),
                   ),
-                if (!isDisqualified && isNotFinished)
+                  thinSpaceBox,
+                  Container(
+                    color: signatureColor,
+                    padding: const EdgeInsets.all(8),
+                    child: Text(
+                      checkInSignatureString,
+                      style: signatureStyle,
+                    ),
+                  ),
+                  spaceBox,
+                  if (isDisqualified)
+                    Text(
+                      'Last Control Check-in Phrase:',
+                      style: smallPrint,
+                    ),
+                  if (isDisqualified)
+                    Text(
+                      checkInPhrase,
+                      style: smallPrint,
+                    ),
+                  if (!isDisqualified && isNotFinished)
+                    Text(
+                      'OPTIONAL: Write Phrase and Time',
+                      style: smallPrint,
+                    ),
+                  if (!isDisqualified && isNotFinished)
+                    Text(
+                      'on Brevet Card as backup!',
+                      style: smallPrint,
+                    ),
+                  if (!isDisqualified && !isNotFinished)
+                    Text(
+                      'Record Finish Code as Proof',
+                      style: smallPrint,
+                    ),
+                  spaceBox,
+                  Text(activeEvent.checkInFractionString),
                   Text(
-                    'on Brevet Card as backup!',
-                    style: smallPrint,
+                    (overallOutcome == OverallOutcome.finish)
+                        ? "Congratulations! You have finished the ${activeEvent.event.nameDist} in ${activeEvent.elapsedTimeString}."
+                        : (activeEvent.isIntermediateControl(control)
+                            ? "Ride On!"
+                            : "Disqualified (See the RBA)"),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontStyle: FontStyle.italic),
                   ),
-                if (!isDisqualified && !isNotFinished)
-                  Text(
-                    'Record Finish Code as Proof',
-                    style: smallPrint,
-                  ),
-                spaceBox,
-                Text(activeEvent.checkInFractionString),
-                Text(
-                  (overallOutcome == OverallOutcome.finish)
-                      ? "Congratulations! You have finished the ${activeEvent.event.nameDist} in ${activeEvent.elapsedTimeString}."
-                      : (activeEvent.isIntermediateControl(control)
-                          ? "Ride On!"
-                          : "Disqualified (See the RBA)"),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontStyle: FontStyle.italic),
-                ),
-              ],
+                ],
+              ),
             ),
             actions: [
               TextButton(

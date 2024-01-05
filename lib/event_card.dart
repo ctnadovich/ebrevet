@@ -385,43 +385,47 @@ class _EventCardState extends State<EventCard> {
         );
       });
 
-  Future<bool?> invalidStartCodeDialog(Event event, String msg) => showDialog<
-          bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          icon: const Icon(Icons.error, size: 62.0),
-          title: Text(msg),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Are you sure you typed the start code correctly?'),
-              const SizedBox(
-                height: 8,
+  Future<bool?> invalidStartCodeDialog(Event event, String msg) =>
+      showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              icon: const Icon(Icons.error, size: 62.0),
+              title: Text(msg),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                        'Are you sure you typed the start code correctly?'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    const Text(
+                        'Maybe you need to UPDATE THE EVENT DATA in this app '
+                        'to match the cue version of your brevet card. '),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    const Text('To update event data, press '
+                        'the "Update Event Data" button at the top of the eBrevet Events page. '),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    Text('App Event Data: Cue Ver ${event.cueVersionString}'),
+                  ],
+                ),
               ),
-              const Text('Maybe you need to UPDATE THE EVENT DATA in this app '
-                  'to match the cue version of your brevet card. '),
-              const SizedBox(
-                height: 8,
-              ),
-              const Text('To update event data, press '
-                  'the "Update Event Data" button at the top of the eBrevet Events page. '),
-              const SizedBox(
-                height: 8,
-              ),
-              Text('App Event Data: Cue Ver ${event.cueVersionString}'),
-            ],
-          ),
-          actions: [
-            // The "Yes" button
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: const Text('Continue')),
-          ],
-        );
-      });
+              actions: [
+                // The "Yes" button
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: const Text('Continue')),
+              ],
+            );
+          });
 
   String? validateStartCode(String? s, Event event) {
     if (s == null || s.isEmpty) return "Missing start code";
@@ -460,15 +464,22 @@ class _EventCardState extends State<EventCard> {
       builder: (context) => AlertDialog(
         title: const Text('Enter Brevet Start Code '),
         icon: const Icon(Icons.lock_person, size: 128),
-        content: TextField(
-            decoration: const InputDecoration(
-                hintText: 'Enter start code from brevet card'),
-            autofocus: true,
-            controller: controller,
-            onSubmitted: (_) {
-              Navigator.of(context).pop(controller.text);
-              controller.clear();
-            }),
+        content: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              TextField(
+                  decoration: const InputDecoration(
+                      hintText: 'Enter start code from brevet card'),
+                  autofocus: true,
+                  controller: controller,
+                  onSubmitted: (_) {
+                    Navigator.of(context).pop(controller.text);
+                    controller.clear();
+                  }),
+            ],
+          ),
+        ),
         actions: [
           TextButton(
               onPressed: () {
