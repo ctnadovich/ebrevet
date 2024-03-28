@@ -15,6 +15,8 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 // import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'dart:js_interop';
+
 import 'snackbarglobal.dart';
 import 'location.dart';
 
@@ -43,6 +45,7 @@ class Control {
   late String address;
   late DateTime open;
   late DateTime close;
+  late bool timed;
 
   late int index;
   // SIF sif = SIF.unknown;
@@ -58,6 +61,7 @@ class Control {
         'open': open.toUtc().toIso8601String(),
         'close': close.toUtc().toIso8601String(),
         'index': index,
+        'timed': timed ? 'yes' : 'no',
         // 'sif': sif == SIF.start
         //     ? 'start'
         //     : (sif == SIF.finish ? 'finish' : 'intermediate'),
@@ -77,6 +81,7 @@ class Control {
       address = m['address'] ?? '';
       open = DateTime.parse(m['open'] ?? '').toLocal();
       close = DateTime.parse(m['close'] ?? '').toLocal();
+      timed = ((m['timed'] ?? '').toString().toLowerCase() != 'no');
 
       // switch (m['sif']) {
       //   case 'start':
