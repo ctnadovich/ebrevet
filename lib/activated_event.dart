@@ -310,8 +310,9 @@ class ActivatedEvent {
       closeActual(controlKey)?.toLocal().toString().substring(0, 16) ?? '';
 
   bool isUntimedControl(Control c) {
-    return c.style.isUntimed ||
-        (isIntermediateControl(c) && _event.gravelDistance > 0);
+    return c.style.isUntimedStyle ||
+        (isIntermediateControl(c) && _event.gravelDistance > 0) ||
+        c.timed == false;
   }
 
   bool checkedInLate(Control control) {
