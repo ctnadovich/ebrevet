@@ -33,7 +33,8 @@ enum ControlStyle {
   postcard,
   undefined;
 
-  bool get isUntimed => (this == info || this == postcard);
+  bool get isUntimedStyle =>
+      (this == info || this == postcard || this == photo);
 }
 
 class Control {
@@ -45,9 +46,10 @@ class Control {
   late String address;
   late DateTime open;
   late DateTime close;
-  late bool timed;
-
   late int index;
+
+  bool timed = true;
+
   // SIF sif = SIF.unknown;
   bool valid = false;
 
