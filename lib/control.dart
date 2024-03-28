@@ -15,7 +15,6 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 // import 'package:flutter_settings_screens/flutter_settings_screens.dart';
-import 'dart:js_interop';
 
 import 'snackbarglobal.dart';
 import 'location.dart';
