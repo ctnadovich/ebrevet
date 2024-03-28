@@ -222,6 +222,13 @@ class Region {
       'club_name': 'Great Lakes Randonneurs',
       'website_url': 'http://www.glrrando.org/',
     },
+    913053: {
+      'state_code': 'IL',
+      'state_name': 'Illinois',
+      'region_name': 'Chicagoland',
+      'club_name': 'Chicago Randonneurs',
+      'website_url': 'https://www.chicagorando.org/',
+    },
     913042: {
       'state_code': 'IL',
       'state_name': 'Illinois',
