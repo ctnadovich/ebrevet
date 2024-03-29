@@ -33,9 +33,9 @@ enum OverallOutcome {
   static Map _description = {
     dns: 'Not Started',
     dnf: 'Did Not Finish',
-    dnqSkipped: 'DNQ: skipped a control',
-    dnqScrambled: 'DNQ: wrong control order',
-    dnqLateCheckIn: 'DNQ: late to a control',
+    dnqSkipped: 'RBA Review: skipped control',
+    dnqScrambled: 'RBA Review: control order',
+    dnqLateCheckIn: 'RBA Review: late to control',
     finish: 'Finished',
     active: 'Riding Now',
     unknown: 'Unknown',

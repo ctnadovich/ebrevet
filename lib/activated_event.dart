@@ -100,15 +100,14 @@ class ActivatedEvent {
             'elapsed time: $elapsedTimeString');
       } else if (areAllChecked() && !isAllCheckedInOrder()) {
         outcomes.overallOutcome = OverallOutcome.dnqScrambled;
-        SnackbarGlobal.show('Controls checked in wrong order. DISQUALIFIED!');
+        SnackbarGlobal.show('Controls checked in wrong order!');
       } else if (areAllChecked() && !wereNoLateCheckIns()) {
         outcomes.overallOutcome = OverallOutcome.dnqLateCheckIn;
-        SnackbarGlobal.show(
-            'Checked in LATE to one or more controls. DISQUALIFIED!');
+        SnackbarGlobal.show('Checked in LATE to one or more controls!');
       } else {
         outcomes.overallOutcome = OverallOutcome.dnqSkipped;
         SnackbarGlobal.show(
-            'Failed to check into one or more intermediate controls. DISQUALIFIED!');
+            'Failed to check into one or more intermediate controls!');
       }
     }
 

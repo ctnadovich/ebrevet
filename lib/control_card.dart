@@ -125,9 +125,7 @@ class _ControlCardState extends State<ControlCard> {
                   ),
                 if (checkInTime != null)
                   Text(isNotFinished
-                      ? (isDisqualified && isFinish
-                          ? "DNQ Check In: ($checkInSignatureString)"
-                          : "Check-in Phrase: ($checkInSignatureString)")
+                      ? "Check-in Phrase: ($checkInSignatureString)"
                       : "Finish Code: ($checkInSignatureString)"),
               ],
             ),
@@ -453,8 +451,6 @@ class _ControlCardState extends State<ControlCard> {
                   ? checkInPhrase
                   : Signature.forCert(activeEvent).xyText);
 
-          // var checkInPlaintext = checkInSignature?.plainText ?? "Disqualified!";
-
           MyLogger.entry("Control check-in: $checkInSignatureString");
 
           return AlertDialog(
@@ -473,7 +469,7 @@ class _ControlCardState extends State<ControlCard> {
                   spaceBox,
                   Text(
                     isDisqualified
-                        ? "Disqualified"
+                        ? "RBA REVIEW NEEDED"
                         : ((isNotFinished) ? 'Check-In Phrase' : 'Finish Code'),
                   ),
                   thinSpaceBox,
@@ -518,7 +514,7 @@ class _ControlCardState extends State<ControlCard> {
                         ? "Congratulations! You have finished the ${activeEvent.event.nameDist} in ${activeEvent.elapsedTimeString}."
                         : (activeEvent.isIntermediateControl(control)
                             ? "Ride On!"
-                            : "Disqualified (See the RBA)"),
+                            : "RBA Review Needed"),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontStyle: FontStyle.italic),
                   ),
