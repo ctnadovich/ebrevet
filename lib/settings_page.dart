@@ -15,7 +15,6 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:ebrevet_card/future_events.dart';
-import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
