@@ -383,10 +383,14 @@ class FutureEvents {
         if (mine < required) {
           return true;
         }
+        if (mine > required) {
+          return false;
+        }
       }
+      return false;
     }
 
-    return false;
+    // return false;
   }
 
   static String get lastRefreshedStr {

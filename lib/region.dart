@@ -14,11 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'dart:convert';
+import 'dart:async';
 import 'package:ebrevet_card/app_settings.dart';
+import 'package:ebrevet_card/snackbarglobal.dart';
 import 'region_data.dart';
+import 'mylogger.dart';
+import 'exception.dart';
+import 'package:http/http.dart' as http;
 
 // RegionData is stored separately to protect secrets
-// Example here:
+// It's not possible to set a region secret through the
+// web update process
+//
+// Secret RegionData Example here:
 //
 // class RegionData {
 //  static const String magicRUSAID = '9999';
@@ -31,35 +40,38 @@ import 'region_data.dart';
 //
 //  };
 // }
-//
-//
-//   };
-// }
 
 class Region {
   static const int defaultRegion = 938017; // PA Rando
   static const String defaultEbrevetBaseURL =
       "https://randonneuring.org/ebrevet";
 
+  // This URL is not overridable
+  static const String regionListURL =
+      'https://randonneuring.org/ebrevet/region_list';
+
   late int regionID;
   late String clubName;
   late String websiteURL;
-  late String secret;
+  late String iconURL;
   late String regionSubName;
   late String stateCode;
   late String stateName;
+
+  late String secret;
   late String _ebrevetServerURL;
 
   Region({this.regionID = defaultRegion}) {
     int rid = (regionMap.containsKey(regionID)) ? regionID : defaultRegion;
     regionID = rid;
 
-    // all these keys must be defined in the regionMap for every region
-    clubName = regionMap[rid]!['club_name']!;
-    regionSubName = regionMap[rid]!['region_name']!;
-    stateCode = regionMap[rid]!['state_code']!;
-    stateName = regionMap[rid]!['state_name']!;
-    websiteURL = regionMap[rid]!['website_url']!;
+    clubName = regionMap[rid]!['club_name'] ?? "Unknown";
+    regionSubName = regionMap[rid]!['region_name'] ?? "Unknown";
+    stateCode = regionMap[rid]!['state_code'] ?? "Unknown";
+    stateName = regionMap[rid]!['state_name'] ?? "Unknown";
+
+    websiteURL = regionMap[rid]!['website_url'] ?? "";
+    iconURL = regionMap[rid]!['icon_url'] ?? "";
 
     // region secrets are stored in RegionData
     secret = RegionData.regionSecret[rid] ?? RegionData.defaultSecret;
@@ -87,7 +99,112 @@ class Region {
     return Region(regionID: rid);
   }
 
-  static const Map<int, Map<String, String>> regionMap = {
+  static Future fetchRegionsFromServer({bool quiet = false}) async {
+    String url = Region.regionListURL;
+    MyLogger.entry("Fetching region data from URL $url");
+
+    Map<String, dynamic> decodedResponse;
+    http.Response? response;
+
+    try {
+      try {
+        response = await http.get(Uri.parse(url)).timeout(
+            const Duration(seconds: AppSettings.httpGetTimeoutSeconds));
+      } on TimeoutException {
+        throw ServerException(
+            'No response from $url after (${AppSettings.httpGetTimeoutSeconds} sec timeout).');
+      } catch (e) {
+        throw NoInternetException('Network error: $e');
+      }
+
+      if (response.statusCode != 200) {
+        throw ServerException(
+            'Error response from $url (Status Code: ${response.statusCode})');
+      } else {
+        decodedResponse = jsonDecode(response.body);
+
+        if (decodedResponse is List && decodedResponse.isEmpty) {
+          throw ServerException('Empty reponse from $url');
+        }
+        if (false == decodedResponse.containsKey('region_list')) {
+          throw FormatException('No region_list in response from $url');
+        }
+        if (false == decodedResponse.containsKey('timestamp')) {
+          throw FormatException('No timestamp in response from $url');
+        }
+        if (false == decodedResponse.containsKey('signature')) {
+          throw FormatException('No signature in response from $url');
+        }
+      }
+
+      List<dynamic> decodedRegionList = decodedResponse['region_list'];
+
+      // TODO Verify Signature/Timestamp of region list
+
+      int nRegion = decodedRegionList.length;
+
+      MyLogger.entry("Data received for $nRegion regions.");
+
+      // Wipe old map. No going back!
+      regionMap.clear();
+
+      int nFound = 0;
+      int nAdded = 0;
+      for (var rDynamic in decodedRegionList) {
+        nFound++;
+        Map<String, dynamic> r = rDynamic as Map<String, dynamic>;
+        if (false == r.containsKey('club_acp_code')) {
+          MyLogger.entry(
+              "region_list[$nFound]: Region has no Club ACP code. Skipped.");
+          continue;
+        }
+        String clubACPCodeString = r['club_acp_code']!;
+
+        var acpClubCode = int.tryParse(clubACPCodeString);
+        if (null == acpClubCode) {
+          MyLogger.entry(
+              "resgion_list[$nFound]: Region with ACP code '$clubACPCodeString' not an integer. Skipped.");
+          continue;
+        }
+
+        if (false == r.containsKey('state_code')) {
+          MyLogger.entry(
+              "region_list[$nFound]: Region with ACP code '$clubACPCodeString' has no state_code. Skipped.");
+          continue;
+        }
+
+        if (false == r.containsKey('region_name')) {
+          MyLogger.entry(
+              "region_list[$nFound]: Region with ACP code '$clubACPCodeString' has no region_name. Skipped.");
+          continue;
+        }
+
+        regionMap[acpClubCode] = {};
+        nAdded++;
+        for (var k in r.keys) {
+          String v = r[k];
+          regionMap[acpClubCode]![k] = v;
+        }
+      }
+      MyLogger.entry("Loaded $nAdded regions.");
+    } catch (e) {
+      if (quiet == false)
+        SnackbarGlobal.show("Error refreshing regions. No Internet?");
+      MyLogger.entry("$e");
+    }
+  }
+
+  static compareByStateName(int a, int b) {
+    var aState = regionMap[a]!['state_code'] ?? '?';
+    var bState = regionMap[b]!['state_code'] ?? '?';
+    var cmp = aState.compareTo(bState);
+    if (cmp != 0) return cmp;
+    var aName = regionMap[a]!['region_name'] ?? '?';
+    var bName = regionMap[b]!['region_name'] ?? '?';
+    return aName.compareTo(bName);
+  }
+
+  static Map<int, Map<String, String>> regionMap = {
     902007: {
       'state_code': 'AK',
       'state_name': 'Alaska',

@@ -29,6 +29,7 @@ import 'mylogger.dart';
 import 'control_state.dart';
 import 'my_settings.dart';
 import 'event_list_page.dart';
+import 'region.dart';
 
 void main() {
   initSettings().then((_) {
@@ -61,6 +62,8 @@ Future<void> initSettings() async {
   await FutureEvents.refreshEventsFromDisk();
   // .then((_) =>
   await EventHistory.load();
+  await Region.fetchRegionsFromServer(quiet: true);
+
   MyLogger.entry('...Init settings end');
 }
 

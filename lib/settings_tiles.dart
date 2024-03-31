@@ -15,6 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:ebrevet_card/future_events.dart';
+import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'my_settings.dart';
 
@@ -185,48 +186,43 @@ class SwitchSettingsTileState extends State<SwitchSettingsTile> {
   }
 }
 
-class DropDownSettingsTile extends StatefulWidget {
-  /// Settings Key string for storing the text in cache (assumed to be unique)
+class DropDownSettingsTile extends StatelessWidget {
   final MySetting mySetting;
-  final List<DropdownMenuItem<int>> itemList;
   final void Function()? onChanged;
-
+  final List<DropdownMenuItem<int>> itemList;
   const DropDownSettingsTile(this.mySetting,
-      {required this.itemList, super.key, this.onChanged});
+      {super.key, required this.itemList, this.onChanged});
 
-  @override
-  DropDownSettingsTileState createState() => DropDownSettingsTileState();
-}
-
-class DropDownSettingsTileState extends State<DropDownSettingsTile> {
   @override
   Widget build(BuildContext context) {
+    // MyLogger.entry('Re-building dropdown tile');
     return StyledListTile(
-      widget.mySetting,
-      leading: widget.mySetting.icon ??
+      mySetting,
+      leading: mySetting.icon ??
           const Visibility(visible: false, child: Icon(Icons.person)),
       trailing: const Icon(Icons.edit),
       title: Text(
-        widget.mySetting.title,
+        mySetting.title,
       ),
       subtitle: styledDropDownButton(context),
     );
   }
 
   Widget styledDropDownButton(BuildContext context) {
+    final Key key = UniqueKey();
     return Material(
       color: Theme.of(context).colorScheme.secondaryContainer,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
         child: DropdownButton<int>(
-          value: widget.mySetting.value,
+          key: key,
+          value: mySetting.value,
           isExpanded: true,
           isDense: true,
-          items: widget.itemList,
+          items: itemList,
           onChanged: (Object? value) {
-            widget.mySetting.setValue(value);
-            widget.onChanged?.call();
-            setState(() {});
+            mySetting.setValue(value);
+            onChanged?.call();
           },
         ),
       ),

@@ -15,6 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:ebrevet_card/future_events.dart';
+import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -104,18 +105,27 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
     height: 16,
   );
 
-  final regionList = [
-    for (var k in Region.regionMap.keys)
-      DropdownMenuItem(
-        value: k,
-        child: Text(
-            "${Region.regionMap[k]!['state_code']!}: ${Region.regionMap[k]!['region_name']!}"),
-      )
-  ];
-
   @override
   Widget build(BuildContext context) {
     var sourceSelection = context.watch<SourceSelection>();
+    List<DropdownMenuItem<int>> regionList = [];
+    final Key key = UniqueKey();
+
+    List<int> sortedRegionKeys = Region.regionMap.keys.toList();
+    sortedRegionKeys.sort((a, b) => Region.compareByStateName(a, b));
+    // MyLogger.entry('Rebuilding region dropdown list.');
+    for (var k in sortedRegionKeys) {
+      var regionData = Region.regionMap[k];
+      if (regionData != null) {
+        String itemText =
+            "${regionData['state_code']}: ${regionData['region_name']}";
+        var ddmi = DropdownMenuItem(
+          value: k,
+          child: Text(itemText),
+        );
+        regionList.add(ddmi);
+      }
+    }
 
     return Material(
       color: Colors.transparent,
@@ -132,9 +142,20 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
               FutureEventsSourceID.fromRegion)
             DropDownSettingsTile(
               AppSettings.regionID,
+              key: key,
               itemList: regionList,
               onChanged: sourceSelection.updateFromSettings,
             ),
+          if (AppSettings.futureEventsSourceID.value ==
+              FutureEventsSourceID.fromRegion)
+            ElevatedButton(
+              onPressed: () async {
+                await Region.fetchRegionsFromServer();
+                setState(() {});
+              },
+              child: const Text('Refresh Region List'),
+            ),
+
           // if (AppSettings.futureEventsSourceID.value ==
           //     FutureEventsSourceID.fromPerm)
           //   DialogInputSettingsTile(
