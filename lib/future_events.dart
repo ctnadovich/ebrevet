@@ -220,6 +220,10 @@ class FutureEvents {
 
       // refreshCount.value++;
       MyLogger.entry("Refresh complete. Write status: $writeStatus");
+    } on CueWizardException catch (error) {
+      if (context.mounted) {
+        cueWizardErrorDialog(error, futureEventsSource, context);
+      }
     } catch (error) {
       if (error is IncompatibleVersionException) {
         if (context.mounted) {
@@ -248,6 +252,40 @@ class FutureEvents {
                   "You have version ${error.actual} of this app installed, "
                   "but the ${futureEventsSource.fullDescription} event data server requires "
                   "version ${error.required} or newer. Please update this app to the latest version."),
+              actions: [
+                // The "Yes" button
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: const Text('Continue'))
+              ],
+            );
+          });
+
+  static Future<bool?> cueWizardErrorDialog(CueWizardException e,
+          FutureEventsSource futureEventsSource, BuildContext context) =>
+      showDialog<bool>(
+          context: context,
+          builder: (BuildContext ctx) {
+            return AlertDialog(
+              icon: const Icon(Icons.error, size: 62.0),
+              title: const Text('Route Data Errors'),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text("Errors found in event data retrieved from "
+                        "the ${futureEventsSource.fullDescription}: "),
+                    for (var errorMessage in e.errorList)
+                      Container(
+                          color: Theme.of(context).colorScheme.errorContainer,
+                          margin: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(8),
+                          child: Text(errorMessage)),
+                  ],
+                ),
+              ),
               actions: [
                 // The "Yes" button
                 TextButton(
@@ -354,7 +392,9 @@ class FutureEvents {
 
       if (true == decodedResponse.containsKey('event_errors') &&
           decodedResponse['event_errors'].isNotEmpty) {
-        throw ServerException('Server side errors found in response from $url');
+        List<String> eventErrors =
+            List<String>.from(decodedResponse['event_errors'] as List);
+        throw CueWizardException(eventErrors);
       }
 
       return decodedResponse;

@@ -32,7 +32,14 @@ class ServerException implements Exception {
   String message;
   ServerException(this.message);
   @override
-  String toString() => message;
+  String toString() => "Error in event data from server:  $message";
+}
+
+class CueWizardException implements Exception {
+  List<String> errorList;
+  CueWizardException(this.errorList);
+  @override
+  String toString() => "Route Wizard Errors:  ${errorList.join(', ')}";
 }
 
 class IncompatibleVersionException implements Exception {
