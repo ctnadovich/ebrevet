@@ -275,8 +275,14 @@ class FutureEvents {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text("Errors found in event data retrieved from "
-                        "the ${futureEventsSource.fullDescription}: "),
+                    Text("Errors/Warnings found in event data retrieved from "
+                        "the ${futureEventsSource.fullDescription}. "),
+                    Text(
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(fontStyle: FontStyle.italic),
+                        "The event organizer should use the Route Manager to explore/fix these problems before publishing events."),
                     for (var errorMessage in e.errorList)
                       Container(
                           color: Theme.of(context).colorScheme.errorContainer,

@@ -68,7 +68,7 @@ class Region {
     clubName = regionMap[rid]!['club_name'] ?? "Unknown";
     regionSubName = regionMap[rid]!['region_name'] ?? "Unknown";
     stateCode = regionMap[rid]!['state_code'] ?? "Unknown";
-    stateName = regionMap[rid]!['state_name'] ?? "Unknown";
+    stateName = regionMap[rid]!['state_name'] ?? stateCode;
 
     websiteURL = regionMap[rid]!['website_url'] ?? "";
     iconURL = regionMap[rid]!['icon_url'] ?? "";
@@ -81,7 +81,7 @@ class Region {
     _ebrevetServerURL = regionMap[rid]!['ebrevet_url'] ?? defaultEbrevetBaseURL;
   }
 
-  String get regionName => "$regionSubName $stateName";
+  String get regionName => "$stateCode: $regionSubName";
 
   // getters that add ebrevet function suffixes and
   // regionID parameter
@@ -188,8 +188,9 @@ class Region {
       }
       MyLogger.entry("Loaded $nAdded regions.");
     } catch (e) {
-      if (quiet == false)
+      if (quiet == false) {
         SnackbarGlobal.show("Error refreshing regions. No Internet?");
+      }
       MyLogger.entry("$e");
     }
   }
