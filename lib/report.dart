@@ -92,7 +92,7 @@ class Report {
     // every check in, but this certainly does the job.
     // The only time an event can change state is when
     // activated or at a control checkin.
-    EventHistory.save();
+    // EventHistory.save();
 
     MyLogger.entry(result);
     MyLogger.entry(
