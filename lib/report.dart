@@ -21,7 +21,6 @@ import 'dart:convert';
 import 'control.dart';
 import 'snackbarglobal.dart';
 import 'location.dart';
-import 'event_history.dart';
 import 'activated_event.dart';
 import 'app_settings.dart';
 import 'outcome.dart';
