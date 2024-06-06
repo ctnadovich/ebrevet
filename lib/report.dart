@@ -53,8 +53,10 @@ class Report {
         SnackbarGlobal.show("No Internet. "
             "Cannot upload results now. Try later.");
       }
+
       // Save the event history even if the upload was unsuccessful.
-      EventHistory.save();
+      // EventHistory.save();
+
       onUploadDone?.call();
     });
   }

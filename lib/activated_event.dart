@@ -73,13 +73,18 @@ class ActivatedEvent {
     ControlState? controlState,
   }) {
     var eventID = _event.eventID;
+    var now = checkInTime?.toUtc() ?? DateTime.now().toUtc();
 
     assert(null != EventHistory.lookupPastEvent(eventID)); // Event in history
-    assert(null == controlCheckInTime(control)); // shouldn't be set yet
+
+    if (null != controlCheckInTime(control)) {
+      MyLogger.entry(
+          "Redundant Checkin IGNORED:  control ${control.index} at ${now.toString()}");
+      return; // Don't do anything if it's already set
+    }
 
     // for an auto-checkin of the first control, "now" is defined as the onTime for the event
     // passed in as a checkInTime parameter, otherwise now is now()
-    var now = checkInTime?.toUtc() ?? DateTime.now().toUtc();
 
     // do the actual check-in
     outcomes.setControlCheckInTime(control.index, now);
@@ -112,6 +117,9 @@ class ActivatedEvent {
     }
 
     assert(controlCheckInTime(control) != null); // should have just set this
+
+    // Commit the check-in locally
+    EventHistory.save();
 
     Report.constructReportAndSend(this, control: control, comment: comment,
         onUploadDone: () {
