@@ -134,7 +134,11 @@ class _EventCardState extends State<EventCard> {
                       pe!.overallOutcome = OverallOutcome.dnf;
                       // pe can't be null because overallOutcomeInHistory wasn't unknown
                     });
-                    EventHistory.save();
+                    EventHistory.save().then((status) {
+                      if (status == false) {
+                        MyLogger.entry('Problem saving.');
+                      }
+                    });
                     // Current.deactivate();
                   },
                   icon: const Icon(Icons.cancel),
@@ -292,16 +296,18 @@ class _EventCardState extends State<EventCard> {
               switch (pastEvent!.startStyle) {
                 case StartStyle.massStart:
                   // Auto checkin for massStart is allowed at any (startable) time, any location
-                  pastEvent!.controlCheckIn(
-                    control: event.controls[event.startControlKey],
-                    comment:
-                        "${pastEvent!.startStyle.description}. Automatic Check In",
-                    controlState: controlState,
-                    checkInTime:
-                        event.startTimeWindow.onTime, // check in time override
-                  );
-                  SnackbarGlobal.show("Automatic Start Control Check In at "
-                      "${Utility.toBriefTimeString(event.startTimeWindow.onTime!.toLocal())}");
+                  pastEvent!
+                      .controlCheckIn(
+                        control: event.controls[event.startControlKey],
+                        comment:
+                            "${pastEvent!.startStyle.description}. Automatic Check In",
+                        controlState: controlState,
+                        checkInTime: event
+                            .startTimeWindow.onTime, // check in time override
+                      )
+                      .then((foo) => SnackbarGlobal.show(
+                          "Mass Start Control Check In at "
+                          "${Utility.toBriefTimeString(event.startTimeWindow.onTime!.toLocal())}"));
                   break;
                 case StartStyle.preRide:
                 case StartStyle.freeStart:
@@ -311,12 +317,16 @@ class _EventCardState extends State<EventCard> {
                     var doAutoCheckin =
                         await confirmAutoCheckinDialog(pastEvent!) ?? false;
                     if (doAutoCheckin) {
-                      pastEvent!.controlCheckIn(
-                        control: event.controls[event.startControlKey],
-                        comment:
-                            "${pastEvent!.startStyle.description}. Automatic Check In",
-                        controlState: controlState,
-                      );
+                      pastEvent!
+                          .controlCheckIn(
+                            control: event.controls[event.startControlKey],
+                            comment:
+                                "${pastEvent!.startStyle.description}. Automatic Check In",
+                            controlState: controlState,
+                          )
+                          .then((foo) => SnackbarGlobal.show(
+                              "Automatic Start Control Check In at "
+                              "${Utility.toBriefTimeString(event.startTimeWindow.onTime!.toLocal())}"));
                     }
                   }
                   break;
@@ -327,7 +337,11 @@ class _EventCardState extends State<EventCard> {
 
             // need to save EventHistory now
 
-            EventHistory.save();
+            EventHistory.save().then((status) {
+              if (status == false) {
+                MyLogger.entry('Problem saving after activation.');
+              }
+            });
 
             // It seems excessive to save the whole event history
             // every activation, but this certainly does the job.

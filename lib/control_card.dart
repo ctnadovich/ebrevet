@@ -404,20 +404,20 @@ class _ControlCardState extends State<ControlCard> {
     var controlState = context.read<ControlState>();
 
     // this will do the actual check-in
-    widget.activeEvent.controlCheckIn(
-      control: widget.control,
-      comment: controller.text,
-      controlState: controlState,
-    );
+    widget.activeEvent
+        .controlCheckIn(
+          control: widget.control,
+          comment: controller.text,
+          controlState: controlState,
+        )
+        .then((result) => openPostCheckInDialog(result));
     controller.clear();
     // if submitCheckInDialog is called directly because
     // there was no checkin comment option, then the pop isn't needed.
     if (AppSettings.allowCheckinComment.value) Navigator.of(context).pop();
-
-    openPostCheckInDialog();
   }
 
-  Future openPostCheckInDialog() => showDialog(
+  Future openPostCheckInDialog(String? checkInResult) => showDialog(
         context: context,
         builder: (context) {
           final activeEvent = widget.activeEvent;
@@ -430,6 +430,7 @@ class _ControlCardState extends State<ControlCard> {
           final signatureColor = Theme.of(context).colorScheme.onError;
           final titleStyle = textTheme.headlineMedium;
           final smallPrint = textTheme.bodySmall;
+          final largePrint = textTheme.bodyLarge;
           final overallOutcome = activeEvent.outcomes.overallOutcome;
           const spaceBox = SizedBox(
             height: 16,
@@ -453,82 +454,113 @@ class _ControlCardState extends State<ControlCard> {
 
           MyLogger.entry("Control check-in: $checkInSignatureString");
 
-          return AlertDialog(
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+          if (checkInResult != null) {
+            return AlertDialog(
+              icon: const Icon(Icons.error, size: 62.0),
+              title: const Text("Check In FAILED"),
+              content: Column(
                 children: [
-                  Text(
-                    (isNotFinished) ? 'Check In Recorded' : 'Ride Completed',
-                    style: titleStyle,
-                  ),
-                  Text(
-                    "At $checkInTimeString",
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  spaceBox,
-                  Text(
-                    isDisqualified
-                        ? "RBA REVIEW NEEDED"
-                        : ((isNotFinished) ? 'Check-In Phrase' : 'Finish Code'),
-                  ),
+                  const Text("Something went wrong with your check-in:"),
                   thinSpaceBox,
-                  Container(
-                    color: signatureColor,
-                    padding: const EdgeInsets.all(8),
-                    child: Text(
-                      checkInSignatureString,
-                      style: signatureStyle,
-                    ),
-                  ),
-                  spaceBox,
-                  if (isDisqualified)
-                    Text(
-                      'Last Control Check-in Phrase:',
-                      style: smallPrint,
-                    ),
-                  if (isDisqualified)
-                    Text(
-                      checkInPhrase,
-                      style: smallPrint,
-                    ),
-                  if (!isDisqualified && isNotFinished)
-                    Text(
-                      'OPTIONAL: Write Phrase and Time',
-                      style: smallPrint,
-                    ),
-                  if (!isDisqualified && isNotFinished)
-                    Text(
-                      'on Brevet Card as backup!',
-                      style: smallPrint,
-                    ),
-                  if (!isDisqualified && !isNotFinished)
-                    Text(
-                      'Record Finish Code as Proof',
-                      style: smallPrint,
-                    ),
-                  spaceBox,
-                  Text(activeEvent.checkInFractionString),
-                  Text(
-                    (overallOutcome == OverallOutcome.finish)
-                        ? "Congratulations! You have finished the ${activeEvent.event.nameDist} in ${activeEvent.elapsedTimeString}."
-                        : (activeEvent.isIntermediateControl(control)
-                            ? "Ride On!"
-                            : "RBA Review Needed"),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontStyle: FontStyle.italic),
-                  ),
+                  Text(checkInResult,
+                      style: largePrint, textAlign: TextAlign.center),
+                  thinSpaceBox,
+                  const Text(
+                      "You can try checking in again. If this problem persists, use "
+                      "your brevet card the old fashioned way. If you think this is an app "
+                      "bug you should share the Activity Log to your RBA. You'll find that log "
+                      "in app settings."),
                 ],
               ),
-            ),
-            actions: [
-              TextButton(
+              actions: [
+                TextButton(
+                  child: const Text("Continue"),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('CONTINUE'))
-            ],
-          );
+                ),
+              ],
+            );
+          } else {
+            return AlertDialog(
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      (isNotFinished) ? 'Check In Recorded' : 'Ride Completed',
+                      style: titleStyle,
+                    ),
+                    Text(
+                      "At $checkInTimeString",
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    spaceBox,
+                    Text(
+                      isDisqualified
+                          ? "RBA REVIEW NEEDED"
+                          : ((isNotFinished)
+                              ? 'Check-In Phrase'
+                              : 'Finish Code'),
+                    ),
+                    thinSpaceBox,
+                    Container(
+                      color: signatureColor,
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        checkInSignatureString,
+                        style: signatureStyle,
+                      ),
+                    ),
+                    spaceBox,
+                    if (isDisqualified)
+                      Text(
+                        'Last Control Check-in Phrase:',
+                        style: smallPrint,
+                      ),
+                    if (isDisqualified)
+                      Text(
+                        checkInPhrase,
+                        style: smallPrint,
+                      ),
+                    if (!isDisqualified && isNotFinished)
+                      Text(
+                        'OPTIONAL: Write Phrase and Time',
+                        style: smallPrint,
+                      ),
+                    if (!isDisqualified && isNotFinished)
+                      Text(
+                        'on Brevet Card as backup!',
+                        style: smallPrint,
+                      ),
+                    if (!isDisqualified && !isNotFinished)
+                      Text(
+                        'Record Finish Code as Proof',
+                        style: smallPrint,
+                      ),
+                    spaceBox,
+                    Text(activeEvent.checkInFractionString),
+                    Text(
+                      (overallOutcome == OverallOutcome.finish)
+                          ? "Congratulations! You have finished the ${activeEvent.event.nameDist} in ${activeEvent.elapsedTimeString}."
+                          : (activeEvent.isIntermediateControl(control)
+                              ? "Ride On!"
+                              : "RBA Review Needed"),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('CONTINUE'))
+              ],
+            );
+          }
         },
       );
 }

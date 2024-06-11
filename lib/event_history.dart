@@ -87,15 +87,9 @@ class EventHistory {
     }
   }
 
-  static save() {
+  static Future<bool> save() {
     var storage = FileStorage(AppSettings.pastEventsFileName);
-    try {
-      storage.writeJSON(_pastEventMap);
-
-      MyLogger.entry("Saved  ${_pastEventMap.keys.length} events to file.");
-    } catch (e) {
-      MyLogger.entry("Couldn't save past events to file.");
-    }
+    return storage.writeJSON(_pastEventMap);
   }
 
   static ActivatedEvent? lookupPastEvent(String eventID) {
@@ -153,7 +147,11 @@ class EventHistory {
   static deletePastEvent(ActivatedEvent pe) {
     if (_pastEventMap.containsKey(pe.event.eventID)) {
       _pastEventMap.remove(pe.event.eventID);
-      save();
+      EventHistory.save().then((status) {
+        if (status == false) {
+          MyLogger.entry('Problem saving after delete.');
+        }
+      });
     }
   }
 }

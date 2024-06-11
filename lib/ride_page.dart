@@ -28,6 +28,8 @@ import 'outcome.dart';
 import 'report.dart';
 import 'activated_event.dart';
 import 'control_state.dart';
+import 'event_history.dart';
+import 'mylogger.dart';
 
 class RidePage extends StatefulWidget {
   final ActivatedEvent activeEvent;
@@ -174,12 +176,22 @@ class _RidePageState extends State<RidePage> {
                 //       onPressed: null, child: Text("GPS Off")),
                 const Spacer(),
                 ElevatedButton(
-                    onPressed: () => Report.constructReportAndSend(
-                          activeEvent,
-                          onUploadDone: () {
-                            controlState.reportUploaded;
-                          },
-                        ),
+                    onPressed: () => Report.constructReportAndSend(activeEvent,
+                            onUploadDone: () async {
+                          var status = await EventHistory.save();
+                          if (status == false) {
+                            MyLogger.entry(
+                                'Failed to save after sending report.');
+                            return;
+                          }
+                        }
+
+                            // Report.constructReportAndSend(
+                            //       activeEvent,
+                            //       onUploadDone: () {
+                            //         controlState.reportUploaded;
+                            //       },
+                            ),
                     child: const Text("Upload results")),
               ],
             ),
