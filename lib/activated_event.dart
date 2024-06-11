@@ -66,21 +66,30 @@ class ActivatedEvent {
   // Presumably the caller has already verified the rider is near the
   // control, etc...
 
-  void controlCheckIn({
+  Future<String?> controlCheckIn({
     required Control control,
     String? comment,
     DateTime? checkInTime,
     ControlState? controlState,
-  }) {
+  }) async {
     var eventID = _event.eventID;
     var now = checkInTime?.toUtc() ?? DateTime.now().toUtc();
 
-    assert(null != EventHistory.lookupPastEvent(eventID)); // Event in history
+    ActivatedEvent? thisActiveEvent = EventHistory.lookupPastEvent(eventID);
 
-    if (null != controlCheckInTime(control)) {
+    // if (true) {
+    //   return "Testing Failed Check-in. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ";
+    // }
+
+    if (null == thisActiveEvent) {
+      // Event not in history
+      return "Trying to check in to unknown event ID=$eventID, control ${control.index} at ${now.toString()}";
+    }
+
+    var previousCheckInData = controlCheckInTime(control);
+    if (null != previousCheckInData) {
       MyLogger.entry(
-          "Redundant Checkin IGNORED:  control ${control.index} at ${now.toString()}");
-      return; // Don't do anything if it's already set
+          "Redundant Checkin:  control ${control.index} was ${previousCheckInData.toString()}, now ${now.toString()}");
     }
 
     // for an auto-checkin of the first control, "now" is defined as the onTime for the event
@@ -91,9 +100,18 @@ class ActivatedEvent {
     MyLogger.entry(
         "Checking into control ${control.index} at ${now.toString()}");
 
-    // notify watchers
-    if (controlState != null) {
-      controlState.checkIn();
+    // Make sure we really recorded the check-in
+
+    // assert(null != controlCheckInTime(control));
+
+    var selfRecordedTimeA = controlCheckInTime(control);
+    var selfRecordedTimeB =
+        thisActiveEvent.outcomes.getControlCheckInTime(control.index);
+
+    if (selfRecordedTimeA == null ||
+        selfRecordedTimeB == null ||
+        selfRecordedTimeB != selfRecordedTimeA) {
+      return "Checkin failed to be recorded correctly:  control ${control.index} at ${now.toString()}";
     }
 
     // Detect FINISH, or misordered controls at finish  (TODO Does this go here?)
@@ -116,15 +134,29 @@ class ActivatedEvent {
       }
     }
 
-    assert(controlCheckInTime(control) != null); // should have just set this
-
     // Commit the check-in locally
-    EventHistory.save();
+
+    var status = await EventHistory.save();
+    if (status == false) {
+      return 'Check-in failed -- Problem saving check-in to local storage.';
+    }
+
+    // notify watchers
+    if (controlState != null) {
+      controlState.checkIn();
+    }
 
     Report.constructReportAndSend(this, control: control, comment: comment,
-        onUploadDone: () {
+        onUploadDone: () async {
+      var status = await EventHistory.save();
+      if (status == false) {
+        return 'Failed to save check-in again after sending report.';
+      }
+
       if (controlState != null) controlState.reportUploaded();
     });
+
+    return null;
   }
 
   String makeCheckInSignature(Control ctrl) =>
