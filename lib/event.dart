@@ -373,9 +373,10 @@ class Event {
     }
 
     var difference = onTime.difference(now);
-    return difference.inMinutes > AppSettings.advanceStartTimeGraceMinutes &&
+    return difference.inHours > AppSettings.prerideDisallowHours &&
         (AppSettings.prerideDateWindowOverride.value ||
-            difference.inDays <= AppSettings.prerideTimeWindowDays);
+            difference.inMinutes <=
+                24 * 60 * AppSettings.prerideTimeWindowDays);
   }
 
   static int sort(Event a, Event b) {

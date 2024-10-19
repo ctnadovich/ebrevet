@@ -32,6 +32,7 @@ class AppSettings {
   static const int infiniteDistance = infinity;
   static const int advanceStartTimeGraceMinutes = 60;
   static const int prerideTimeWindowDays = 15;
+  static const int prerideDisallowHours = 24;
   static const int httpGetTimeoutSeconds = 30;
   static const int timeRefreshPeriod = 60;
   static const int gpsRefreshPeriodDefault = 20;
