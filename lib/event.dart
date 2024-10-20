@@ -373,10 +373,13 @@ class Event {
     }
 
     var difference = onTime.difference(now);
-    return difference.inHours > AppSettings.prerideDisallowHours &&
+    var difMinutes = difference.inMinutes;
+    // var difHours = difference.inHours;
+    var preRideWindowMinutes = 24 * 60 * AppSettings.prerideTimeWindowDays;
+    var preRideDisallowMinutes = 60 * AppSettings.prerideDisallowHours;
+    return difMinutes > preRideDisallowMinutes &&
         (AppSettings.prerideDateWindowOverride.value ||
-            difference.inMinutes <=
-                24 * 60 * AppSettings.prerideTimeWindowDays);
+            difMinutes <= preRideWindowMinutes);
   }
 
   static int sort(Event a, Event b) {
