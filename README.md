@@ -189,7 +189,7 @@ for events where everyone starts together.
 
 
 For such events, you can enter your start code into eBrevet any time
-within a grace period before the actual start. Then you wait till the organizer
+within a 1 hour grace period before the actual start. Then you wait till the organizer
 says "GO!", and you start riding. You don't have to worry about
 opening eBrevet after the "GO!" to check into the start for these mass
 start events. It's already done. Of course, for all subsequent
@@ -365,7 +365,7 @@ and distance to control must be within proximity limit.
 
 - PreRide: Start time is individually determined by actual manual check-in at
 the start control, which must be within the 15 day pre-ride window
-and before any MassStart/FreeStart window begins. The distance to the start control must
+and at least 24 hours before the event begins. The distance to the start control must
 be within the proximity limit.
 
 - Permanent: Start time is individually determined by actual manual check-in at
@@ -377,7 +377,8 @@ This value for this tag is a map with the following tags
 
 - `on_time` The advertised start time for a mass start, or the 'nominal' start time
 for a free start. Time zone is UTC and the format is ISO 8601. 
-For permanents or pre-rides, this is ignored. 
+For permanents this is ignored. For pre-rides the on-time determines the window within which
+a pre-ride is allowed: from 15 days prior to the on-time till 24 hours prior to the on-time.  
 
 - `early` Specifies the begining of the time window for a free start. 
 Positive integer number of minutes before `on_time` when it is allowed to start the event. 
