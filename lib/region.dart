@@ -137,9 +137,15 @@ class Region {
         }
       }
 
-      List<dynamic> decodedRegionList = decodedResponse['region_list'];
+      // It's unclear why it would be necessary to verify
+      // the Signature/Timestamp of region list.  The list
+      // comes from a hard-coded URL and the server is presumably
+      // trusted.
 
-      // TODO Verify Signature/Timestamp of region list
+      // String downloadTimestamp = decodedResponse['timestamp'];
+      // String downloadSignature = decodedResponse['signature'];
+
+      List<dynamic> decodedRegionList = decodedResponse['region_list'];
 
       int nRegion = decodedRegionList.length;
 
