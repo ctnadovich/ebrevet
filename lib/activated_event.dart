@@ -97,8 +97,9 @@ class ActivatedEvent {
 
     // do the actual check-in
     outcomes.setControlCheckInTime(control.index, now);
+    outcomes.setControlCheckInComment(control.index, comment ?? "");
     MyLogger.entry(
-        "Checking into control ${control.index} at ${now.toString()}");
+        "Checking into control ${control.index} at ${now.toString()} with comment: $comment");
 
     // Make sure we really recorded the check-in
 

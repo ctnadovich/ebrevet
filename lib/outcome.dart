@@ -49,6 +49,7 @@ enum OverallOutcome {
 class EventOutcomes {
   late OverallOutcome _overallOutcome;
   late Map<int, DateTime> _checkInTimeMap; // control number -> check in time
+  late Map<int, String> _checkInCommentMap; // control number -> comment
 
   DateTime?
       lastUpload; // If using this setter don't forget to save event history
@@ -56,9 +57,11 @@ class EventOutcomes {
   EventOutcomes({
     OverallOutcome? overallOutcome,
     Map<int, DateTime>? checkInTimeMap,
+    Map<int, String>? checkInCommentMap,
     // bool? isPreride,
   }) {
     _checkInTimeMap = checkInTimeMap ?? {};
+    _checkInCommentMap = checkInCommentMap ?? {};
     _overallOutcome = overallOutcome ?? OverallOutcome.dns;
   }
 
@@ -67,6 +70,8 @@ class EventOutcomes {
         'last_upload': lastUpload?.toUtc().toIso8601String(),
         'check_in_times': _checkInTimeMap.map((key, value) =>
             MapEntry(key.toString(), value.toUtc().toIso8601String())),
+        'check_in_comments': _checkInCommentMap
+            .map((key, value) => MapEntry(key.toString(), value)),
       };
 
   factory EventOutcomes.fromJson(Map<String, dynamic> jsonMap) {
@@ -81,6 +86,14 @@ class EventOutcomes {
       DateTime vDateTime = DateTime.parse(checkInJsonMap[k]);
       eo._checkInTimeMap[kInt] = vDateTime;
     }
+    Map<String, dynamic> checkInCommentJsonMap = jsonMap['check_in_comments'];
+    eo._checkInCommentMap
+        .clear(); // not needed as default constructor will make this empty anyway
+    for (var k in checkInCommentJsonMap.keys) {
+      int kInt = int.parse(k);
+      var comment = checkInCommentJsonMap[k];
+      eo._checkInCommentMap[kInt] = comment;
+    }
     if (jsonMap['last_upload'] != null) {
       eo.lastUpload = DateTime.parse(jsonMap['last_upload']);
     }
@@ -93,8 +106,16 @@ class EventOutcomes {
     _checkInTimeMap[controlKey] = t;
   }
 
+  void setControlCheckInComment(int controlKey, String t) {
+    _checkInCommentMap[controlKey] = t;
+  }
+
   DateTime? getControlCheckInTime(int controlKey) {
     return _checkInTimeMap[controlKey];
+  }
+
+  String? getControlCheckInComment(int controlKey) {
+    return _checkInCommentMap[controlKey];
   }
 
   OverallOutcome get overallOutcome {
