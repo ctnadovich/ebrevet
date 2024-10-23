@@ -59,10 +59,22 @@ Future<void> initSettings() async {
   await MySetting.initSharedPreferences();
   await AppSettings.initializePackageInfo();
   // await AppSettings.initializeMySettings();
+  await Region.fetchRegionsFromDisk(
+      create: true); // will create from compiled static if missing
+
+  // There's really no reason to do this every time the app starts
+  // up. If people can't find the desired region, all they need
+  // do is press the Refresh Regions button. Now that the regions
+  // are persistent with a disk file, there should be no reason
+  // to do this live update. Region additions are rare.
+  //
+  // But if we ever change our minds on this point, uncomment below
+
+  // await Region.fetchRegionsFromServer(
+  //     quiet: true); // will update disk if successful
+
   await FutureEvents.refreshEventsFromDisk();
-  // .then((_) =>
   await EventHistory.load();
-  await Region.fetchRegionsFromServer(quiet: true);
 
   MyLogger.entry('...Init settings end');
 }

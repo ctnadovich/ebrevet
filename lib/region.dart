@@ -22,6 +22,7 @@ import 'region_data.dart';
 import 'mylogger.dart';
 import 'exception.dart';
 import 'package:http/http.dart' as http;
+import 'files.dart';
 
 // RegionData is stored separately to protect secrets
 // It's not possible to set a region secret through the
@@ -49,6 +50,10 @@ class Region {
   // This URL is not overridable
   static const String regionListURL =
       'https://randonneuring.org/ebrevet/region_list';
+
+  static var storedRegions = FileStorage(AppSettings.storedRegionsFilename);
+  static DateTime? regionsLastRefreshed; // Time when last refreshed from server
+  static const regionsLastRefreshedFieldName = 'timestamp';
 
   late int regionID;
   late String clubName;
@@ -99,9 +104,46 @@ class Region {
     return Region(regionID: rid);
   }
 
+  static fetchRegionsFromDisk({bool create = true}) async {
+    Map<String, dynamic> decodedResponse;
+    try {
+      MyLogger.entry(
+          "** Refreshing regions from disk file ${storedRegions.fileName}");
+      decodedResponse = await storedRegions.readJSON();
+      if (decodedResponse.isEmpty) {
+        if (create) {
+          MyLogger.entry("Region file missing or empty. Creating.");
+          await saveRegionMapToDisk(storedRegions);
+        } else {
+          throw NoPreviousDataException("Stored regions file read was empty.");
+        }
+      } else {
+        throwExceptionIfBadMapData(decodedResponse, storedRegions.fileName);
+
+        String timestamp = decodedResponse['timestamp'];
+        DateTime? timestampDateTime =
+            DateTime.tryParse(timestamp); // might return null
+
+        List<dynamic> decodedRegionList = decodedResponse['region_list'];
+        int nRegion = decodedRegionList.length;
+        MyLogger.entry("Disk file data for $nRegion regions.");
+
+        rebuildRegionMap(decodedRegionList);
+        regionsLastRefreshed = timestampDateTime;
+
+        // refreshCount.value++;
+        MyLogger.entry(
+            "Successfully restored ${regionMap.length} regions from disk. Last Refreshed = $timestamp");
+        //refreshCount.value;
+      }
+    } catch (error) {
+      MyLogger.entry("Couldn't refresh regions from FILE: $error");
+    }
+  }
+
   static Future fetchRegionsFromServer({bool quiet = false}) async {
     String url = Region.regionListURL;
-    MyLogger.entry("Fetching region data from URL $url");
+    MyLogger.entry("** Fetching region data from URL $url");
 
     Map<String, dynamic> decodedResponse;
     http.Response? response;
@@ -122,83 +164,117 @@ class Region {
             'Error response from $url (Status Code: ${response.statusCode})');
       } else {
         decodedResponse = jsonDecode(response.body);
+        throwExceptionIfBadMapData(decodedResponse, url);
 
-        if (decodedResponse is List && decodedResponse.isEmpty) {
-          throw ServerException('Empty reponse from $url');
-        }
-        if (false == decodedResponse.containsKey('region_list')) {
-          throw FormatException('No region_list in response from $url');
-        }
-        if (false == decodedResponse.containsKey('timestamp')) {
-          throw FormatException('No timestamp in response from $url');
-        }
-        if (false == decodedResponse.containsKey('signature')) {
-          throw FormatException('No signature in response from $url');
+        // It's unclear why it would be necessary to verify
+        // the Signature of region list.  The list
+        // comes from a hard-coded URL and the server is presumably
+        // trusted.
+
+        // String downloadSignature = decodedResponse['signature'];
+
+        // OTOH No excuse for bad timestamp from server
+        if (null == DateTime.tryParse(decodedResponse['timestamp'])) {
+          throw FormatException(
+              'Invalid timestamp "${decodedResponse['timestamp']}" from $url');
         }
       }
 
-      // It's unclear why it would be necessary to verify
-      // the Signature/Timestamp of region list.  The list
-      // comes from a hard-coded URL and the server is presumably
-      // trusted.
-
-      // String downloadTimestamp = decodedResponse['timestamp'];
-      // String downloadSignature = decodedResponse['signature'];
-
       List<dynamic> decodedRegionList = decodedResponse['region_list'];
+
+      String timestamp = decodedResponse['timestamp'];
+      DateTime timestampDateTime =
+          DateTime.parse(timestamp); // should succeed, was checked
 
       int nRegion = decodedRegionList.length;
 
       MyLogger.entry("Data received for $nRegion regions.");
+      rebuildRegionMap(decodedRegionList);
 
-      // Wipe old map. No going back!
-      regionMap.clear();
+      MyLogger.entry("Saving new data to disk....");
+      regionsLastRefreshed = timestampDateTime;
+      await saveRegionMapToDisk(storedRegions);
 
-      int nFound = 0;
-      int nAdded = 0;
-      for (var rDynamic in decodedRegionList) {
-        nFound++;
-        Map<String, dynamic> r = rDynamic as Map<String, dynamic>;
-        if (false == r.containsKey('club_acp_code')) {
-          MyLogger.entry(
-              "region_list[$nFound]: Region has no Club ACP code. Skipped.");
-          continue;
-        }
-        String clubACPCodeString = r['club_acp_code']!;
-
-        var acpClubCode = int.tryParse(clubACPCodeString);
-        if (null == acpClubCode) {
-          MyLogger.entry(
-              "resgion_list[$nFound]: Region with ACP code '$clubACPCodeString' not an integer. Skipped.");
-          continue;
-        }
-
-        if (false == r.containsKey('state_code')) {
-          MyLogger.entry(
-              "region_list[$nFound]: Region with ACP code '$clubACPCodeString' has no state_code. Skipped.");
-          continue;
-        }
-
-        if (false == r.containsKey('region_name')) {
-          MyLogger.entry(
-              "region_list[$nFound]: Region with ACP code '$clubACPCodeString' has no region_name. Skipped.");
-          continue;
-        }
-
-        regionMap[acpClubCode] = {};
-        nAdded++;
-        for (var k in r.keys) {
-          String v = r[k];
-          regionMap[acpClubCode]![k] = v;
-        }
-      }
-      MyLogger.entry("Loaded $nAdded regions.");
+      MyLogger.entry(
+          "Successfully restored ${regionMap.length} (of $nRegion) regions from server (timestamp: $timestamp)");
     } catch (e) {
       if (quiet == false) {
         SnackbarGlobal.show("Error refreshing regions. No Internet?");
       }
-      MyLogger.entry("$e");
+      MyLogger.entry("Error refreshing regions: $e");
     }
+  }
+
+  static rebuildRegionMap(List<dynamic> decodedRegionList) {
+    int nListEntries = decodedRegionList.length;
+
+    if (nListEntries == 0) {
+      throw NoPreviousDataException(
+          "RegionList empty. Won't rebuild region map.");
+    } else {
+      MyLogger.entry(
+          "Rebuilding RegionMap from list of $nListEntries entries.");
+    }
+
+    regionMap.clear(); // No turning back!
+
+    int nFound = 0;
+    int nAdded = 0;
+    for (var rDynamic in decodedRegionList) {
+      nFound++;
+      Map<String, dynamic> r = rDynamic as Map<String, dynamic>;
+      if (false == r.containsKey('club_acp_code')) {
+        MyLogger.entry(
+            "region_list[$nFound]: Region has no Club ACP code. Skipped.");
+        continue;
+      }
+      String clubACPCodeString = r['club_acp_code']!;
+
+      var acpClubCode = int.tryParse(clubACPCodeString);
+      if (null == acpClubCode) {
+        MyLogger.entry(
+            "resgion_list[$nFound]: Region with ACP code '$clubACPCodeString' not an integer. Skipped.");
+        continue;
+      }
+
+      if (false == r.containsKey('state_code')) {
+        MyLogger.entry(
+            "region_list[$nFound]: Region with ACP code '$clubACPCodeString' has no state_code. Skipped.");
+        continue;
+      }
+
+      if (false == r.containsKey('region_name')) {
+        MyLogger.entry(
+            "region_list[$nFound]: Region with ACP code '$clubACPCodeString' has no region_name. Skipped.");
+        continue;
+      }
+
+      regionMap[acpClubCode] = {};
+      nAdded++;
+      for (var k in r.keys) {
+        String v = r[k];
+        regionMap[acpClubCode]![k] = v;
+      }
+    }
+    MyLogger.entry(
+        "Rebuilt $nAdded regions from list of $nListEntries entries.");
+  }
+
+  static throwExceptionIfBadMapData(
+      Map<String, dynamic> decodedResponse, String url) {
+    if (decodedResponse is List && decodedResponse.isEmpty) {
+      throw ServerException('No data from $url');
+    }
+    if (false == decodedResponse.containsKey('region_list')) {
+      throw FormatException('No region_list from $url');
+    }
+    if (false == decodedResponse.containsKey('timestamp')) {
+      throw FormatException('No timestamp from $url');
+    }
+
+    // if (false == decodedResponse.containsKey('signature')) {
+    //   throw FormatException('No signature from $url');
+    // }
   }
 
   static compareByStateName(int a, int b) {
@@ -209,6 +285,23 @@ class Region {
     var aName = regionMap[a]!['region_name'] ?? '?';
     var bName = regionMap[b]!['region_name'] ?? '?';
     return aName.compareTo(bName);
+  }
+
+  static Future<bool> saveRegionMapToDisk(FileStorage f) async {
+    Map<String, dynamic> fileData = {};
+    List<dynamic> regionListData = [];
+
+    for (var k in regionMap.keys) {
+      Map<String, dynamic> regionData = regionMap[k]!;
+      regionData['club_acp_code'] = k.toString();
+      regionListData.add(regionData);
+    }
+
+    fileData['timestamp'] =
+        regionsLastRefreshed?.toUtc().toIso8601String() ?? "";
+    fileData['region_list'] = regionListData;
+    var status = await f.writeJSON(fileData);
+    return status;
   }
 
   static Map<int, Map<String, String>> regionMap = {

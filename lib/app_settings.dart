@@ -53,6 +53,8 @@ class AppSettings {
   static const String futureEventsFilename =
       'futureEvents.json'; // File to save events locally
   static const String pastEventsFileName = 'pastEvents.json';
+  static const String storedRegionsFilename =
+      'regions.json'; // File to save regions locally
 
   ////////////////////////
   // Package Info Settings
