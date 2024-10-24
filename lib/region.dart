@@ -195,9 +195,12 @@ class Region {
       MyLogger.entry("Saving new data to disk....");
       regionsLastRefreshed = timestampDateTime;
       await saveRegionMapToDisk(storedRegions);
-
-      MyLogger.entry(
-          "Successfully restored ${regionMap.length} (of $nRegion) regions from server (timestamp: $timestamp)");
+      if (quiet == false) {
+        SnackbarGlobal.show("Loaded ${regionMap.length} regions from server");
+      } else {
+        MyLogger.entry(
+            "Successfully restored ${regionMap.length} (of $nRegion) regions from server (timestamp: $timestamp)");
+      }
     } catch (e) {
       if (quiet == false) {
         SnackbarGlobal.show("Error refreshing regions. No Internet?");
