@@ -256,6 +256,12 @@ class _ControlCardState extends State<ControlCard> {
     final checkInTime = activeEvent.controlCheckInTime(c);
     final lastUpload = activeEvent.outcomes.lastUpload;
 
+    // As a fix for situations when the route loops back to the same
+    // control location and riders can be confused with multiple check-in buttons
+    // this will make sure only one such button is ever available.
+
+    var firstAvailableIndex = activeEvent.firstAvailableUncheckedControl();
+
     // Can't check in -- you skipped me
     if (activeEvent.wasSkipped(c)) {
       return Text('SKIPPED!',
@@ -317,7 +323,10 @@ class _ControlCardState extends State<ControlCard> {
             ),
         ],
       );
-
+    } else if (c.index != firstAvailableIndex) {
+      return const Tooltip(
+          message: 'Check into earlier open control first.',
+          child: Icon(Icons.arrow_upward));
       // Otherwise, control is available. Gosh, let the cat check in.
     } else {
       return ElevatedButton(

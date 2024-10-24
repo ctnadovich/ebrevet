@@ -418,14 +418,29 @@ class ActivatedEvent {
   bool isControlNearby(int controlKey) =>
       _event.controls[controlKey].cLoc.isNearby;
 
-  bool isControlAvailable(int controlKey) =>
-      (isControlOpen(controlKey) || AppSettings.openTimeOverride.value) &&
-      (isControlNearby(controlKey) ||
-          AppSettings.controlProximityOverride.value);
+  bool isControlAvailable(int controlKey) {
+    return (isControlOpen(controlKey) || AppSettings.openTimeOverride.value) &&
+        (isControlNearby(controlKey) ||
+            AppSettings.controlProximityOverride.value);
+  }
+
+  int? firstAvailableUncheckedControl() {
+    var nControls = _event.controls.length;
+    for (var i = 0; i < nControls; i++) {
+      var c = _event.controls[i];
+      var isNotChecked = !controlIsChecked(c);
+      var key = c.index;
+      if (isNotChecked && isControlAvailable(key)) return key;
+    }
+    return null;
+  }
 
   Event get event {
     return _event;
   }
+
+  // Used a different method to solve the following problem.
+  // See firstAvailableUncheckedControl
 
   // This is used for hiding check in buttons if a previous
   // control wasn't checked but is available. The idea
@@ -435,14 +450,19 @@ class ActivatedEvent {
   // On the other hand, maybe you DID skip a control for some
   // reason and want to continue.
 
-  bool previousControlsAreAvailable(int thisControlIndex) {
-    for (var control in _event.controls) {
-      if (control.index >= thisControlIndex) break;
-      var isAvailable = isControlAvailable(control.index);
-      if (isAvailable) return true; // Found one!
-    }
-    return false;
-  }
+  // On the other, other hand, if you skipped a control
+  // presumably you aren't near it, and therefore it won't be
+  // available. The only exception would be colocated controls
+  // on figure-8 courses, or out-n-backs.
+
+  // bool previousControlsAreAvailable(int thisControlIndex) {
+  //   for (var control in _event.controls) {
+  //     if (control.index >= thisControlIndex) break;
+  //     var isAvailable = isControlAvailable(control.index);
+  //     if (isAvailable) return true; // Found one!
+  //   }
+  //   return false;
+  // }
 
   set overallOutcome(OverallOutcome o) {
     outcomes.overallOutcome = o;
