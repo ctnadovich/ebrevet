@@ -24,6 +24,7 @@ import 'view_page.dart';
 import 'control_state.dart';
 import 'app_settings.dart';
 import 'screen_shot.dart';
+import 'utility.dart';
 
 class CertificatePage extends StatefulWidget {
   final ActivatedEvent pastEvent;
@@ -39,10 +40,35 @@ class _CertificatePageState extends State<CertificatePage> {
   @override
   Widget build(BuildContext context) {
     var dayNight = context.watch<DayNight>();
-    var titleLarge = Theme.of(context).textTheme.titleLarge!;
-    var titleMedium = Theme.of(context).textTheme.titleMedium!;
-    var titleSmall = Theme.of(context).textTheme.titleSmall!;
+    var titleLarge = Theme.of(context)
+        .textTheme
+        .titleLarge
+        ?.copyWith(color: Theme.of(context).colorScheme.onSurface);
+    var titleMedium = Theme.of(context)
+        .textTheme
+        .titleMedium
+        ?.copyWith(color: Theme.of(context).colorScheme.onSurface);
+    var titleSmall = Theme.of(context)
+        .textTheme
+        .titleSmall
+        ?.copyWith(color: Theme.of(context).colorScheme.onSurface);
+
+    // Theme.of(context).textTheme.titleLarge!;
+
     const emStyle = TextStyle(fontStyle: FontStyle.italic);
+
+    var inversePrimary = Theme.of(context).colorScheme.inversePrimary;
+
+    var gradientStart = Theme.of(context).colorScheme.surfaceBright;
+    var gradientMid = Theme.of(context).colorScheme.surface;
+    var gradientEnd = Theme.of(context).colorScheme.surfaceDim;
+    gradientStart = Utility.increaseColorHue(gradientStart, 0);
+    gradientStart = Utility.increaseColorLightness(gradientStart, -.1);
+    gradientEnd = Utility.increaseColorHue(gradientEnd, 180);
+    gradientEnd = Utility.increaseColorSaturation(gradientEnd, 0.5);
+    gradientEnd = Utility.increaseColorLightness(gradientEnd, -.25);
+
+    var border = Theme.of(context).colorScheme.onSurfaceVariant;
 
     context.read<ControlState>();
 
@@ -75,7 +101,7 @@ class _CertificatePageState extends State<CertificatePage> {
         child: const Icon(Icons.share),
       ),
       body: Container(
-        color: Theme.of(context).colorScheme.inversePrimary,
+        color: inversePrimary,
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
         child: Center(
           child: SingleChildScrollView(
@@ -88,15 +114,17 @@ class _CertificatePageState extends State<CertificatePage> {
                     decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primaryContainer,
                         gradient: LinearGradient(
-                            colors: [
-                              Colors.red[100]!,
-                              Colors.white,
-                              Colors.blue[100]!
-                            ],
+                            // colors: [
+                            //   Colors.red[100]!,
+                            //   Colors.white,
+                            //   Colors.blue[100]!
+                            // ],
+                            colors: [gradientStart, gradientMid, gradientEnd],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight),
                         border: Border.all(
-                          color: Colors.yellowAccent,
+                          // color: Colors.yellowAccent,
+                          color: border,
                           width: 2,
                         ),
                         boxShadow: const [
@@ -108,69 +136,80 @@ class _CertificatePageState extends State<CertificatePage> {
                         ],
                         borderRadius:
                             const BorderRadius.all(Radius.circular(20))),
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/eBrevet-128.png',
-                          width: 64,
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        textTheme: const TextTheme(
+                          bodyLarge:
+                              TextStyle(fontSize: 20, color: Colors.blue),
+                          bodyMedium:
+                              TextStyle(fontSize: 16, color: Colors.red),
                         ),
-                        Text('Finish Certificate', style: titleLarge),
-                        // Text('Proof of Passage', style: titleLarge),
-                        const SizedBox(
-                          height: 4,
-                        ),
-                        const Text(
-                          'The Randonneur',
-                          style: emStyle,
-                        ),
-                        Text(
-                          AppSettings.fullName,
-                          style: titleMedium,
-                        ),
-                        Text('RUSA ID ${pastEvent.riderID}', style: titleSmall),
-                        const SizedBox(
-                          height: 4,
-                        ),
-                        const Text('Completed the', style: emStyle),
-                        Text(event.region.regionName, style: titleMedium),
-                        Text('${event.nameDist}', style: titleLarge),
-                        Text(
-                            '${event.eventSanction} ${event.eventType[0].toUpperCase()}${event.eventType.substring(1).toLowerCase()}',
-                            style: titleMedium),
-                        const SizedBox(
-                          height: 4,
-                        ),
-                        const Text('Organized by', style: emStyle),
-                        Text(event.region.clubName, style: titleMedium),
-                        Text('On ${event.startDate}', style: titleSmall),
-                        const SizedBox(
-                          height: 4,
-                        ),
-                        // const Text('This', style: emStyle),
-                        Text(
-                          pastEvent.startStyle.description,
-                          style: emStyle,
-                        ),
-                        const Text('completed in', style: emStyle),
-                        Text(pastEvent.elapsedTimeStringVerbose,
-                            style: titleMedium),
-                        const SizedBox(
-                          height: 4,
-                        ),
-                        Column(
-                          children: [
-                            Text(pastEvent.checkInFractionString),
-                            Text(
-                              pastEvent.isFullyUploadedString,
-                              style: TextStyle(
-                                  fontWeight: isOutcomeFullyUploaded
-                                      ? FontWeight.normal
-                                      : FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        Text('Finish Code: $certString', style: emStyle),
-                      ],
+                      ),
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/images/eBrevet-128.png',
+                            width: 64,
+                          ),
+                          Text('Finish Certificate', style: titleLarge),
+                          // Text('Proof of Passage', style: titleLarge),
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          const Text(
+                            'The Randonneur',
+                            style: emStyle,
+                          ),
+                          Text(
+                            AppSettings.fullName,
+                            style: titleMedium,
+                          ),
+                          Text('RUSA ID ${pastEvent.riderID}',
+                              style: titleSmall),
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          const Text('Completed the', style: emStyle),
+                          Text(event.region.regionName, style: titleMedium),
+                          Text('${event.nameDist}', style: titleLarge),
+                          Text(
+                              '${event.eventSanction} ${event.eventType[0].toUpperCase()}${event.eventType.substring(1).toLowerCase()}',
+                              style: titleMedium),
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          const Text('Organized by', style: emStyle),
+                          Text(event.region.clubName, style: titleMedium),
+                          Text('On ${event.startDate}', style: titleSmall),
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          // const Text('This', style: emStyle),
+                          Text(
+                            pastEvent.startStyle.description,
+                            style: emStyle,
+                          ),
+                          const Text('completed in', style: emStyle),
+                          Text(pastEvent.elapsedTimeStringVerbose,
+                              style: titleMedium),
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          Column(
+                            children: [
+                              Text(pastEvent.checkInFractionString),
+                              Text(
+                                pastEvent.isFullyUploadedString,
+                                style: TextStyle(
+                                    fontWeight: isOutcomeFullyUploaded
+                                        ? FontWeight.normal
+                                        : FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          Text('Finish Code: $certString', style: emStyle),
+                        ],
+                      ),
                     ),
                   ),
                 ),

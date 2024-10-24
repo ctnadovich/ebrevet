@@ -16,6 +16,7 @@
 //
 
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class Utility {
   static String toBriefTimeString(DateTime? dt) {
@@ -57,5 +58,23 @@ class Utility {
 
   static String colorToHex(Color color) {
     return '#${(color.value & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+  }
+
+  static Color increaseColorSaturation(Color color, double increment) {
+    var hslColor = HSLColor.fromColor(color);
+    var newValue = min(max(hslColor.saturation + increment, 0.0), 1.0);
+    return hslColor.withSaturation(newValue).toColor();
+  }
+
+  static Color increaseColorLightness(Color color, double increment) {
+    var hslColor = HSLColor.fromColor(color);
+    var newValue = min(max(hslColor.lightness + increment, 0.0), 1.0);
+    return hslColor.withLightness(newValue).toColor();
+  }
+
+  static Color increaseColorHue(Color color, double increment) {
+    var hslColor = HSLColor.fromColor(color);
+    var newValue = min(max(hslColor.lightness + increment, 0.0), 360.0);
+    return hslColor.withHue(newValue).toColor();
   }
 }
