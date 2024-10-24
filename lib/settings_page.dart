@@ -152,14 +152,22 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
               )
             else
               const Text("Region List invalid. Please refresh"),
+          spacerBox,
           if (AppSettings.futureEventsSourceID.value ==
               FutureEventsSourceID.fromRegion)
-            ElevatedButton(
-              onPressed: () async {
-                await Region.fetchRegionsFromServer();
-                setState(() {});
-              },
-              child: const Text('Refresh Region List'),
+            Column(
+              children: [
+                const Text(
+                    "If your region is new and  doesn't appear in the above list, "
+                    "try getting the latest region list from the server."),
+                ElevatedButton(
+                  onPressed: () async {
+                    await Region.fetchRegionsFromServer();
+                    setState(() {});
+                  },
+                  child: const Text('Get Latest Region List'),
+                ),
+              ],
             ),
 
           // if (AppSettings.futureEventsSourceID.value ==
