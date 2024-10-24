@@ -113,6 +113,10 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
     List<int> sortedRegionKeys = Region.regionMap.keys.toList();
     sortedRegionKeys.sort((a, b) => Region.compareByStateName(a, b));
     // MyLogger.entry('Rebuilding region dropdown list.');
+
+    // In some weird situations we could have a current region set
+    // to be somethnig that's not in the region map.
+
     for (var k in sortedRegionKeys) {
       var regionData = Region.regionMap[k];
       if (regionData != null) {
@@ -139,12 +143,15 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
           ),
           if (AppSettings.futureEventsSourceID.value ==
               FutureEventsSourceID.fromRegion)
-            DropDownSettingsTile(
-              AppSettings.regionID,
-              key: key,
-              itemList: regionList,
-              onChanged: sourceSelection.updateFromSettings,
-            ),
+            if (Region.regionMap.containsKey(AppSettings.regionID.value))
+              DropDownSettingsTile(
+                AppSettings.regionID,
+                key: key,
+                itemList: regionList,
+                onChanged: sourceSelection.updateFromSettings,
+              )
+            else
+              const Text("Region List invalid. Please refresh"),
           if (AppSettings.futureEventsSourceID.value ==
               FutureEventsSourceID.fromRegion)
             ElevatedButton(

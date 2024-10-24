@@ -67,23 +67,24 @@ class Region {
   late String _ebrevetServerURL;
 
   Region({this.regionID = defaultRegion}) {
-    int rid = (regionMap.containsKey(regionID)) ? regionID : defaultRegion;
+    int rid = (regionMap.containsKey(regionID)) ? regionID : 0;
+    // defaultRegion;
     regionID = rid;
 
-    clubName = regionMap[rid]!['club_name'] ?? "Unknown";
-    regionSubName = regionMap[rid]!['region_name'] ?? "Unknown";
-    stateCode = regionMap[rid]!['state_code'] ?? "Unknown";
-    stateName = regionMap[rid]!['state_name'] ?? stateCode;
+    clubName = regionMap[rid]?['club_name'] ?? "Unknown Club";
+    regionSubName = regionMap[rid]?['region_name'] ?? "Unknown Region";
+    stateCode = regionMap[rid]?['state_code'] ?? "??";
+    stateName = regionMap[rid]?['state_name'] ?? "Unknown State";
 
-    websiteURL = regionMap[rid]!['website_url'] ?? "";
-    iconURL = regionMap[rid]!['icon_url'] ?? "";
+    websiteURL = regionMap[rid]?['website_url'] ?? "";
+    iconURL = regionMap[rid]?['icon_url'] ?? "";
 
     // region secrets are stored in RegionData
     secret = RegionData.regionSecret[rid] ?? RegionData.defaultSecret;
 
     // If a region specifies a server URL, use it verbatim.
     // Otherwise create it from a default basename and region ID
-    _ebrevetServerURL = regionMap[rid]!['ebrevet_url'] ?? defaultEbrevetBaseURL;
+    _ebrevetServerURL = regionMap[rid]?['ebrevet_url'] ?? defaultEbrevetBaseURL;
   }
 
   String get regionName => "$stateCode: $regionSubName";
