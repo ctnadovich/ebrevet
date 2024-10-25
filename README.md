@@ -483,7 +483,7 @@ a dash.
 
 - `control_index` If the rider is currently checking in to a control, this field will appear giving the control number corresponding to the numbering used in the future_events control list for this control. If a rider is not at a control, this field will be absent. The index numbering system corresponds to however the controls were numbered in the future_events object. Typically the start control index is zero. 
 
-- `comment` A text comment provided by the rider
+- `comment` A text comment provided by the rider. This comment will be supersceded by a field in `check_in_comments` included with the `outcome` array. 
 
 - `outcome` A map that contains the `overall_outcome` and a list of `check_in_times`. The `overall_outcome` can be active, dnf, dnq, or finish. The check ins are a list  of pairs, giving the `control_index` and UTC time of the check_in.
 
@@ -492,7 +492,7 @@ be useful to record/display. These include indications whether the ride is a pre
 
 - `app_version` The version of the eBrevet app. 
 
-- `timestamp` ISO 8601 current time in UTC
+- `timestamp` ISO 8601 current time in UTC. This is not necessarily the time of the actual check in. For the purported check in time, look at `check_in_times` in the `outcome' array. 
 
 - `signature` the first 8 hex digits of the SHA256 hash of a plaintext string. The plaintext is 
 the timestamp, the event ID, the rider ID, and a club/region secret separated by dashes. The Club/Region webserver should reject checkin records that do not bear a correct signature. This prevents "spoofing" results into the server as well as general exploitation of the URL. 
