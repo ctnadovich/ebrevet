@@ -220,6 +220,18 @@ class ActivatedEvent {
     return null;
   }
 
+  // List of keys of skipped controls
+
+  List<int> get skippedControls {
+    List<int> skipped = [];
+    var last = lastCheckInControlKey;
+    if (last == null) return skipped; // if none checked, none skipped
+    for (var k = last; k >= event.startControlKey; k--) {
+      if (outcomes.getControlCheckInTime(k) == null) skipped.add(k);
+    }
+    return skipped;
+  }
+
   int get numberOfControls =>
       1 + event.finishControlKey - event.startControlKey;
 
@@ -424,13 +436,16 @@ class ActivatedEvent {
             AppSettings.controlProximityOverride.value);
   }
 
-  int? firstAvailableUncheckedControl() {
+  int? firstAvailableUncheckedUnskippedControl() {
     var nControls = _event.controls.length;
+    var skipped = skippedControls;
     for (var i = 0; i < nControls; i++) {
       var c = _event.controls[i];
       var isNotChecked = !controlIsChecked(c);
       var key = c.index;
-      if (isNotChecked && isControlAvailable(key)) return key;
+      var isAvaliable = isControlAvailable(key);
+      var isSkipped = skipped.contains(key);
+      if (isNotChecked && isAvaliable && !isSkipped) return key;
     }
     return null;
   }

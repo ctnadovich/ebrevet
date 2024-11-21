@@ -260,7 +260,8 @@ class _ControlCardState extends State<ControlCard> {
     // control location and riders can be confused with multiple check-in buttons
     // this will make sure only one such button is ever available.
 
-    var firstAvailableIndex = activeEvent.firstAvailableUncheckedControl();
+    var firstAvailableIndex =
+        activeEvent.firstAvailableUncheckedUnskippedControl();
 
     // Can't check in -- you skipped me
     if (activeEvent.wasSkipped(c)) {
