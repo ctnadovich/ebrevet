@@ -29,6 +29,10 @@ def keystoreProperties = new Properties()
    if (keystorePropertiesFile.exists()) {
        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
    }
+   
+android { 
+    namespace 'com.nadovich.ebrevet'
+ }
 
 
 android {
