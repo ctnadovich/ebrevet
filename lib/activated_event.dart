@@ -400,7 +400,9 @@ class ActivatedEvent {
     // can start perm / preride any time
     if ((startStyle == StartStyle.preRide ||
             startStyle == StartStyle.permanent) &&
-        controlKey == _event.startControlKey) return true;
+        controlKey == _event.startControlKey) {
+      return true;
+    }
 
     // no controls are open till the first one is checked
     if (startDateTimeActual == null) return false;
