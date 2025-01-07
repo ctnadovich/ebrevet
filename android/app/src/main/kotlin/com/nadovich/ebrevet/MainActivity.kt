@@ -1,4 +1,4 @@
-package com.nadovich.ebrevet_card
+package com.nadovich.ebrevet
 
 import io.flutter.embedding.android.FlutterActivity
 
