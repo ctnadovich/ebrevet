@@ -278,7 +278,9 @@ class Event {
 
   get eventStatusText {
     if (startTimeWindow.startStyle == StartStyle.permanent ||
-        startTimeWindow.onTime == null) return "Any Time";
+        startTimeWindow.onTime == null) {
+      return "Any Time";
+    }
     DateTime now = DateTime.now();
     if (earliestStartTime!.isAfter(now)) {
       // Event in future

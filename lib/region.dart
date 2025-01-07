@@ -76,7 +76,7 @@ class Region {
     regionSubName = regionMap[rid]?['region_name'] ?? "Unknown Region";
     stateCode = regionMap[rid]?['state_code'] ?? "??";
     stateName = regionMap[rid]?['state_name'] ?? "Unknown State";
-    stateName = regionMap[rid]?['country_code'] ?? "Unknown Country";
+    countryCode = regionMap[rid]?['country_code'] ?? "Unknown Country";
 
     websiteURL = regionMap[rid]?['website_url'] ?? "";
     iconURL = regionMap[rid]?['icon_url'] ?? "";
@@ -332,7 +332,6 @@ class Region {
       'club_name': 'Randonneurs de Strasbourg',
       'website_url': 'https://www.audaxireland.org/',
     },
-
     // US Regions
     902007: {
       'state_code': 'AK',
