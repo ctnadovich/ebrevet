@@ -56,8 +56,14 @@ class Utility {
     return Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
   }
 
-  static String colorToHex(Color color) {
-    return '#${(color.value & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+  static String colorToHexString(Color color) {
+    final red = (color.r * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final green = (color.g * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final blue = (color.b * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final alpha = (color.a * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final hexString = '#$alpha$red$green$blue';
+
+    return hexString.toUpperCase();
   }
 
   static Color increaseColorSaturation(Color color, double increment) {
