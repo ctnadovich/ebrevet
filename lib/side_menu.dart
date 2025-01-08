@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+import 'package:ebrevet_card/mylogger.dart';
 import 'package:ebrevet_card/past_events_page.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -103,7 +104,10 @@ class SideMenuDrawer extends StatelessWidget {
   }
 
   void aboutDialog(BuildContext context) {
+    var cYear = DateTime.now().year;
     showAboutDialog(
+        applicationLegalese:
+            '(c)$cYear Chris Nadovich. This is free software licensed under GPLv3.',
         context: context,
         applicationName: 'eBrevet',
         applicationIcon: Image.asset(
@@ -112,8 +116,6 @@ class SideMenuDrawer extends StatelessWidget {
         ),
         applicationVersion:
             "v${AppSettings.version ?? '?'} (${AppSettings.buildNumber})",
-        applicationLegalese:
-            '(c)2023 Chris Nadovich. This is free software licensed under GPLv3.',
         children: [
           const SizedBox(
             height: 16,

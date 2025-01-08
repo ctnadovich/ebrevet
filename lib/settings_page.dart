@@ -117,11 +117,30 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
     // In some weird situations we could have a current region set
     // to be somethnig that's not in the region map.
 
+    bool onlyUSRegions = AppSettings.futureEventsSourceID.value ==
+        FutureEventsSourceID.fromRegion;
+
+    bool onlyInternationalRegions = AppSettings.futureEventsSourceID.value ==
+        FutureEventsSourceID.fromInternationalRegion;
+
+    bool allRegions = onlyUSRegions || onlyInternationalRegions;
+
+    bool isRegionSettingInList = false;
+
     for (var k in sortedRegionKeys) {
       var regionData = Region.regionMap[k];
       if (regionData != null) {
-        String itemText =
-            "${regionData['state_code']}: ${regionData['region_name']}";
+        if (onlyUSRegions && regionData['country_code'] != 'US') continue;
+        if (onlyInternationalRegions && regionData['country_code'] == 'US') {
+          continue;
+        }
+
+        if (AppSettings.regionID.value == k) isRegionSettingInList = true;
+
+        var s = onlyUSRegions
+            ? regionData['state_code']
+            : regionData['country_code'];
+        String itemText = "$s: ${regionData['region_name']}";
         var ddmi = DropdownMenuItem(
           value: k,
           child: Text(itemText),
@@ -134,27 +153,26 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
       color: Colors.transparent,
       child: ExpansionTile(
         title: const Text('Event Info Source'),
-        subtitle: const Text('Where to download event info'),
+        subtitle: const Text('From where to obtain event info'),
         initiallyExpanded: widget.initiallyExpanded,
         children: [
           RadioButtonSettingsTile(
             AppSettings.futureEventsSourceID,
             onChanged: sourceSelection.updateFromSettings,
           ),
-          if (AppSettings.futureEventsSourceID.value ==
-              FutureEventsSourceID.fromRegion)
+          if (allRegions)
             if (Region.regionMap.containsKey(AppSettings.regionID.value))
               DropDownSettingsTile(
                 AppSettings.regionID,
                 key: key,
                 itemList: regionList,
+                valueValid: isRegionSettingInList,
                 onChanged: sourceSelection.updateFromSettings,
               )
             else
               const Text("Region List invalid. Please refresh"),
           spacerBox,
-          if (AppSettings.futureEventsSourceID.value ==
-              FutureEventsSourceID.fromRegion)
+          if (allRegions)
             Column(
               children: [
                 const Text(

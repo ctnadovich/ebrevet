@@ -33,7 +33,8 @@ import 'region.dart';
 // import 'current.dart';
 //
 enum FutureEventsSourceID {
-  fromRegion('Brevet Region'),
+  fromRegion('US RUSA Region'),
+  fromInternationalRegion('International Region'),
   // fromPerm('RUSA Permanent Search'),
   fromURL('Custom Event Data URL');
 
@@ -61,6 +62,10 @@ class FutureEventsSource {
         var rgn = Region.fromSettings();
         d = "${rgn.stateCode} (${rgn.regionSubName})";
         break;
+      case FutureEventsSourceID.fromInternationalRegion:
+        var rgn = Region.fromSettings();
+        d = "${rgn.countryCode} (${rgn.regionSubName})";
+        break;
       case FutureEventsSourceID.fromURL:
         d = "($url)";
         break;
@@ -76,6 +81,10 @@ class FutureEventsSource {
     String eventsURL;
     switch (sourceID) {
       case FutureEventsSourceID.fromRegion:
+        var rgn = Region.fromSettings();
+        eventsURL = rgn.futureEventsURL;
+        break;
+      case FutureEventsSourceID.fromInternationalRegion:
         var rgn = Region.fromSettings();
         eventsURL = rgn.futureEventsURL;
         break;

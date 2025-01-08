@@ -106,7 +106,7 @@ class AppSettings {
   static MySetting<int> regionID = MySetting<int>(
     key: 'key-region-id',
     defaultValue: Region.defaultRegion,
-    title: FutureEventsSourceID.fromRegion.description,
+    title: 'Event Region',
     validator: numericIDValidator,
     icon: const Icon(Icons.map),
   );

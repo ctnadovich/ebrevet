@@ -189,8 +189,12 @@ class DropDownSettingsTile extends StatelessWidget {
   final MySetting mySetting;
   final void Function()? onChanged;
   final List<DropdownMenuItem<int>> itemList;
+  final bool valueValid;
   const DropDownSettingsTile(this.mySetting,
-      {super.key, required this.itemList, this.onChanged});
+      {super.key,
+      required this.itemList,
+      this.valueValid = true,
+      this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -215,7 +219,7 @@ class DropDownSettingsTile extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
         child: DropdownButton<int>(
           key: key,
-          value: mySetting.value,
+          value: valueValid ? mySetting.value : null,
           isExpanded: true,
           isDense: true,
           items: itemList,
