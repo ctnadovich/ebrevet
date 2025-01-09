@@ -37,7 +37,7 @@ dependencies:
   provider: ^6.0.3
   geolocator: ^9.0.2
   crypto: ^3.0.2
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.2
   path_provider: ^2.0.12
   url_launcher: ^6.1.10
 #  package_info_plus: ^3.1.2
@@ -53,11 +53,18 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+# flutter_launcher_icons:
+#   android: true
+#   ios: true
+#   image_path: "launcher-icon/ebrevet_icon.png"
+#   remove_alpha_ios: true
+
 flutter_icons:
   android: true
   ios: true
-  image_path: "launcher-icon/ebrevet_icon.png"
   remove_alpha_ios: true
+  image_path: "assets/images/launcher_icon/ebrevet_icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
 
 dev_dependencies:
   flutter_test:
