@@ -138,7 +138,7 @@ class AppSettings {
   static MySetting<FutureEventsSourceID> futureEventsSourceID =
       MySetting<FutureEventsSourceID>(
           key: 'key-event-info-source-id',
-          defaultValue: FutureEventsSourceID.fromRegion,
+          defaultValue: FutureEventsSourceID.defaultID,
           title: 'Event Information Source');
 
   // Other

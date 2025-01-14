@@ -15,6 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'package:ebrevet_card/future_events.dart';
+import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -110,43 +111,50 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
     List<DropdownMenuItem<int>> regionList = [];
     final Key key = UniqueKey();
 
-    List<int> sortedRegionKeys = Region.regionMap.keys.toList();
-    sortedRegionKeys.sort((a, b) => Region.compareByStateName(a, b));
     // MyLogger.entry('Rebuilding region dropdown list.');
 
     // In some weird situations we could have a current region set
     // to be somethnig that's not in the region map.
 
-    bool onlyUSRegions = AppSettings.futureEventsSourceID.value ==
+    if (false == Region.regionMap.containsKey(AppSettings.regionID.value)) {
+      MyLogger.entry('Configured for region not in map. Setting to default.');
+      AppSettings.regionID.setValue(Region.defaultRegion);
+      AppSettings.futureEventsSourceID.setValue(FutureEventsSourceID.defaultID);
+    }
+
+    // fromRegion and fromInternationalRegion are essentiall
+    //the same "region" data source that view different subsets
+    // of the same Region.regionMap
+    // These are handy predicates to decide which "view" is active
+    bool viewUSRegions = AppSettings.futureEventsSourceID.value ==
         FutureEventsSourceID.fromRegion;
-
-    bool onlyInternationalRegions = AppSettings.futureEventsSourceID.value ==
+    bool viewInternationalRegions = AppSettings.futureEventsSourceID.value ==
         FutureEventsSourceID.fromInternationalRegion;
+    bool viewAllRegions = viewUSRegions || viewInternationalRegions;
 
-    bool allRegions = onlyUSRegions || onlyInternationalRegions;
-
-    bool isRegionSettingInList = false;
-
-    for (var k in sortedRegionKeys) {
-      var regionData = Region.regionMap[k];
-      if (regionData != null) {
-        if (onlyUSRegions && regionData['country_code'] != 'US') continue;
-        if (onlyInternationalRegions && regionData['country_code'] == 'US') {
+    // Create the drop down list of all viewed regions
+    List<int> sortedRegionIDs = Region.regionMap.keys.toList();
+    sortedRegionIDs.sort((a, b) => Region.compareByStateName(a, b));
+    bool isRegionSettingInList = false; // while we're at it, check this
+    for (var regionID in sortedRegionIDs) {
+      assert(Region.regionMap.containsKey(regionID));
+      var rgn = Region(regionID: regionID);
+      if (AppSettings.regionID.value == regionID) {
+        isRegionSettingInList =
+            true; // Good, and always include it in the dropdown
+      } else {
+        if (viewUSRegions && rgn.countryCode != 'US') continue;
+        if (viewInternationalRegions && rgn.countryCode == 'US') {
           continue;
         }
-
-        if (AppSettings.regionID.value == k) isRegionSettingInList = true;
-
-        var s = onlyUSRegions
-            ? regionData['state_code']
-            : regionData['country_code'];
-        String itemText = "$s: ${regionData['region_name']}";
-        var ddmi = DropdownMenuItem(
-          value: k,
-          child: Text(itemText),
-        );
-        regionList.add(ddmi);
       }
+
+      String itemText = rgn.regionName;
+      var ddmi = DropdownMenuItem(
+        value: regionID,
+        child: Text(itemText),
+      );
+      regionList.add(ddmi);
     }
 
     return Material(
@@ -160,7 +168,7 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
             AppSettings.futureEventsSourceID,
             onChanged: sourceSelection.updateFromSettings,
           ),
-          if (allRegions)
+          if (viewAllRegions)
             if (Region.regionMap.containsKey(AppSettings.regionID.value))
               DropDownSettingsTile(
                 AppSettings.regionID,
@@ -170,13 +178,14 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
                 onChanged: sourceSelection.updateFromSettings,
               )
             else
-              const Text("Region List invalid. Please refresh"),
+              const Text("Somehow the region selected is not in the "
+                  "list of regions this app knows about. Please try refreshing the region list."),
           spacerBox,
-          if (allRegions)
+          if (viewAllRegions)
             Column(
               children: [
                 const Text(
-                    "If your region is new and  doesn't appear in the above list, "
+                    "If your region is not in either the RUSA or Intl list, "
                     "try getting the latest region list from the server."),
                 ElevatedButton(
                   onPressed: () async {

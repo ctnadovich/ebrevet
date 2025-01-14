@@ -43,6 +43,7 @@ enum FutureEventsSourceID {
 
   String toJson() => name;
   static FutureEventsSourceID fromJson(String json) => values.byName(json);
+  static const FutureEventsSourceID defaultID = FutureEventsSourceID.fromRegion;
 }
 
 class FutureEventsSource {
@@ -59,12 +60,9 @@ class FutureEventsSource {
     String d;
     switch (id) {
       case FutureEventsSourceID.fromRegion:
-        var rgn = Region.fromSettings();
-        d = "${rgn.stateCode} (${rgn.regionSubName})";
-        break;
       case FutureEventsSourceID.fromInternationalRegion:
         var rgn = Region.fromSettings();
-        d = "${rgn.countryCode} (${rgn.regionSubName})";
+        d = rgn.regionName;
         break;
       case FutureEventsSourceID.fromURL:
         d = "($url)";

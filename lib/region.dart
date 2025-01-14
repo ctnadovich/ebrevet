@@ -89,7 +89,16 @@ class Region {
     _ebrevetServerURL = regionMap[rid]?['ebrevet_url'] ?? defaultEbrevetBaseURL;
   }
 
-  String get regionName => "$stateCode: $regionSubName";
+  String get regionName {
+    // => "$stateCode: $regionSubName";
+    String d;
+    if (countryCode == 'US') {
+      d = "$stateCode: $regionSubName";
+    } else {
+      d = "$countryCode: $regionSubName";
+    }
+    return d;
+  }
 
   // getters that add ebrevet function suffixes and
   // regionID parameter
@@ -131,7 +140,7 @@ class Region {
         int nRegion = decodedRegionList.length;
         MyLogger.entry("Disk file data for $nRegion regions.");
 
-        rebuildRegionMap(decodedRegionList);
+        updateRegionMap(decodedRegionList);
         regionsLastRefreshed = timestampDateTime;
 
         // refreshCount.value++;
@@ -192,7 +201,7 @@ class Region {
       int nRegion = decodedRegionList.length;
 
       MyLogger.entry("Data received for $nRegion regions.");
-      rebuildRegionMap(decodedRegionList);
+      updateRegionMap(decodedRegionList);
 
       MyLogger.entry("Saving new data to disk....");
       regionsLastRefreshed = timestampDateTime;
@@ -201,7 +210,7 @@ class Region {
         SnackbarGlobal.show("Loaded ${regionMap.length} regions from server");
       } else {
         MyLogger.entry(
-            "Successfully restored ${regionMap.length} (of $nRegion) regions from server (timestamp: $timestamp)");
+            "Successfully updated ${regionMap.length} (of $nRegion) regions from server (timestamp: $timestamp)");
       }
     } catch (e) {
       if (quiet == false) {
@@ -211,27 +220,30 @@ class Region {
     }
   }
 
-  static rebuildRegionMap(List<dynamic> decodedRegionList) {
+  static updateRegionMap(List<dynamic> decodedRegionList) {
     int nListEntries = decodedRegionList.length;
+    int nRegions = regionMap.length;
 
     if (nListEntries == 0) {
       throw NoPreviousDataException(
-          "RegionList empty. Won't rebuild region map.");
+          "RegionList empty. Won't update region map.");
     } else {
       MyLogger.entry(
-          "Rebuilding RegionMap from list of $nListEntries entries.");
+          "Map has $nRegions regions. Updating from list of $nListEntries entries.");
     }
 
-    regionMap.clear(); // No turning back!
+    // Must avoid the bug of deleting the current region
+    // regionMap.clear();
 
     int nFound = 0;
     int nAdded = 0;
+    int nReplaced = 0;
+
     for (var rDynamic in decodedRegionList) {
       nFound++;
       Map<String, dynamic> r = rDynamic as Map<String, dynamic>;
       if (false == r.containsKey('club_acp_code')) {
-        MyLogger.entry(
-            "region_list[$nFound]: Region has no Club ACP code. Skipped.");
+        MyLogger.entry("region_list[$nFound]: has no Club ACP code. Skipped.");
         continue;
       }
       String clubACPCodeString = r['club_acp_code']!;
@@ -239,31 +251,48 @@ class Region {
       var acpClubCode = int.tryParse(clubACPCodeString);
       if (null == acpClubCode) {
         MyLogger.entry(
-            "resgion_list[$nFound]: Region with ACP code '$clubACPCodeString' not an integer. Skipped.");
+            "resgion_list[$nFound]: ACP #'$clubACPCodeString' not an integer. Skipped.");
         continue;
       }
 
       if (false == r.containsKey('state_code')) {
         MyLogger.entry(
-            "region_list[$nFound]: Region with ACP code '$clubACPCodeString' has no state_code. Skipped.");
+            "region_list[$nFound]: ACP #'$clubACPCodeString' has no state_code. Skipped.");
+        continue;
+      }
+
+      if (false == r.containsKey('country_code')) {
+        MyLogger.entry(
+            "region_list[$nFound]: ACP #'$clubACPCodeString' has no country_code. Skipped.");
         continue;
       }
 
       if (false == r.containsKey('region_name')) {
         MyLogger.entry(
-            "region_list[$nFound]: Region with ACP code '$clubACPCodeString' has no region_name. Skipped.");
+            "region_list[$nFound]: ACP #'$clubACPCodeString' has no region_name. Skipped.");
+        continue;
+      }
+      if (false == r.containsKey('club_name')) {
+        MyLogger.entry(
+            "region_list[$nFound]: ACP #'$clubACPCodeString' has no club_name. Skipped.");
         continue;
       }
 
-      regionMap[acpClubCode] = {};
-      nAdded++;
+      if (regionMap.containsKey(acpClubCode)) {
+        MyLogger.entry('Replacing data for region ACP #"$clubACPCodeString"');
+        nReplaced++;
+      } else {
+        regionMap[acpClubCode] = {};
+        nAdded++;
+      }
       for (var k in r.keys) {
         String v = r[k];
         regionMap[acpClubCode]![k] = v;
       }
     }
+    nRegions = regionMap.length;
     MyLogger.entry(
-        "Rebuilt $nAdded regions from list of $nListEntries entries.");
+        "Added $nAdded, replaced $nReplaced. There are now $nRegions regions.");
   }
 
   static throwExceptionIfBadMapData(
