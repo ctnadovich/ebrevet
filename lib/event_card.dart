@@ -446,7 +446,10 @@ class _EventCardState extends State<EventCard> {
     if (false == AppSettings.isRusaIDSet) return "Rider not set.";
     if (FutureEvents.eventInfoSource == null) return "No event authority. ";
 
-    var offeredCode = Signature.substituteZeroOneXY(s.toUpperCase());
+    s = s.toUpperCase();
+    s = s.trim();
+
+    var offeredCode = Signature.substituteZeroOneXY(s);
     var magicCode =
         Signature.substituteZeroOneXY(AppSettings.magicStartCode.toUpperCase());
 
@@ -544,50 +547,54 @@ class _EventCardState extends State<EventCard> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(widget.event.nameDist),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${we.eventSanction} ${we.eventType}', style: bigItalic),
-            Text(event.startTimeWindow.startStyle.description),
-            if (event.gravelDistance > 0)
-              Text('Gravel: ${event.gravelDistance}/${event.distance}K, '
-                  '${(100.0 * event.gravelDistance / event.distance).round()}% unpaved'),
-            Text('Region: $regionName'),
-            Text('Club: $clubName'),
-            Text('Location: ${we.startCity}, ${we.startState}'),
-            Text('Controls: ${event.controls.length}'),
-            if (we.startTimeWindow.onTime != null)
-              Text('Start: ${we.dateTime} (${we.eventStatusText})'),
-            Text('Latest Cue Ver: ${we.cueVersionString}'),
-            const SizedBox(
-              height: 8,
-            ),
-            Row(
+        content: Scrollbar(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Spacer(
-                  flex: 1,
+                Text('${we.eventSanction} ${we.eventType}', style: bigItalic),
+                Text(event.startTimeWindow.startStyle.description),
+                if (event.gravelDistance > 0)
+                  Text('Gravel: ${event.gravelDistance}/${event.distance}K, '
+                      '${(100.0 * event.gravelDistance / event.distance).round()}% unpaved'),
+                Text('Region: $regionName'),
+                Text('Club: $clubName'),
+                Text('Location: ${we.startCity}, ${we.startState}'),
+                Text('Controls: ${event.controls.length}'),
+                if (we.startTimeWindow.onTime != null)
+                  Text('Start: ${we.dateTime} (${we.eventStatusText})'),
+                Text('Latest Cue Ver: ${we.cueVersionString}'),
+                const SizedBox(
+                  height: 8,
                 ),
-                ElevatedButton(
-                    onPressed: () => we.eventInfoUrl.isEmpty
-                        ? null
-                        : launchUrl(Uri.parse(we.eventInfoUrl)),
-                    child: const Text("Event Website")),
-                const Spacer(
-                  flex: 1,
+                Row(
+                  children: [
+                    const Spacer(
+                      flex: 1,
+                    ),
+                    ElevatedButton(
+                        onPressed: () => we.eventInfoUrl.isEmpty
+                            ? null
+                            : launchUrl(Uri.parse(we.eventInfoUrl)),
+                        child: const Text("Event Website")),
+                    const Spacer(
+                      flex: 1,
+                    ),
+                  ],
                 ),
+                const SizedBox(
+                  height: 8,
+                ),
+                const Text(
+                  'In case of emergency, CALL 911.',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                    'If abandonning or riding beyond the cutoff, call the organizer: ${we.organizerName} (${we.organizerPhone})')
               ],
             ),
-            const SizedBox(
-              height: 8,
-            ),
-            const Text(
-              'In case of emergency, CALL 911.',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-                'If abandonning or riding beyond the cutoff, call the organizer: ${we.organizerName} (${we.organizerPhone})')
-          ],
+          ),
         ),
         actions: [
           TextButton(
