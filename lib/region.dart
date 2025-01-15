@@ -286,7 +286,7 @@ class Region {
         nAdded++;
       }
       for (var k in r.keys) {
-        String v = r[k];
+        String v = r[k] ?? "";
         regionMap[acpClubCode]![k] = v;
       }
     }
