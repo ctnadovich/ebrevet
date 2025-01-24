@@ -18,6 +18,8 @@ on social media.
 
 You can find the app on both the [Apple Store](https://www.apple.com/app-store/) and the [Google Play Store](https://play.google.com). Search for "eBrevet" by "CTNadovich".
 
+The eBrevet [Frequently Asked Questions](https://randonneuring.org/about/ebrevet_faq)
+
 ## Features include
 
 - Provides verification of a brevet card process requiring "check in" at controls.
