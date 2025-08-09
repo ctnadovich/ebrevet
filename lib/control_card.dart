@@ -457,7 +457,7 @@ class _ControlCardState extends State<ControlCard> {
               Signature.checkInCode(activeEvent, control).wordText;
 
           var checkInSignatureString = isDisqualified
-              ? 'DNQ!'
+              ? 'RBA Review'
               : (isNotFinished
                   ? checkInPhrase
                   : Signature.forCert(activeEvent).xyText);
