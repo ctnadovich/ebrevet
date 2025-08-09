@@ -201,6 +201,30 @@ class ActivatedEvent {
     return false;
   }
 
+  // If we check-in to this control, would/did it skip others
+
+  List<int> wouldBeSkippedControls(Control control) {
+    List<int> skipped = [];
+    var indexHere = control.index;
+    if (indexHere == event.startControlKey) {
+      return skipped; // can't skip any if start
+    }
+
+    // Search back from here to the  last check in, or to
+    // the start if no check-ins
+    var last = lastCheckInControlKey ?? event.startControlKey;
+
+    for (var k = indexHere - 1; k >= last; k--) {
+      if (outcomes.getControlCheckInTime(k) == null) skipped.add(k);
+    }
+    return skipped;
+  }
+
+  bool wouldSkip(Control control) {
+    var skippedList = wouldBeSkippedControls(control);
+    return skippedList.isNotEmpty;
+  }
+
   int get numberOfCheckIns {
     int tot = 0;
     for (var k = event.startControlKey; k <= event.finishControlKey; k++) {

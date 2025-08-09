@@ -331,40 +331,77 @@ class _ControlCardState extends State<ControlCard> {
       // Otherwise, control is available. Gosh, let the cat check in.
     } else {
       return ElevatedButton(
-        onPressed: () {
-          if (AppSettings.allowCheckinComment.value) {
-            openCheckInDialog();
-          } else {
-            submitCheckInDialog();
-          }
-        },
-        child: activeEvent.lateCheckIn
-            ? const Column(
-                children: [Text('CHECK IN'), Text('LATE!')],
-              )
-            : const Text('CHECK IN'),
-      );
+          onPressed: () {
+            if (AppSettings.allowCheckinComment.value ||
+                activeEvent.wouldSkip(c)) {
+              openCheckInDialog();
+            } else {
+              submitCheckInDialog(popAfter: false);
+            }
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('CHECK IN'),
+              if (activeEvent.lateCheckIn)
+                Text('LATE!',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        )),
+              if (activeEvent.wouldSkip(c))
+                Text('SKIPPING!',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.error,
+                        )),
+            ],
+          ));
     }
   }
 
-  Future openCheckInDialog() => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          icon: const Icon(
-            Icons.check_circle,
-            size: 64,
-          ),
-          title: const Text('Check In to Control'),
-          content: checkInDialogContent(),
-          actions: [
+  Future openCheckInDialog() {
+    final control = widget.control;
+    var activeEvent = widget.activeEvent;
+    var skipping = activeEvent.wouldSkip(control);
+
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: skipping
+            ? Icon(
+                Icons.error_outline,
+                color: Theme.of(context).colorScheme.error,
+                size: 64,
+              )
+            : const Icon(
+                Icons.check_circle,
+                size: 64,
+              ),
+        title: skipping
+            ? Text(
+                'Skipping Control',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              )
+            : const Text('Check In to Control'),
+        content: checkInDialogContent(),
+        actions: [
+          if (skipping)
             TextButton(
-                onPressed: () {
-                  submitCheckInDialog();
-                },
-                child: const Text('CHECK IN NOW'))
-          ],
-        ),
-      );
+              onPressed: () {
+                Navigator.of(context).pop(); // Just close the dialog
+              },
+              child: const Text("CANCEL"),
+            ),
+          TextButton(
+              onPressed: () {
+                submitCheckInDialog();
+              },
+              child: skipping
+                  ? const Text('CHECK IN ANYWAY')
+                  : const Text('CHECK IN NOW'))
+        ],
+      ),
+    );
+  }
 
   Widget checkInDialogContent() {
     final control = widget.control;
@@ -372,45 +409,58 @@ class _ControlCardState extends State<ControlCard> {
     var isAvailable = activeEvent
         .isControlAvailable(control.index); // sets activeEvent.lateCheckIn
 
-    return isAvailable == false
-        ? const Text('Control NOT Available')
-        : SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  control.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(controlStatusString()),
-                Text(exactDistanceString(control.cLoc)),
-                if (control.cLoc.isNearby)
-                  const Text(
-                    'AT THIS CONTROL',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                if (activeEvent.lateCheckIn)
-                  Text('THIS IS A LATE CHECK IN!',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge!
-                          .copyWith(fontWeight: FontWeight.bold)),
-                TextField(
-                  decoration:
-                      const InputDecoration(hintText: 'Comment (optional)'),
-                  controller: controller,
-                  onSubmitted: (_) => submitCheckInDialog(),
-                ),
-              ],
+    var skipping = activeEvent.wouldSkip(control);
+    var skipList = activeEvent.wouldBeSkippedControls(control).reversed;
+
+    String skipListText = skipList
+        .map((item) => "Control ${activeEvent.event.controls[item].index + 1}. "
+            "${activeEvent.event.controls[item].name}")
+        .join(", ");
+
+    if (isAvailable == false) {
+      return const Text('Control NOT Available');
+    }
+    if (skipping == true) {
+      return Text(
+          "WARNING: If you check into this control you would SKIP one or more previous controls: ($skipListText) "
+          "ARE YOU SURE YOU WANT TO SKIP CONTROLS?");
+    }
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            control.name,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
             ),
-          );
+          ),
+          Text(controlStatusString()),
+          Text(exactDistanceString(control.cLoc)),
+          if (control.cLoc.isNearby)
+            const Text(
+              'AT THIS CONTROL',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          if (activeEvent.lateCheckIn)
+            Text('THIS IS A LATE CHECK IN!',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge!
+                    .copyWith(fontWeight: FontWeight.bold)),
+          TextField(
+            decoration: const InputDecoration(hintText: 'Comment (optional)'),
+            controller: controller,
+            onSubmitted: (_) => submitCheckInDialog(),
+          ),
+        ],
+      ),
+    );
   }
 
-  void submitCheckInDialog() {
+  void submitCheckInDialog({popAfter = true}) {
     var controlState = context.read<ControlState>();
 
     // this will do the actual check-in
@@ -424,7 +474,7 @@ class _ControlCardState extends State<ControlCard> {
     controller.clear();
     // if submitCheckInDialog is called directly because
     // there was no checkin comment option, then the pop isn't needed.
-    if (AppSettings.allowCheckinComment.value) Navigator.of(context).pop();
+    if (popAfter) Navigator.of(context).pop();
   }
 
   Future openPostCheckInDialog(String? checkInResult) => showDialog(
