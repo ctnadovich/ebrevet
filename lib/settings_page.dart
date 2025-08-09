@@ -161,7 +161,7 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
       color: Colors.transparent,
       child: ExpansionTile(
         title: const Text('Event Info Source'),
-        subtitle: const Text('From where to obtain event info'),
+        subtitle: const Text("Select where to obtain event info. "),
         initiallyExpanded: widget.initiallyExpanded,
         children: [
           RadioButtonSettingsTile(
@@ -184,9 +184,11 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
           if (viewAllRegions)
             Column(
               children: [
-                const Text(
+                Text("There are ${Region.numberOfUsRegions} RUSA regions, "
+                    "and ${Region.numberOfNonUsRegions} International regions loaded. "
                     "If your region is not in either the RUSA or Intl list, "
                     "try getting the latest region list from the server."),
+                spacerBox,
                 ElevatedButton(
                   onPressed: () async {
                     await Region.fetchRegionsFromServer();

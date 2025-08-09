@@ -279,9 +279,10 @@ class Region {
       }
 
       if (regionMap.containsKey(acpClubCode)) {
-        MyLogger.entry('Replacing data for region ACP #"$clubACPCodeString"');
+        // MyLogger.entry('Replacing data for region ACP #"$clubACPCodeString"');
         nReplaced++;
       } else {
+        MyLogger.entry('Adding data for region ACP #"$clubACPCodeString"');
         regionMap[acpClubCode] = {};
         nAdded++;
       }
@@ -341,6 +342,18 @@ class Region {
     fileData['region_list'] = regionListData;
     var status = await f.writeJSON(fileData);
     return status;
+  }
+
+  static int get numberOfUsRegions {
+    return regionMap.values
+        .where((region) => region['country_code'] == 'US')
+        .length;
+  }
+
+  static int get numberOfNonUsRegions {
+    return regionMap.values
+        .where((region) => region['country_code'] != 'US')
+        .length;
   }
 
 // TODO Add rest of international regions
@@ -1014,6 +1027,14 @@ class Region {
       'region_name': 'Long Island',
       'club_name': 'Long Island Randonneurs',
       'website_url': 'http://lirando.org',
+    },
+    932010: {
+      'state_code': 'NY',
+      'state_name': 'New York',
+      'country_code': 'US',
+      'region_name': 'Saratoga',
+      'club_name': 'Adirondack Ultra Cycling',
+      'website_url': 'http://adkultracycling.com/',
     },
     935012: {
       'state_code': 'OH',
