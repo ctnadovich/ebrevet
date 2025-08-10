@@ -356,8 +356,6 @@ class Region {
         .length;
   }
 
-// TODO Add rest of international regions
-
   static Map<int, Map<String, String>> regionMap = {
     // International Regions
 
