@@ -108,7 +108,7 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
   @override
   Widget build(BuildContext context) {
     var sourceSelection = context.watch<SourceSelection>();
-    List<DropdownMenuItem<int>> regionList = [];
+    List<DropdownMenuItem<String>> regionList = [];
     final Key key = UniqueKey();
 
     // MyLogger.entry('Rebuilding region dropdown list.');
@@ -133,7 +133,7 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
     bool viewAllRegions = viewUSRegions || viewInternationalRegions;
 
     // Create the drop down list of all viewed regions
-    List<int> sortedRegionIDs = Region.regionMap.keys.toList();
+    List<String> sortedRegionIDs = Region.regionMap.keys.toList();
     sortedRegionIDs.sort((a, b) => Region.compareByStateName(a, b));
     bool isRegionSettingInList = false; // while we're at it, check this
     for (var regionID in sortedRegionIDs) {

@@ -188,7 +188,7 @@ class SwitchSettingsTileState extends State<SwitchSettingsTile> {
 class DropDownSettingsTile extends StatelessWidget {
   final MySetting mySetting;
   final void Function()? onChanged;
-  final List<DropdownMenuItem<int>> itemList;
+  final List<DropdownMenuItem<String>> itemList;
   final bool valueValid;
   const DropDownSettingsTile(this.mySetting,
       {super.key,
@@ -217,7 +217,7 @@ class DropDownSettingsTile extends StatelessWidget {
       color: Theme.of(context).colorScheme.secondaryContainer,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-        child: DropdownButton<int>(
+        child: DropdownButton<String>(
           key: key,
           value: valueValid ? mySetting.value : null,
           isExpanded: true,

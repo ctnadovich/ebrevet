@@ -43,7 +43,7 @@ import 'files.dart';
 // }
 
 class Region {
-  static const int defaultRegion = 938017; // PA Rando
+  static const String defaultRegion = '938017'; // PA Rando
   static const String defaultEbrevetBaseURL =
       "https://randonneuring.org/ebrevet";
 
@@ -55,7 +55,7 @@ class Region {
   static DateTime? regionsLastRefreshed; // Time when last refreshed from server
   static const regionsLastRefreshedFieldName = 'timestamp';
 
-  late int regionID;
+  late String regionID;
   late String clubName;
   late String websiteURL;
   late String iconURL;
@@ -68,7 +68,7 @@ class Region {
   late String _ebrevetServerURL;
 
   Region({this.regionID = defaultRegion}) {
-    int rid = (regionMap.containsKey(regionID)) ? regionID : 0;
+    String rid = (regionMap.containsKey(regionID)) ? regionID : 'Unknown';
     // defaultRegion;
     regionID = rid;
 
@@ -248,33 +248,38 @@ class Region {
       }
       String clubACPCodeString = r['club_acp_code']!;
 
-      var acpClubCode = int.tryParse(clubACPCodeString);
-      if (null == acpClubCode) {
+      // ASSUMES ALL REGION IDS ARE NUMERIC -- NOTE: some have leading zeros of uncertain meaning
+      // It's possible, therefore, to get two regions with IDs that are numerically equal, and otherwise
+      // identical, differing only in the leading zero. See removeShorterNumericKeys().
+
+      if (null == int.tryParse(clubACPCodeString)) {
         MyLogger.entry(
             "resgion_list[$nFound]: ACP #'$clubACPCodeString' not an integer. Skipped.");
         continue;
       }
 
+      var acpClubCode = clubACPCodeString; // Was already string type
+
       if (false == r.containsKey('state_code')) {
         MyLogger.entry(
-            "region_list[$nFound]: ACP #'$clubACPCodeString' has no state_code. Skipped.");
+            "region_list[$nFound]: ACP #'$acpClubCode' has no state_code. Skipped.");
         continue;
       }
 
       if (false == r.containsKey('country_code')) {
         MyLogger.entry(
-            "region_list[$nFound]: ACP #'$clubACPCodeString' has no country_code. Skipped.");
+            "region_list[$nFound]: ACP #'$acpClubCode' has no country_code. Skipped.");
         continue;
       }
 
       if (false == r.containsKey('region_name')) {
         MyLogger.entry(
-            "region_list[$nFound]: ACP #'$clubACPCodeString' has no region_name. Skipped.");
+            "region_list[$nFound]: ACP #'$acpClubCode' has no region_name. Skipped.");
         continue;
       }
       if (false == r.containsKey('club_name')) {
         MyLogger.entry(
-            "region_list[$nFound]: ACP #'$clubACPCodeString' has no club_name. Skipped.");
+            "region_list[$nFound]: ACP #'$acpClubCode' has no club_name. Skipped.");
         continue;
       }
 
@@ -282,7 +287,7 @@ class Region {
         // MyLogger.entry('Replacing data for region ACP #"$clubACPCodeString"');
         nReplaced++;
       } else {
-        MyLogger.entry('Adding data for region ACP #"$clubACPCodeString"');
+        MyLogger.entry('Adding data for region ACP #"$acpClubCode"');
         regionMap[acpClubCode] = {};
         nAdded++;
       }
@@ -291,6 +296,9 @@ class Region {
         regionMap[acpClubCode]![k] = v;
       }
     }
+
+    removeShorterNumericKeys(); // This gets rid of any leading zero dups
+
     nRegions = regionMap.length;
     MyLogger.entry(
         "Added $nAdded, replaced $nReplaced. There are now $nRegions regions.");
@@ -313,7 +321,7 @@ class Region {
     // }
   }
 
-  static compareByStateName(int a, int b) {
+  static compareByStateName(String a, String b) {
     var aCountry = regionMap[a]!['country_code'] ?? '?';
     var bCountry = regionMap[b]!['country_code'] ?? '?';
     var countryCmp = aCountry.compareTo(bCountry);
@@ -333,7 +341,8 @@ class Region {
 
     for (var k in regionMap.keys) {
       Map<String, dynamic> regionData = regionMap[k]!;
-      regionData['club_acp_code'] = k.toString();
+      regionData['club_acp_code'] = k;
+      // k.toString();
       regionListData.add(regionData);
     }
 
@@ -356,10 +365,48 @@ class Region {
         .length;
   }
 
-  static Map<int, Map<String, String>> regionMap = {
+  // This is needed because previously regionID was an integer
+  // and this tended to lose leading zeros in the region ID.
+
+  static void removeShorterNumericKeys() {
+    // Collect all keys into a list so we don't modify the map while iterating
+    final keys = regionMap.keys.toList();
+
+    // Map from numeric value to the "best" key (longest string)
+    final Map<int, String> bestKeys = {};
+
+    for (final key in keys) {
+      final numericValue = int.tryParse(key);
+      if (numericValue == null) continue; // skip non-numeric keys
+
+      if (!bestKeys.containsKey(numericValue)) {
+        bestKeys[numericValue] = key;
+      } else {
+        // Keep the longer one (more leading zeros)
+        final existingKey = bestKeys[numericValue]!;
+        if (key.length > existingKey.length) {
+          bestKeys[numericValue] = key;
+        }
+      }
+    }
+
+    // Now remove all shorter duplicates
+    for (final key in keys) {
+      final numericValue = int.tryParse(key);
+      if (numericValue == null) continue;
+
+      if (bestKeys[numericValue] != key) {
+        regionMap.remove(key);
+        MyLogger.entry(
+            "Removing redundant region ID '$key', keeping ${bestKeys[numericValue]}");
+      }
+    }
+  }
+
+  static Map<String, Map<String, String>> regionMap = {
     // International Regions
 
-    011101: {
+    '011101': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'ES',
@@ -367,7 +414,7 @@ class Region {
       'club_name': 'PC.Bonavista Manresa',
       'website_url': '',
     },
-    011153: {
+    '011153': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'ES',
@@ -375,7 +422,7 @@ class Region {
       'club_name': 'SC GRACIA (BARCELONA)',
       'website_url': '',
     },
-    011302: {
+    '011302': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'SE',
@@ -383,7 +430,7 @@ class Region {
       'club_name': 'Fredrikshofs If CK',
       'website_url': '',
     },
-    011601: {
+    '011601': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'CA',
@@ -391,7 +438,7 @@ class Region {
       'club_name': 'British Columbia Randonneurs',
       'website_url': '',
     },
-    011700: {
+    '011700': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'CA',
@@ -399,7 +446,7 @@ class Region {
       'club_name': 'Prairie Randonneurs Inc',
       'website_url': '',
     },
-    011751: {
+    '011751': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'CA',
@@ -407,7 +454,7 @@ class Region {
       'club_name': 'Manitoba Randonneurs',
       'website_url': '',
     },
-    011801: {
+    '011801': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'CA',
@@ -415,7 +462,7 @@ class Region {
       'club_name': 'Randonneurs Ontario - Toronto',
       'website_url': '',
     },
-    011802: {
+    '011802': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'CA',
@@ -423,7 +470,7 @@ class Region {
       'club_name': 'Ontario Randonneurs - Ottawa',
       'website_url': '',
     },
-    011804: {
+    '011804': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'CA',
@@ -431,7 +478,7 @@ class Region {
       'club_name': 'Ontario Randonneurs - Huron',
       'website_url': '',
     },
-    011851: {
+    '011851': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'CA',
@@ -439,7 +486,7 @@ class Region {
       'club_name': 'Club velo randonneurs du quebec',
       'website_url': '',
     },
-    011900: {
+    '011900': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'CA',
@@ -447,7 +494,7 @@ class Region {
       'club_name': 'Randonneurs Alberta',
       'website_url': '',
     },
-    011921: {
+    '011921': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'CA',
@@ -455,7 +502,7 @@ class Region {
       'club_name': 'Alberta Randonneurs - Calgary',
       'website_url': '',
     },
-    012001: {
+    '012001': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'UK',
@@ -463,7 +510,7 @@ class Region {
       'club_name': 'Audax UK',
       'website_url': '',
     },
-    012454: {
+    '012454': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'UK',
@@ -471,7 +518,7 @@ class Region {
       'club_name': 'Kingston Wheelers',
       'website_url': '',
     },
-    012980: {
+    '012980': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'UK',
@@ -479,7 +526,7 @@ class Region {
       'club_name': 'Central London CTC',
       'website_url': '',
     },
-    015000: {
+    '015000': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'IE',
@@ -487,7 +534,7 @@ class Region {
       'club_name': 'Audax Ireland',
       'website_url': 'https://www.audaxireland.org/',
     },
-    021401: {
+    '021401': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'DK',
@@ -495,7 +542,7 @@ class Region {
       'club_name': 'Audax Randonneurs Danemark',
       'website_url': '',
     },
-    110071: {
+    '110071': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'NL',
@@ -503,7 +550,7 @@ class Region {
       'club_name': 'Randonneurs Nederland',
       'website_url': '',
     },
-    111001: {
+    '111001': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'DE',
@@ -511,7 +558,7 @@ class Region {
       'club_name': 'Randonneure Berlin-Brandenburg',
       'website_url': '',
     },
-    111015: {
+    '111015': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'DE',
@@ -519,7 +566,7 @@ class Region {
       'club_name': 'Audax Randonneurs Allemagne',
       'website_url': '',
     },
-    113004: {
+    '113004': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'SE',
@@ -527,7 +574,7 @@ class Region {
       'club_name': 'Randonneur Stockholm',
       'website_url': '',
     },
-    113024: {
+    '113024': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'SE',
@@ -535,7 +582,7 @@ class Region {
       'club_name': 'CK Milslukaren',
       'website_url': '',
     },
-    121001: {
+    '121001': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'PL',
@@ -543,7 +590,7 @@ class Region {
       'club_name': 'Randonneurs Polska',
       'website_url': '',
     },
-    150015: {
+    '150015': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'PT',
@@ -551,7 +598,7 @@ class Region {
       'club_name': 'Randonneurs Portugal',
       'website_url': '',
     },
-    160087: {
+    '160087': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'UK',
@@ -559,7 +606,7 @@ class Region {
       'club_name': 'Cardiff Byways Cycling Club',
       'website_url': '',
     },
-    160476: {
+    '160476': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'UK',
@@ -567,7 +614,7 @@ class Region {
       'club_name': 'Suffolk CTC',
       'website_url': '',
     },
-    160514: {
+    '160514': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'UK',
@@ -575,7 +622,7 @@ class Region {
       'club_name': 'VeloClub 167',
       'website_url': '',
     },
-    311501: {
+    '311501': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'AU',
@@ -583,7 +630,7 @@ class Region {
       'club_name': 'Audax Australia',
       'website_url': '',
     },
-    411501: {
+    '411501': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'AU',
@@ -591,7 +638,7 @@ class Region {
       'club_name': 'Audax Australia - Victoria',
       'website_url': '',
     },
-    412008: {
+    '412008': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'IT',
@@ -599,7 +646,7 @@ class Region {
       'club_name': 'Pedale Feltrino',
       'website_url': '',
     },
-    511002: {
+    '511002': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'RU',
@@ -607,7 +654,7 @@ class Region {
       'club_name': 'CARAVAN RANDONNEUR',
       'website_url': '',
     },
-    550015: {
+    '550015': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'UA',
@@ -615,7 +662,7 @@ class Region {
       'club_name': 'Kyiv Bycycle Club',
       'website_url': '',
     },
-    600007: {
+    '600007': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'JP',
@@ -623,7 +670,7 @@ class Region {
       'club_name': 'Audax Japan',
       'website_url': '',
     },
-    600019: {
+    '600019': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'JP',
@@ -631,7 +678,7 @@ class Region {
       'club_name': 'Audax Japan Chiba',
       'website_url': '',
     },
-    600020: {
+    '600020': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'JP',
@@ -639,7 +686,7 @@ class Region {
       'club_name': 'Audax Saitama',
       'website_url': '',
     },
-    600035: {
+    '600035': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'JP',
@@ -647,7 +694,7 @@ class Region {
       'club_name': 'Randonneurs Tamagawa',
       'website_url': '',
     },
-    601023: {
+    '601023': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'IN',
@@ -655,7 +702,7 @@ class Region {
       'club_name': 'HYDERABAD RANDONNEURS',
       'website_url': '',
     },
-    602001: {
+    '602001': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'PH',
@@ -663,7 +710,7 @@ class Region {
       'club_name': 'Audax Randonneurs Philippines',
       'website_url': '',
     },
-    603000: {
+    '603000': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'KR',
@@ -671,7 +718,7 @@ class Region {
       'club_name': 'Korea Randonneurs',
       'website_url': '',
     },
-    605500: {
+    '605500': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'TW',
@@ -679,7 +726,7 @@ class Region {
       'club_name': 'Randonneurs Taiwan',
       'website_url': '',
     },
-    605510: {
+    '605510': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'TW',
@@ -687,7 +734,7 @@ class Region {
       'club_name': 'LDS Cycling Team - Taiwan',
       'website_url': '',
     },
-    670844: {
+    '670844': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'FR',
@@ -695,7 +742,7 @@ class Region {
       'club_name': 'Randonneurs de Strasbourg',
       'website_url': 'https://www.randonneursdestrasbourg.fr',
     },
-    750128: {
+    '750128': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'FR',
@@ -703,7 +750,7 @@ class Region {
       'club_name': 'Audax Club Parisien',
       'website_url': '',
     },
-    808056: {
+    '808056': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'NL',
@@ -711,7 +758,7 @@ class Region {
       'club_name': 'Euraudax Randonnee Nederland',
       'website_url': '',
     },
-    837481: {
+    '837481': {
       'state_code': 'XX',
       'state_name': 'Non-US',
       'country_code': 'FR',
@@ -721,7 +768,7 @@ class Region {
     },
 
     // US Regions
-    902007: {
+    '902007': {
       'state_code': 'AK',
       'state_name': 'Alaska',
       'country_code': 'US',
@@ -729,7 +776,7 @@ class Region {
       'club_name': 'Denali Randonneurs',
       'website_url': 'http://www.denalirandonneurs.com/',
     },
-    901004: {
+    '901004': {
       'state_code': 'AL',
       'state_name': 'Alabama',
       'country_code': 'US',
@@ -737,7 +784,7 @@ class Region {
       'club_name': 'Alabama Randonneurs',
       'website_url': 'http://www.mgmbikeclub.org/AlabamaRando',
     },
-    903020: {
+    '903020': {
       'state_code': 'AZ',
       'state_name': 'Arizona',
       'country_code': 'US',
@@ -745,7 +792,7 @@ class Region {
       'club_name': 'Arizona Randonneurs',
       'website_url': 'http://www.azbrevet.com',
     },
-    905014: {
+    '905014': {
       'state_code': 'CA',
       'state_name': 'California',
       'country_code': 'US',
@@ -754,7 +801,7 @@ class Region {
       'website_url':
           'https://www.davisbikeclub.org/ultra-distance-brevets-and-randonneuring',
     },
-    905176: {
+    '905176': {
       'state_code': 'CA',
       'state_name': 'California',
       'country_code': 'US',
@@ -762,7 +809,7 @@ class Region {
       'club_name': 'Humboldt Randonneurs',
       'website_url': 'http://www.humboldtrandonneurs.com/',
     },
-    905051: {
+    '905051': {
       'state_code': 'CA',
       'state_name': 'California',
       'country_code': 'US',
@@ -770,7 +817,7 @@ class Region {
       'club_name': 'Pacific Coast Highway Randonneurs',
       'website_url': 'http://www.pchrandos.com',
     },
-    905140: {
+    '905140': {
       'state_code': 'CA',
       'state_name': 'California',
       'country_code': 'US',
@@ -778,7 +825,7 @@ class Region {
       'club_name': 'San Diego Randonneurs',
       'website_url': 'https://sdrandos.sdrandos.com',
     },
-    905030: {
+    '905030': {
       'state_code': 'CA',
       'state_name': 'California',
       'country_code': 'US',
@@ -786,7 +833,7 @@ class Region {
       'club_name': 'San Francisco Randonneurs',
       'website_url': 'http://sfrandonneurs.org/',
     },
-    905166: {
+    '905166': {
       'state_code': 'CA',
       'state_name': 'California',
       'country_code': 'US',
@@ -794,7 +841,7 @@ class Region {
       'club_name': 'San Luis Obispo Randonneurs',
       'website_url': 'http://slorandonneur.org/',
     },
-    905106: {
+    '905106': {
       'state_code': 'CA',
       'state_name': 'California',
       'country_code': 'US',
@@ -802,7 +849,7 @@ class Region {
       'club_name': 'Santa Cruz Randonneurs',
       'website_url': 'http://www.santacruzrandonneurs.org',
     },
-    905171: {
+    '905171': {
       'state_code': 'CA',
       'state_name': 'California',
       'country_code': 'US',
@@ -810,7 +857,7 @@ class Region {
       'club_name': 'Santa Rosa Randonneurs',
       'website_url': 'https://santarosarandos.org/',
     },
-    906002: {
+    '906002': {
       'state_code': 'CO',
       'state_name': 'Colorado',
       'country_code': 'US',
@@ -818,7 +865,7 @@ class Region {
       'club_name': 'Rocky Mountain Cycling Club',
       'website_url': 'https://www.rmccrides.com/brevets.htm',
     },
-    909062: {
+    '909062': {
       'state_code': 'FL',
       'state_name': 'Florida',
       'country_code': 'US',
@@ -826,7 +873,7 @@ class Region {
       'club_name': 'Central Florida Randonneurs',
       'website_url': 'http://floridarandonneurs.com/wordpress',
     },
-    909034: {
+    '909034': {
       'state_code': 'FL',
       'state_name': 'Florida',
       'country_code': 'US',
@@ -834,7 +881,7 @@ class Region {
       'club_name': 'Northeast Florida Randonneurs',
       'website_url': 'http://www.cyclingforever.com/nefr.html',
     },
-    909014: {
+    '909014': {
       'state_code': 'FL',
       'state_name': 'Florida',
       'country_code': 'US',
@@ -842,7 +889,7 @@ class Region {
       'club_name': 'South Florida Randonneurs',
       'website_url': 'https://sflrando.weebly.com/',
     },
-    910004: {
+    '910004': {
       'state_code': 'GA',
       'state_name': 'Georgia',
       'country_code': 'US',
@@ -850,7 +897,7 @@ class Region {
       'club_name': 'Audax Atlanta',
       'website_url': 'http://www.audaxatlanta.com',
     },
-    911003: {
+    '911003': {
       'state_code': 'HI',
       'state_name': 'Hawaii',
       'country_code': 'US',
@@ -858,7 +905,7 @@ class Region {
       'club_name': 'Maui Randonneurs',
       'website_url': 'https://sites.google.com/view/mauirandonneurs',
     },
-    915005: {
+    '915005': {
       'state_code': 'IA',
       'state_name': 'Iowa',
       'country_code': 'US',
@@ -866,7 +913,7 @@ class Region {
       'club_name': 'Iowa Randonneurs',
       'website_url': 'http://iowarandos.org/',
     },
-    913005: {
+    '913005': {
       'state_code': 'IL',
       'state_name': 'Illinois',
       'country_code': 'US',
@@ -874,7 +921,7 @@ class Region {
       'club_name': 'Great Lakes Randonneurs',
       'website_url': 'http://www.glrrando.org/',
     },
-    913053: {
+    '913053': {
       'state_code': 'IL',
       'state_name': 'Illinois',
       'country_code': 'US',
@@ -882,7 +929,7 @@ class Region {
       'club_name': 'Chicago Randonneurs',
       'website_url': 'https://www.chicagorando.org/',
     },
-    913042: {
+    '913042': {
       'state_code': 'IL',
       'state_name': 'Illinois',
       'country_code': 'US',
@@ -890,7 +937,7 @@ class Region {
       'club_name': 'Quad Cities Randonneurs',
       'website_url': 'https://www.qcrandonneurs.org',
     },
-    914005: {
+    '914005': {
       'state_code': 'IN',
       'state_name': 'Indiana',
       'country_code': 'US',
@@ -898,7 +945,7 @@ class Region {
       'club_name': 'Indiana Randonneurs',
       'website_url': 'http://indyrando.ridestats.bike',
     },
-    917002: {
+    '917002': {
       'state_code': 'KY',
       'state_name': 'Kentucky',
       'country_code': 'US',
@@ -906,7 +953,7 @@ class Region {
       'club_name': 'Louisville Bicycle Club',
       'website_url': 'http://www.louisvillebicycleclub.org/',
     },
-    921005: {
+    '921005': {
       'state_code': 'MA',
       'state_name': 'Massachusetts',
       'country_code': 'US',
@@ -914,7 +961,7 @@ class Region {
       'club_name': 'New England Randonneurs',
       'website_url': 'https://ner.bike',
     },
-    921009: {
+    '921009': {
       'state_code': 'MA',
       'state_name': 'Massachusetts',
       'country_code': 'US',
@@ -922,7 +969,7 @@ class Region {
       'club_name': 'New Horizons Cycling Club',
       'website_url': 'http://www.GreatRiverRide.com',
     },
-    946012: {
+    '946012': {
       'state_code': 'MD',
       'state_name': 'Virginia',
       'country_code': 'US',
@@ -930,7 +977,7 @@ class Region {
       'club_name': 'DC Randonneurs',
       'website_url': 'http://www.dcrand.org/dcr/',
     },
-    922015: {
+    '922015': {
       'state_code': 'MI',
       'state_name': 'Michigan',
       'country_code': 'US',
@@ -938,7 +985,7 @@ class Region {
       'club_name': 'Detroit Randonneurs',
       'website_url': 'http://detroitrandonneurs.org/',
     },
-    923003: {
+    '923003': {
       'state_code': 'MN',
       'state_name': 'Minnesota',
       'country_code': 'US',
@@ -946,7 +993,7 @@ class Region {
       'club_name': 'Minnesota Randonneurs',
       'website_url': 'http://www.mnrando.org/',
     },
-    925005: {
+    '925005': {
       'state_code': 'MO',
       'state_name': 'Missouri',
       'country_code': 'US',
@@ -954,7 +1001,7 @@ class Region {
       'club_name': 'Audax Kansas City',
       'website_url': 'http://www.audaxkc.com/',
     },
-    925006: {
+    '925006': {
       'state_code': 'MO',
       'state_name': 'Missouri',
       'country_code': 'US',
@@ -962,7 +1009,7 @@ class Region {
       'club_name': 'St Louis Randonneurs',
       'website_url': 'http://stlbrevets.com/',
     },
-    926001: {
+    '926001': {
       'state_code': 'MT',
       'state_name': 'Montana',
       'country_code': 'US',
@@ -970,7 +1017,7 @@ class Region {
       'club_name': 'Gallatin Valley Bicycle Club',
       'website_url': 'http://sites.google.com/site/montanarando/Home',
     },
-    933011: {
+    '933011': {
       'state_code': 'NC',
       'state_name': 'North Carolina',
       'country_code': 'US',
@@ -978,7 +1025,7 @@ class Region {
       'club_name': 'Asheville International Randonneurs',
       'website_url': 'https://air.bikeavl.com/',
     },
-    933057: {
+    '933057': {
       'state_code': 'NC',
       'state_name': 'North Carolina',
       'country_code': 'US',
@@ -986,7 +1033,7 @@ class Region {
       'club_name': 'Bicycle For Life Club',
       'website_url': 'http://www.bicycleforlife.org/rusa/index.html',
     },
-    933045: {
+    '933045': {
       'state_code': 'NC',
       'state_name': 'North Carolina',
       'country_code': 'US',
@@ -994,7 +1041,7 @@ class Region {
       'club_name': 'North Carolina Bicycle Club',
       'website_url': 'https://raleighrando.web.unc.edu/',
     },
-    927005: {
+    '927005': {
       'state_code': 'NE',
       'state_name': 'Nebraska',
       'country_code': 'US',
@@ -1002,7 +1049,7 @@ class Region {
       'club_name': 'Nebraska Sandhills Randonneurs',
       'website_url': 'http://www.nebraskasandhillsrandonneurs.com',
     },
-    930029: {
+    '930029': {
       'state_code': 'NJ',
       'state_name': 'New Jersey',
       'country_code': 'US',
@@ -1010,7 +1057,7 @@ class Region {
       'club_name': 'New Jersey Randonneurs',
       'website_url': 'http://www.njrandonneurs.org',
     },
-    932007: {
+    '932007': {
       'state_code': 'NY',
       'state_name': 'New York',
       'country_code': 'US',
@@ -1018,7 +1065,7 @@ class Region {
       'club_name': 'Finger Lakes Randonneurs',
       'website_url': 'http://www.distancerider.net',
     },
-    932005: {
+    '932005': {
       'state_code': 'NY',
       'state_name': 'New York',
       'country_code': 'US',
@@ -1026,7 +1073,7 @@ class Region {
       'club_name': 'Long Island Randonneurs',
       'website_url': 'http://lirando.org',
     },
-    932010: {
+    '932010': {
       'state_code': 'NY',
       'state_name': 'New York',
       'country_code': 'US',
@@ -1034,7 +1081,7 @@ class Region {
       'club_name': 'Adirondack Ultra Cycling',
       'website_url': 'http://adkultracycling.com/',
     },
-    935012: {
+    '935012': {
       'state_code': 'OH',
       'state_name': 'Ohio',
       'country_code': 'US',
@@ -1042,7 +1089,7 @@ class Region {
       'club_name': 'Ohio Randonneurs',
       'website_url': 'http://ohiorandonneurs.org',
     },
-    936006: {
+    '936006': {
       'state_code': 'OK',
       'state_name': 'Oklahoma',
       'country_code': 'US',
@@ -1050,7 +1097,7 @@ class Region {
       'club_name': 'Oklahoma Randonneurs',
       'website_url': 'https://www.facebook.com/groups/1514201805512796/',
     },
-    937004: {
+    '937004': {
       'state_code': 'OR',
       'state_name': 'Oregon',
       'country_code': 'US',
@@ -1058,7 +1105,7 @@ class Region {
       'club_name': 'Willamette Randonneurs',
       'website_url': 'http://will-rando.org',
     },
-    937020: {
+    '937020': {
       'state_code': 'OR',
       'state_name': 'Oregon',
       'country_code': 'US',
@@ -1066,7 +1113,7 @@ class Region {
       'club_name': 'Oregon Randonneurs',
       'website_url': 'http://orrando.blogspot.com',
     },
-    938017: {
+    '938017': {
       'state_code': 'PA',
       'state_name': 'Pennsylvania',
       'country_code': 'US',
@@ -1074,7 +1121,7 @@ class Region {
       'club_name': 'Pennsylvania Randonneurs',
       'website_url': 'http://www.parandonneurs.com',
     },
-    938016: {
+    '938016': {
       'state_code': 'PA',
       'state_name': 'Pennsylvania',
       'country_code': 'US',
@@ -1082,7 +1129,7 @@ class Region {
       'club_name': 'Western Pennsylvania Bicycle Club',
       'website_url': 'http://www.pittsburghrandonneurs.com',
     },
-    941005: {
+    '941005': {
       'state_code': 'SD',
       'state_name': 'South Dakota',
       'country_code': 'US',
@@ -1090,7 +1137,7 @@ class Region {
       'club_name': 'Falls Area Randonneurs',
       'website_url': 'https://fallsarearando.wordpress.com/',
     },
-    942007: {
+    '942007': {
       'state_code': 'TN',
       'state_name': 'Tennessee',
       'country_code': 'US',
@@ -1098,7 +1145,7 @@ class Region {
       'club_name': 'Tennessee Randonneurs',
       'website_url': 'http://tnrandonneurs.org',
     },
-    943025: {
+    '943025': {
       'state_code': 'TX',
       'state_name': 'Texas',
       'country_code': 'US',
@@ -1106,7 +1153,7 @@ class Region {
       'club_name': 'Hill Country Randonneurs',
       'website_url': 'http://www.hillcountryrandonneurs.org',
     },
-    943049: {
+    '943049': {
       'state_code': 'TX',
       'state_name': 'Texas',
       'country_code': 'US',
@@ -1114,7 +1161,7 @@ class Region {
       'club_name': 'Heart of Texas Randonneurs',
       'website_url': 'http://Heartoftexasrandonneurs.org',
     },
-    943026: {
+    '943026': {
       'state_code': 'TX',
       'state_name': 'Texas',
       'country_code': 'US',
@@ -1122,7 +1169,7 @@ class Region {
       'club_name': 'Lone Star Randonneurs',
       'website_url': 'http://www.lonestarrandon.org/',
     },
-    943030: {
+    '943030': {
       'state_code': 'TX',
       'state_name': 'Texas',
       'country_code': 'US',
@@ -1130,7 +1177,7 @@ class Region {
       'club_name': 'Houston Randonneurs',
       'website_url': 'http://www.houstonrandonneurs.org',
     },
-    943003: {
+    '943003': {
       'state_code': 'TX',
       'state_name': 'Texas',
       'country_code': 'US',
@@ -1138,7 +1185,7 @@ class Region {
       'club_name': 'West Texas Randonneurs',
       'website_url': 'http://www.pbbatx.com//randonneuring/',
     },
-    944008: {
+    '944008': {
       'state_code': 'UT',
       'state_name': 'Utah',
       'country_code': 'US',
@@ -1146,7 +1193,7 @@ class Region {
       'club_name': 'Salt Lake Randonneurs',
       'website_url': 'http://www.SaltLakeRandos.org',
     },
-    946020: {
+    '946020': {
       'state_code': 'VA',
       'state_name': 'Virginia',
       'country_code': 'US',
@@ -1154,7 +1201,7 @@ class Region {
       'club_name': 'Northern Virginia Randonneurs',
       'website_url': 'http://www.cyclingforever.com/nvr.html',
     },
-    946002: {
+    '946002': {
       'state_code': 'VA',
       'state_name': 'Virginia',
       'country_code': 'US',
@@ -1162,7 +1209,7 @@ class Region {
       'club_name': 'Tidewater Randonneurs',
       'website_url': 'http://tidewaterrando.com/',
     },
-    947018: {
+    '947018': {
       'state_code': 'WA',
       'state_name': 'Washington',
       'country_code': 'US',
@@ -1170,7 +1217,7 @@ class Region {
       'club_name': 'Seattle International Randonneurs',
       'website_url': 'http://www.seattlerandonneur.org',
     },
-    949007: {
+    '949007': {
       'state_code': 'WI',
       'state_name': 'Wisconsin',
       'country_code': 'US',

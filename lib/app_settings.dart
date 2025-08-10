@@ -103,7 +103,7 @@ class AppSettings {
 
   // Event Info
 
-  static MySetting<int> regionID = MySetting<int>(
+  static MySetting<String> regionID = MySetting<String>(
     key: 'key-region-id',
     defaultValue: Region.defaultRegion,
     title: 'Event Region',

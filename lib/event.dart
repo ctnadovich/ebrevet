@@ -123,7 +123,7 @@ class Event {
 // For now, eventID is a String, but...
 // Maybe the eventID needs to be wrapped in a class
 
-  late int regionID; // Numeric ACP Club Code
+  late String regionID; // Numeric ACP Club Code
 
 // This should originate from the future_events top level tag checkin_post_url
 
@@ -182,9 +182,11 @@ class Event {
         ? json['cue_version']
         : int.tryParse(json['cue_version'])!;
     eventID = json['event_id'];
-    regionID = (json['club_acp_code'] is int)
-        ? json['club_acp_code']
-        : int.tryParse(json['club_acp_code'])!;
+    regionID = json['club_acp_code'].toString();
+
+    //(json['club_acp_code'] is int)
+    //    ? json['club_acp_code']
+    //    : int.tryParse(json['club_acp_code'])!;
 
     if (false == json.containsKey('checkin_post_url') ||
         json['checkin_post_url']!.isEmpty) {
