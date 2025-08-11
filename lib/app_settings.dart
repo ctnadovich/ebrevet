@@ -203,6 +203,12 @@ class AppSettings {
       title: 'Pre-ride Date Window Override',
       icon: const Icon(Icons.settings));
 
+  static MySetting<bool> loadPastEvents = MySetting(
+      key: 'key-load-past-events',
+      defaultValue: false,
+      title: 'Load past events',
+      icon: const Icon(Icons.settings));
+
   //static iinitializeMySettings() {
   // eventInfoSource = MySetting<EventInfoSource>(
   //     key: 'key-event-info-source',

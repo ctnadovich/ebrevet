@@ -32,6 +32,7 @@ import 'app_settings.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
 import 'utility.dart';
+import 'rider_status.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -530,12 +531,13 @@ class _EventCardState extends State<EventCard> {
   // }
 
   Future openEventInfoDialog(Event event) {
-    // final eventID = widget.event.eventID;
+    final eventID = widget.event.eventID;
     final we = event;
     final regionID = we.regionID;
     final region = Region(regionID: regionID);
     final regionName = region.regionName;
     final clubName = region.clubName;
+    final statusURL = "https://randonneuring.org/checkin_status/$eventID/json";
 
     // note the scary ! after bodyLarge
     final bigItalic = Theme.of(context)
@@ -546,62 +548,80 @@ class _EventCardState extends State<EventCard> {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        scrollable: true,
         title: Text(widget.event.nameDist),
-        content: Scrollbar(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('${we.eventSanction} ${we.eventType}', style: bigItalic),
-                Text(event.startTimeWindow.startStyle.description),
-                if (event.gravelDistance > 0)
-                  Text('Gravel: ${event.gravelDistance}/${event.distance}K, '
-                      '${(100.0 * event.gravelDistance / event.distance).round()}% unpaved'),
-                Text('Region: $regionName'),
-                Text('Club: $clubName'),
-                Text('Location: ${we.startCity}, ${we.startState}'),
-                Text('Controls: ${event.controls.length}'),
-                if (we.startTimeWindow.onTime != null)
-                  Text('Start: ${we.dateTime} (${we.eventStatusText})'),
-                Text('Latest Cue Ver: ${we.cueVersionString}'),
-                const SizedBox(
-                  height: 8,
-                ),
-                Row(
+                // Left side: Column with two texts
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Spacer(
-                      flex: 1,
-                    ),
-                    ElevatedButton(
-                        onPressed: () => we.eventInfoUrl.isEmpty
-                            ? null
-                            : launchUrl(Uri.parse(we.eventInfoUrl)),
-                        child: const Text("Event Website")),
-                    const Spacer(
-                      flex: 1,
-                    ),
+                    Text('${we.eventSanction} ${we.eventType}',
+                        style: bigItalic),
+                    Text(event.startTimeWindow.startStyle.description),
                   ],
                 ),
-                const SizedBox(
-                  height: 8,
+                // Right side: Icon button
+                IconButton(
+                  icon: const Icon(Icons.language_rounded),
+                  color: Colors.blueAccent, // accent color
+                  tooltip: 'Event Website',
+                  onPressed: we.eventInfoUrl.isEmpty
+                      ? null
+                      : () => launchUrl(Uri.parse(we.eventInfoUrl)),
                 ),
-                const Text(
-                  'In case of emergency, CALL 911.',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                    'If abandonning or riding beyond the cutoff, call the organizer: ${we.organizerName} (${we.organizerPhone})')
               ],
             ),
-          ),
+            if (event.gravelDistance > 0)
+              Text(
+                'Gravel: ${event.gravelDistance}/${event.distance}K, '
+                '${(100.0 * event.gravelDistance / event.distance).round()}% unpaved',
+              ),
+            Text('Region: $regionName'),
+            Text('Club: $clubName'),
+            Text('Location: ${we.startCity}, ${we.startState}'),
+            Text('Controls: ${event.controls.length}'),
+            if (we.startTimeWindow.onTime != null)
+              Text('Start: ${we.dateTime} (${we.eventStatusText})'),
+            Text('Latest Cue Ver: ${we.cueVersionString}'),
+
+            const SizedBox(height: 8), // add spacing before button
+
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // dismiss current dialog
+                  showDialog(
+                    context: context,
+                    builder: (context) => RiderStatusDialog(url: statusURL),
+                  );
+                },
+                child: const Text('Rider Check Ins'),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+            const Text(
+              'In case of emergency, CALL 911.',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'If abandonning or riding beyond the cutoff, call the organizer: '
+              '${we.organizerName} (${we.organizerPhone})',
+            ),
+          ],
         ),
         actions: [
           TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'))
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
         ],
       ),
     );

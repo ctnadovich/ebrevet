@@ -16,6 +16,7 @@
 
 // import 'package:flutter/material.dart';
 // import 'package:ebrevet_card/report.dart';
+// import 'package:ebrevet_card/my_settings.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
@@ -345,7 +346,7 @@ class FutureEvents {
         var graceDuration =
             const Duration(hours: keepInFutureEventListAfterFinishHours);
         var eventReallyEnds = eventToAdd.latestFinishTime!.add(graceDuration);
-        if (eventReallyEnds.isAfter(now)) {
+        if (eventReallyEnds.isAfter(now) || AppSettings.loadPastEvents.value) {
           events.add(eventToAdd);
         } else {
           MyLogger.entry(

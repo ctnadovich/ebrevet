@@ -293,6 +293,7 @@ class _AdvancedSettingsState extends State<AdvancedSettings> {
                   SwitchSettingsTile(AppSettings.canDeletePastEvents),
                   SwitchSettingsTile(AppSettings.canCheckInLate),
                   SwitchSettingsTile(AppSettings.controlProximityOverride),
+                  SwitchSettingsTile(AppSettings.loadPastEvents),
                   DialogInputSettingsTile(AppSettings.proximityRadius),
                   const SizedBox(
                     height: 16,
