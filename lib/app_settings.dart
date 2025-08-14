@@ -103,6 +103,10 @@ class AppSettings {
 
   // Event Info
 
+  // It's somewhat puzzling how this is set. The region is a function
+  // of the event... or really, the event info source.  We fetch the event info
+  // using the acp_club_code, which is actually the regionID.
+
   static MySetting<String> regionID = MySetting<String>(
     key: 'key-region-id',
     defaultValue: Region.defaultRegion,
@@ -162,6 +166,13 @@ class AppSettings {
     icon: const Icon(Icons.comment),
   );
 
+  static MySetting<bool> enablePostCheckinDialog = MySetting(
+    key: 'key-enable-post-checkin-dialog',
+    defaultValue: true,
+    title: 'Enable Post Check-In Dialog',
+    icon: const Icon(Icons.confirmation_num),
+  );
+
   // Advanced Developer
 
   static MySetting<double> proximityRadius = MySetting(
@@ -208,6 +219,12 @@ class AppSettings {
       defaultValue: false,
       title: 'Load past events',
       icon: const Icon(Icons.settings));
+
+  static MySetting<bool> authenticateFutureEvents = MySetting(
+      key: 'key-authenticate-future-events',
+      defaultValue: true,
+      title: 'Authenticate future events data',
+      icon: const Icon(Icons.verified));
 
   //static iinitializeMySettings() {
   // eventInfoSource = MySetting<EventInfoSource>(

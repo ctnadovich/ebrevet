@@ -251,6 +251,7 @@ class _OptionalAppSettingsState extends State<OptionalAppSettings> {
                 color: Theme.of(context).colorScheme.secondaryContainer,
                 child: Column(children: [
                   SwitchSettingsTile(AppSettings.allowCheckinComment),
+                  SwitchSettingsTile(AppSettings.enablePostCheckinDialog),
                   DialogInputSettingsTile(AppSettings.gpsRefreshPeriod),
                 ])),
           ),
@@ -295,6 +296,7 @@ class _AdvancedSettingsState extends State<AdvancedSettings> {
                   SwitchSettingsTile(AppSettings.controlProximityOverride),
                   SwitchSettingsTile(AppSettings.loadPastEvents),
                   DialogInputSettingsTile(AppSettings.proximityRadius),
+                  SwitchSettingsTile(AppSettings.authenticateFutureEvents),
                   const SizedBox(
                     height: 16,
                   ),

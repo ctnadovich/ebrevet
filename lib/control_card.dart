@@ -28,6 +28,7 @@ import 'app_settings.dart';
 import 'activated_event.dart';
 import 'control_state.dart';
 import 'utility.dart';
+import 'snackbarglobal.dart';
 
 class ControlCard extends StatefulWidget {
   final Control control;
@@ -466,15 +467,42 @@ class _ControlCardState extends State<ControlCard> {
     // this will do the actual check-in
     widget.activeEvent
         .controlCheckIn(
-          control: widget.control,
-          comment: controller.text,
-          controlState: controlState,
-        )
-        .then((result) => openPostCheckInDialog(result));
+      control: widget.control,
+      comment: controller.text,
+      controlState: controlState,
+    )
+        .then((result) {
+      final activeEvent = widget.activeEvent;
+      final control = widget.control;
+      final isDisqualified = activeEvent.isDisqualified;
+
+      final isFinished = !(activeEvent.isIntermediateControl(control) ||
+          !activeEvent.isFinished);
+      if ((result != null) ||
+          isFinished ||
+          isDisqualified ||
+          AppSettings.enablePostCheckinDialog.value) {
+        openPostCheckInDialog(result);
+      } else {
+        postCheckInSnackBar();
+      }
+    });
     controller.clear();
     // if submitCheckInDialog is called directly because
     // there was no checkin comment option, then the pop isn't needed.
     if (popAfter) Navigator.of(context).pop();
+  }
+
+  void postCheckInSnackBar() {
+    final activeEvent = widget.activeEvent;
+    final control = widget.control;
+    var checkInPhrase = Signature.checkInCode(activeEvent, control).wordText;
+
+    final checkInDateTime =
+        activeEvent.outcomes.getControlCheckInTime(control.index);
+    final checkInTimeString = Utility.toBriefTimeString(checkInDateTime);
+    SnackbarGlobal.show(
+        "Checked into Control ${control.index + 1} at $checkInTimeString ($checkInPhrase)");
   }
 
   Future openPostCheckInDialog(String? checkInResult) => showDialog(
