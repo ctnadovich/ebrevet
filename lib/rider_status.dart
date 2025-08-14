@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'checkin_detail.dart';
 
 class RiderStatusDialog extends StatelessWidget {
   final String url;
@@ -104,6 +105,22 @@ class RiderStatusDialog extends StatelessWidget {
                           const SizedBox(height: 6),
                           Text("Checkpoints: $checklistSummary"),
                         ],
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      RiderCheckinDetailsPage(rider: rider),
+                                ),
+                              );
+                            },
+                            child: const Text('Details'),
+                          ),
+                        ),
                       ],
                     ),
                   ),
