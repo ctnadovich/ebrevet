@@ -133,6 +133,10 @@ class Report {
     report['signature'] =
         Signature.forReport(_reportingEvent, timestamp).cipherText;
 
+    MyLogger.entry(
+        severity: Severity.hidden,
+        "Created report using secret '${_reportingEvent.event.region.secret}'");
+
     return report;
   }
 
