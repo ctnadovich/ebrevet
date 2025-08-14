@@ -17,8 +17,11 @@
 // import 'package:flutter/material.dart';
 // import 'package:ebrevet_card/report.dart';
 // import 'package:ebrevet_card/my_settings.dart';
+import 'package:ebrevet_card/my_settings.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:math';
 
 import 'snackbarglobal.dart';
 import 'event.dart';
@@ -205,6 +208,26 @@ class FutureEvents {
     }
   }
 
+  static String signJson(Map<String, dynamic> data, String secret) {
+    final jsonString = jsonEncode(data);
+    final key = utf8.encode(secret);
+    final bytes = utf8.encode(jsonString);
+    final hmacSha256 = Hmac(sha256, key);
+    final digest = hmacSha256.convert(bytes);
+    return base64.encode(digest.bytes);
+  }
+
+  static bool verifySignature(Map<String, dynamic> payload, String secret) {
+    final dataToSign = Map<String, dynamic>.from(payload)..remove("signature");
+    return signJson(dataToSign, secret) == payload["signature"];
+  }
+
+  static String generateNonce([int length = 16]) {
+    final random = Random.secure();
+    final bytes = List<int>.generate(length, (_) => random.nextInt(256));
+    return bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+  }
+
   static Future<bool> refreshEventsFromServer(
       FutureEventsSource futureEventsSource, BuildContext context) async {
     try {
@@ -213,9 +236,44 @@ class FutureEvents {
           " URL ${futureEventsSource.url}");
 
       // Then try to fetch from the server in background with callback to process
-      var eventMapFromServer =
-          await fetchFutureEventsFromServer(futureEventsSource.url);
+      // Note that we add a nonce to the URL
+
+      String sourceURL = "";
+      bool authenticating = true;
+      String txNonce = 'nononce';
+
+      if (AppSettings.authenticateFutureEvents.value) {
+        txNonce = generateNonce();
+        sourceURL = "${futureEventsSource.url}/$txNonce";
+      } else {
+        sourceURL = futureEventsSource.url;
+        authenticating = false;
+      }
+
+      var eventMapFromServer = await fetchFutureEventsFromServer(sourceURL);
       if (null == eventMapFromServer) return false;
+
+      // Verify signature
+
+      String rxSignature = eventMapFromServer['signature'] ?? '';
+      String rxNonce = eventMapFromServer['nonce'] ?? '';
+      var rgn = Region.fromSettings();
+      var regionSecret = rgn.secret;
+
+      if (authenticating && (rxNonce != txNonce)) {
+        throw ServerException('Nonce mismatch: TX: "$txNonce"; RX: "$rxNonce"');
+      }
+
+      if (authenticating &&
+          (false == verifySignature(eventMapFromServer, regionSecret))) {
+        throw ServerException('Signature invalid RX: $rxSignature');
+      }
+
+      if (authenticating) {
+        MyLogger.entry(
+            'Received future_events map for Nonce="$rxNonce"; with valid Signature="$rxSignature"');
+      }
+
       rebuildEventList(eventMapFromServer);
       var now = DateTime.now();
       eventMapFromServer[lastRefreshedFieldName] =
