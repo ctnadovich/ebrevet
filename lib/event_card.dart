@@ -531,13 +531,11 @@ class _EventCardState extends State<EventCard> {
   // }
 
   Future openEventInfoDialog(Event event) {
-    final eventID = widget.event.eventID;
     final we = event;
     final regionID = we.regionID;
     final region = Region(regionID: regionID);
     final regionName = region.regionName;
     final clubName = region.clubName;
-    final statusURL = "https://randonneuring.org/checkin_status/$eventID/json";
 
     // note the scary ! after bodyLarge
     final bigItalic = Theme.of(context)
@@ -596,13 +594,14 @@ class _EventCardState extends State<EventCard> {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // dismiss current dialog
-                  showDialog(
-                    context: context,
-                    builder: (context) => RiderStatusDialog(url: statusURL),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CheckinStatusPage(event: event),
+                    ),
                   );
                 },
-                child: const Text('Rider Check Ins'),
+                child: const Text('View Check-Ins'),
               ),
             ),
 

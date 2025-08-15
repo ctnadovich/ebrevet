@@ -17,7 +17,7 @@
 // import 'package:flutter/material.dart';
 // import 'package:ebrevet_card/report.dart';
 // import 'package:ebrevet_card/my_settings.dart';
-import 'package:ebrevet_card/my_settings.dart';
+// import 'package:ebrevet_card/my_settings.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
@@ -418,11 +418,8 @@ class FutureEvents {
     MyLogger.entry("Event List rebuilt with $n events.");
   }
 
-  static Future<Map<String, dynamic>?> fetchFutureEventsFromServer(
-      String url) async {
-    MyLogger.entry('Fetching future event data from $url');
-
-    Map<String, dynamic> decodedResponse;
+  static Future<String> fetchResponseFromServer(String url) async {
+    MyLogger.entry('Fetching data from $url');
     http.Response? response;
 
     try {
@@ -440,37 +437,42 @@ class FutureEvents {
       throw ServerException(
           'Error response from $url (Status Code: ${response.statusCode})');
     } else {
-      decodedResponse = jsonDecode(response.body);
-
-      if (decodedResponse is List && decodedResponse.isEmpty) {
-        throw ServerException('Empty reponse from $url');
-      }
-      if (false == decodedResponse.containsKey('minimum_app_version')) {
-        throw ServerException(
-            'Missing app version value in response from $url');
-      }
-
-      String minimumAppVersion = decodedResponse['minimum_app_version'];
-
-      if (isIncompatibleAppVersion(minimumAppVersion)) {
-        throw IncompatibleVersionException(
-            actual: AppSettings.version ?? 'unknown',
-            required: minimumAppVersion);
-      }
-
-      if (false == decodedResponse.containsKey('event_list')) {
-        throw ServerException('No event_list key in response from $url');
-      }
-
-      if (true == decodedResponse.containsKey('event_errors') &&
-          decodedResponse['event_errors'].isNotEmpty) {
-        List<String> eventErrors =
-            List<String>.from(decodedResponse['event_errors'] as List);
-        throw CueWizardException(eventErrors);
-      }
-
-      return decodedResponse;
+      return (response.body);
     }
+  }
+
+  static Future<Map<String, dynamic>?> fetchFutureEventsFromServer(
+      String url) async {
+    String responseBody = await fetchResponseFromServer(url);
+    Map<String, dynamic> decodedResponse = jsonDecode(responseBody);
+
+    if (decodedResponse is List && decodedResponse.isEmpty) {
+      throw ServerException('Empty reponse from $url');
+    }
+    if (false == decodedResponse.containsKey('minimum_app_version')) {
+      throw ServerException('Missing app version value in response from $url');
+    }
+
+    String minimumAppVersion = decodedResponse['minimum_app_version'];
+
+    if (isIncompatibleAppVersion(minimumAppVersion)) {
+      throw IncompatibleVersionException(
+          actual: AppSettings.version ?? 'unknown',
+          required: minimumAppVersion);
+    }
+
+    if (false == decodedResponse.containsKey('event_list')) {
+      throw ServerException('No event_list key in response from $url');
+    }
+
+    if (true == decodedResponse.containsKey('event_errors') &&
+        decodedResponse['event_errors'].isNotEmpty) {
+      List<String> eventErrors =
+          List<String>.from(decodedResponse['event_errors'] as List);
+      throw CueWizardException(eventErrors);
+    }
+
+    return decodedResponse;
   }
 
   static const numberOfSubversions = 3;

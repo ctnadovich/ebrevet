@@ -496,13 +496,13 @@ class _ControlCardState extends State<ControlCard> {
   void postCheckInSnackBar() {
     final activeEvent = widget.activeEvent;
     final control = widget.control;
-    var checkInPhrase = Signature.checkInCode(activeEvent, control).wordText;
+    // var checkInPhrase = Signature.checkInCode(activeEvent, control).wordText;
 
     final checkInDateTime =
         activeEvent.outcomes.getControlCheckInTime(control.index);
-    final checkInTimeString = Utility.toBriefTimeString(checkInDateTime);
+    final checkInTimeString = Utility.toBriefDateTimeString(checkInDateTime);
     SnackbarGlobal.show(
-        "Checked into Control ${control.index + 1} at $checkInTimeString ($checkInPhrase)");
+        "Checked into Control ${control.index + 1} at $checkInTimeString");
   }
 
   Future openPostCheckInDialog(String? checkInResult) => showDialog(

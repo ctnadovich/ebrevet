@@ -117,6 +117,7 @@ class Event {
   String organizerPhone = '';
   late int cueVersion;
   late String eventInfoUrl;
+  late String checkinStatusUrl;
   late String
       eventID; // This must be unique worldwide (could be contstructed "$regionID-$regionEventID")
 
@@ -145,6 +146,7 @@ class Event {
         'organizer_name': organizerName,
         'organizer_phone': organizerPhone,
         'event_info_url': eventInfoUrl,
+        'checkin_status_url': checkinStatusUrl,
         'event_id': eventID,
         'club_acp_code': regionID,
         'checkin_post_url': checkinPostURL,
@@ -178,6 +180,7 @@ class Event {
     organizerName = json['organizer_name'] ?? "?";
     organizerPhone = json['organizer_phone'] ?? "?";
     eventInfoUrl = json['event_info_url'] ?? "";
+    checkinStatusUrl = json['checkin_status_url'] ?? "";
     cueVersion = (json['cue_version'] is int)
         ? json['cue_version']
         : int.tryParse(json['cue_version'])!;
