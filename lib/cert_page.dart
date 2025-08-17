@@ -20,7 +20,7 @@ import 'package:provider/provider.dart';
 
 import 'activated_event.dart';
 import 'day_night.dart';
-import 'view_page.dart';
+import 'activated_event_view_page.dart';
 import 'control_state.dart';
 import 'app_settings.dart';
 import 'screen_shot.dart';
@@ -216,8 +216,11 @@ class _CertificatePageState extends State<CertificatePage> {
                 TextButton(
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ControlDetailPage(
-                            pastEvent), // ControlDetailPage(pastEvent),
+                        builder: (context) => ActivatedEventViewPage(
+                          event: pastEvent,
+                          isLiveView: false,
+                          showScreenshotButton: true,
+                        ), // ControlDetailPage(pastEvent),
                       ));
                     },
                     child: const Text('Control Detail')),

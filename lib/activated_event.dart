@@ -30,7 +30,13 @@ import 'mylogger.dart';
 // when a plain Event is "activated" it becomes
 // a past event in the EventHistory map
 
-// TODO should probably be a child class of Event
+// An interesting question is if this should
+// be a child class of Event
+
+// But an ActivatedEvent is more like an association between
+// an event, a rider, and outcomes for that rider. It's really
+// a different beast -- so maybe composition rather than inheitance
+// is better.
 
 class ActivatedEvent {
   String riderID;

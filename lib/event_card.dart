@@ -23,7 +23,7 @@ import 'snackbarglobal.dart';
 import 'future_events.dart';
 import 'event.dart';
 import 'outcome.dart';
-import 'ride_page.dart';
+import 'activated_event_view_page.dart';
 import 'region.dart';
 import 'event_history.dart';
 import 'activated_event.dart';
@@ -374,7 +374,11 @@ class _EventCardState extends State<EventCard> {
                 .push(MaterialPageRoute(
                   builder: (context) => overallOutcomeInHistory !=
                           OverallOutcome.finish
-                      ? RidePage(pastEvent!)
+                      ? ActivatedEventViewPage(
+                          event: pastEvent!,
+                          isLiveView: true,
+                          showScreenshotButton: false,
+                        )
                       : CertificatePage(
                           pastEvent!), // will implicitly ride event just activated
                 ))

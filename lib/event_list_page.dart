@@ -17,13 +17,14 @@
 import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 
 import 'snackbarglobal.dart';
 import 'future_events.dart';
 import 'event_card.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
-import 'ticker.dart';
+// import 'ticker.dart';
 import 'time_till.dart';
 import 'side_menu.dart';
 import 'settings_page.dart';
@@ -136,15 +137,15 @@ class LatestEventList extends StatefulWidget {
 class _LatestEventListState extends State<LatestEventList> {
   bool fetchingFromServerNow = false;
 
-  Ticker ticker = Ticker();
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
 
-    ticker.init(
-      period: AppSettings.timeRefreshPeriod,
-      onTick: () {
+    _timer = Timer.periodic(
+      const Duration(seconds: AppSettings.timeRefreshPeriod),
+      (timer) {
         if (mounted) setState(() {});
       },
     );
@@ -152,8 +153,8 @@ class _LatestEventListState extends State<LatestEventList> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     super.dispose();
-    ticker.dispose();
   }
 
   @override

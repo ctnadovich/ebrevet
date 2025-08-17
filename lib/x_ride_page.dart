@@ -21,9 +21,7 @@ import 'package:provider/provider.dart';
 import 'control_card.dart';
 import 'time_till.dart';
 import 'location.dart';
-import 'app_settings.dart';
 import 'day_night.dart';
-import 'ticker.dart';
 import 'outcome.dart';
 import 'report.dart';
 import 'activated_event.dart';
@@ -40,27 +38,6 @@ class RidePage extends StatefulWidget {
 }
 
 class _RidePageState extends State<RidePage> {
-  Ticker ticker = Ticker();
-
-  @override
-  void initState() {
-    super.initState();
-
-    ticker.init(
-      period: AppSettings.gpsRefreshPeriod.value,
-      onTick: () async {
-        await RiderLocation.updateLocation();
-        if (mounted) setState(() {});
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    ticker.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     var activeEvent = widget.activeEvent;
