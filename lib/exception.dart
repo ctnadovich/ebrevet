@@ -56,7 +56,8 @@ class NoInternetException implements Exception {
   Object? error;
   NoInternetException(this.message, {this.error});
   @override
-  String toString() => "Is your Internet service off? $message";
+  String toString() =>
+      "This function requires access to the internet. Is your Internet service off? $message";
 }
 
 class ThisCantHappen implements Exception {

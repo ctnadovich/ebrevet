@@ -32,7 +32,7 @@ import 'app_settings.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
 import 'utility.dart';
-import 'rider_status.dart';
+import 'checkin_status_page.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -88,6 +88,18 @@ class _EventCardState extends State<EventCard> {
                 openEventInfoDialog(event);
               },
               icon: const Icon(Icons.info_outline),
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.checklist_rtl),
+              tooltip: 'View Check-Ins',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CheckinStatusPage(event: widget.event),
+                  ),
+                );
+              },
             ),
             title: Text(
               event.nameDist,
@@ -592,7 +604,7 @@ class _EventCardState extends State<EventCard> {
             const SizedBox(height: 8), // add spacing before button
 
             Center(
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -601,7 +613,8 @@ class _EventCardState extends State<EventCard> {
                     ),
                   );
                 },
-                child: const Text('View Check-Ins'),
+                icon: const Icon(Icons.checklist_rtl),
+                label: const Text('View Check-Ins'),
               ),
             ),
 
