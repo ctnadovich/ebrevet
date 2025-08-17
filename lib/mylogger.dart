@@ -52,6 +52,7 @@ class MyLogger {
   static void entry(String s, {Severity severity = Severity.info}) {
     if (severity != Severity.hidden) _log.add(LogRecord(severity, s));
     if (_log.length > logLength) _log.removeAt(0);
-    print("LOG: $s");
+    // This is the only place print() is used -- in our logging framework.
+    print("LOG: $s"); // ignore: avoid_print
   }
 }
