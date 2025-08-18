@@ -245,29 +245,28 @@ class RadioButtonSettingsTile extends StatefulWidget {
 }
 
 class RadioButtonSettingsTileState extends State<RadioButtonSettingsTile> {
-  FutureEventsSourceID? selectedSourceId;
   @override
   Widget build(BuildContext context) {
-    selectedSourceId = widget.mySetting.value;
+    final selected = widget.mySetting.value;
 
-    return Column(
-      children: [
-        for (var sourceID in FutureEventsSourceID.values)
-          ListTile(
-            title: Text(sourceID.description),
-            leading: Radio<FutureEventsSourceID>(
+    return RadioGroup<FutureEventsSourceID>(
+      groupValue: selected,
+      onChanged: (FutureEventsSourceID? v) {
+        if (v == null) return;
+        widget.mySetting.setValue(v);
+        widget.onChanged?.call();
+        setState(() {}); // rebuild using updated setting
+      },
+      child: Column(
+        children: [
+          for (final sourceID in FutureEventsSourceID.values)
+            RadioListTile<FutureEventsSourceID>(
               value: sourceID,
-              groupValue: selectedSourceId,
-              onChanged: (FutureEventsSourceID? v) {
-                widget.mySetting.setValue(v);
-                widget.onChanged?.call();
-                setState(() {
-                  selectedSourceId = v;
-                });
-              },
+              title: Text(sourceID.description),
+              // No groupValue/onChanged here — RadioGroup handles it.
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
