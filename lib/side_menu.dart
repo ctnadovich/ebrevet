@@ -15,7 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 // import 'package:ebrevet_card/mylogger.dart';
-import 'package:ebrevet_card/past_events_page.dart';
+import 'package:ebrevet_card/my_activated_events.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -60,15 +60,15 @@ class SideMenuDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.history),
+            leading: const Icon(Icons.pedal_bike),
             title: Text(
-              'Past Events',
+              'My Rides',
               style: menuItemStyle,
             ),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const PastEventsPage(),
+                builder: (context) => const MyActivatedEventsPage(),
               ));
               //.then((value) => onClose?.call());
             },
