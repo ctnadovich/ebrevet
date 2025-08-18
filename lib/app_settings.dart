@@ -217,13 +217,13 @@ class AppSettings {
   static MySetting<bool> loadPastEvents = MySetting(
       key: 'key-load-past-events',
       defaultValue: false,
-      title: 'Load past events',
+      title: 'Include past events',
       icon: const Icon(Icons.settings));
 
   static MySetting<bool> authenticateFutureEvents = MySetting(
       key: 'key-authenticate-future-events',
       defaultValue: true,
-      title: 'Authenticate future events data',
+      title: 'Authenticate events data',
       icon: const Icon(Icons.verified));
 
   //static iinitializeMySettings() {
