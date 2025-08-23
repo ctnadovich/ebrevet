@@ -88,7 +88,7 @@ class _ScheduledEventsPageState extends State<ScheduledEventsPage> {
         color: Theme.of(context).colorScheme.primaryContainer,
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
         child: (AppSettings.areRequiredSettingsSet)
-            ? const LatestEventList()
+            ? LatestEventList(eventFilter: eventFilter)
             : RequiredAppSettings(
                 collapsed: false,
                 onContinue: () => setState(() {}),
@@ -129,9 +129,9 @@ class _ScheduledEventsPageState extends State<ScheduledEventsPage> {
 }
 
 class LatestEventList extends StatefulWidget {
-  const LatestEventList({
-    super.key,
-  });
+  final EventFilter eventFilter;
+
+  const LatestEventList({super.key, this.eventFilter = EventFilter.future});
 
   @override
   State<LatestEventList> createState() => _LatestEventListState();
@@ -163,7 +163,7 @@ class _LatestEventListState extends State<LatestEventList> {
   @override
   Widget build(BuildContext context) {
     // BuildContext context) {
-    var events = ScheduledEvents.events;
+    var events = ScheduledEvents.getFilteredEvents(widget.eventFilter);
     var sourceSelection = context.watch<SourceSelection>();
 
     return Stack(children: [

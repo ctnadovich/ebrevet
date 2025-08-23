@@ -58,19 +58,36 @@ enum StartStyle {
 }
 
 enum EventFilter {
-  future,
-  past,
-  permanent,
-  all;
+  future(
+    description: 'Upcoming Events',
+    predicate: (Event? e) =>
+        e != null &&
+        e.latestFinishTime
+            .add(Duration(
+                hours: AppSettings.keepInFutureEventListAfterFinishHours))
+            .isAfter(DateTime.now()),
+  ),
+  past(
+    description: 'Past Events',
+    predicate: (Event? e) =>
+        e != null && e.startDateTime.isBefore(DateTime.now()),
+  ),
+  permanent(
+    description: 'Permanents',
+    predicate: (Event? e) => e == null,
+  ),
+  all(
+    description: 'All Events',
+    predicate: (Event? e) => true,
+  );
 
-  static Map _description = {
-    future: 'Upcoming Events',
-    past: 'Past Events',
-    permanent: 'Permanents',
-    all: 'All Events',
-  };
+  final String description;
+  final bool Function(Event?) predicate;
 
-  get description => _description[this];
+  const EventFilter({
+    required this.description,
+    required this.predicate,
+  });
 }
 
 class TimeWindow {

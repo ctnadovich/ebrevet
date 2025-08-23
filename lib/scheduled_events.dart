@@ -123,7 +123,11 @@ class SourceSelection extends ChangeNotifier {
 }
 
 class ScheduledEvents {
-  static var events = <Event>[]; // List of events
+  static var events = <Event>[]; // List of ALL events that have been loaded
+
+  static List<Event> getFilteredEvents(EventFilter filter) {
+    return events.where(filter.predicate).toList();
+  }
 
   static ScheduledEventsSource?
       eventInfoSource; // where did the above list of events come from
