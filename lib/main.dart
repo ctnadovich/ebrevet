@@ -23,7 +23,7 @@ import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 
 import 'snackbarglobal.dart';
-import 'future_events.dart';
+import 'scheduled_events.dart';
 import 'day_night.dart';
 import 'mylogger.dart';
 import 'control_state.dart';
@@ -73,7 +73,7 @@ Future<void> initSettings() async {
   // await Region.fetchRegionsFromServer(
   //     quiet: true); // will update disk if successful
 
-  await FutureEvents.refreshEventsFromDisk();
+  await ScheduledEvents.refreshEventsFromDisk();
   await EventHistory.load();
 
   MyLogger.entry('...Init settings end');
@@ -91,7 +91,7 @@ class MyApp extends StatelessWidget {
         theme: dayNight.dayTheme,
         darkTheme: dayNight.nightTheme,
         themeMode: dayNight.mode,
-        home: UpgradeAlert(child: const EventListPage()),
+        home: UpgradeAlert(child: const ScheduledEventsPage()),
       );
     });
   }

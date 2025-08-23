@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:ebrevet_card/future_events.dart';
+import 'package:ebrevet_card/scheduled_events.dart';
 import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -119,17 +119,18 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
     if (false == Region.regionMap.containsKey(AppSettings.regionID.value)) {
       MyLogger.entry('Configured for region not in map. Setting to default.');
       AppSettings.regionID.setValue(Region.defaultRegion);
-      AppSettings.futureEventsSourceID.setValue(FutureEventsSourceID.defaultID);
+      AppSettings.scheduleEventsSourceID
+          .setValue(ScheduleEventsSourceID.defaultID);
     }
 
     // fromRegion and fromInternationalRegion are essentiall
     //the same "region" data source that view different subsets
     // of the same Region.regionMap
     // These are handy predicates to decide which "view" is active
-    bool viewUSRegions = AppSettings.futureEventsSourceID.value ==
-        FutureEventsSourceID.fromRegion;
-    bool viewInternationalRegions = AppSettings.futureEventsSourceID.value ==
-        FutureEventsSourceID.fromInternationalRegion;
+    bool viewUSRegions = AppSettings.scheduleEventsSourceID.value ==
+        ScheduleEventsSourceID.fromRegion;
+    bool viewInternationalRegions = AppSettings.scheduleEventsSourceID.value ==
+        ScheduleEventsSourceID.fromInternationalRegion;
     bool viewAllRegions = viewUSRegions || viewInternationalRegions;
 
     // Create the drop down list of all viewed regions
@@ -165,7 +166,7 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
         initiallyExpanded: widget.initiallyExpanded,
         children: [
           RadioButtonSettingsTile(
-            AppSettings.futureEventsSourceID,
+            AppSettings.scheduleEventsSourceID,
             onChanged: sourceSelection.updateFromSettings,
           ),
           if (viewAllRegions)
@@ -211,8 +212,8 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
           //     AppSettings.permSearchRadius,
           //     onChanged: sourceSelection.updateFromSettings,
           //   ),
-          if (AppSettings.futureEventsSourceID.value ==
-              FutureEventsSourceID.fromURL)
+          if (AppSettings.scheduleEventsSourceID.value ==
+              ScheduleEventsSourceID.fromURL)
             DialogInputSettingsTile(
               AppSettings.eventInfoURL,
               onChanged: sourceSelection.updateFromSettings,
@@ -294,9 +295,11 @@ class _AdvancedSettingsState extends State<AdvancedSettings> {
                   SwitchSettingsTile(AppSettings.canDeletePastEvents),
                   SwitchSettingsTile(AppSettings.canCheckInLate),
                   SwitchSettingsTile(AppSettings.controlProximityOverride),
-                  SwitchSettingsTile(AppSettings.loadPastEvents),
+                  SwitchSettingsTile(
+                      AppSettings.keepInFutureEventListAfterFinishHours),
+                  SwitchSettingsTile(AppSettings.keepPastEventYears),
                   DialogInputSettingsTile(AppSettings.proximityRadius),
-                  SwitchSettingsTile(AppSettings.authenticateFutureEvents),
+                  SwitchSettingsTile(AppSettings.authenticateEventsData),
                   const SizedBox(
                     height: 16,
                   ),
@@ -310,7 +313,7 @@ class _AdvancedSettingsState extends State<AdvancedSettings> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      FutureEvents.clear();
+                      ScheduledEvents.clear();
                       sourceSelection.updateFromSettings();
                     },
                     child: const Text('Clear Event List'),

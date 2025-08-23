@@ -20,7 +20,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 
 import 'snackbarglobal.dart';
-import 'future_events.dart';
+import 'scheduled_events.dart';
 import 'event_card.dart';
 import 'app_settings.dart';
 import 'day_night.dart';
@@ -29,14 +29,16 @@ import 'time_till.dart';
 import 'side_menu.dart';
 import 'settings_page.dart';
 import 'location.dart';
+import 'event.dart';
 
-class EventListPage extends StatefulWidget {
-  const EventListPage({super.key});
+class ScheduledEventsPage extends StatefulWidget {
+  final EventFilter eventFilter;
+  const ScheduledEventsPage({super.key, this.eventFilter = EventFilter.future});
   @override
-  State<EventListPage> createState() => _EventListPageState();
+  State<ScheduledEventsPage> createState() => _ScheduledEventsPageState();
 }
 
-class _EventListPageState extends State<EventListPage> {
+class _ScheduledEventsPageState extends State<ScheduledEventsPage> {
   @override
   void initState() {
     super.initState();
@@ -64,12 +66,13 @@ class _EventListPageState extends State<EventListPage> {
   Widget build(BuildContext context) {
     var dayNight = context.watch<DayNight>();
 
+    final eventFilter = widget.eventFilter;
+    final eventFilterText = eventFilter.description;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text(
-          'Choose Event to Ride',
-        ),
+        title: Text(eventFilterText),
         actions: [
           IconButton(
               icon: dayNight.icon,
@@ -160,7 +163,7 @@ class _LatestEventListState extends State<LatestEventList> {
   @override
   Widget build(BuildContext context) {
     // BuildContext context) {
-    var events = FutureEvents.events;
+    var events = ScheduledEvents.events;
     var sourceSelection = context.watch<SourceSelection>();
 
     return Stack(children: [
@@ -196,8 +199,8 @@ class _LatestEventListState extends State<LatestEventList> {
   }
 
   List<Widget> eventListHeader(SourceSelection sourceSelection) {
-    var ttLastRefreshed = FutureEvents.lastRefreshed != null
-        ? TimeTill(FutureEvents.lastRefreshed!)
+    var ttLastRefreshed = ScheduledEvents.lastRefreshed != null
+        ? TimeTill(ScheduledEvents.lastRefreshed!)
         : null;
 
     return [
@@ -214,7 +217,7 @@ class _LatestEventListState extends State<LatestEventList> {
                 fetchingFromServerNow = true;
               });
 
-              FutureEvents.refreshEventsFromServer(
+              ScheduledEvents.refreshScheduledEventsFromServer(
                       sourceSelection.eventInfoSource, context)
                   .then(
                       (value) => setState(() => fetchingFromServerNow = false));
@@ -243,7 +246,7 @@ class _LatestEventListState extends State<LatestEventList> {
       //Expanded(
       //flex: 20,
       //  child:
-      if (sourceSelection.eventInfoSource != FutureEvents.eventInfoSource)
+      if (sourceSelection.eventInfoSource != ScheduledEvents.eventInfoSource)
         Text(
           "Next update from "
           "${sourceSelection.eventInfoSource.fullDescription}",

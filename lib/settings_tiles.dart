@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:ebrevet_card/future_events.dart';
+import 'package:ebrevet_card/scheduled_events.dart';
 import 'package:flutter/material.dart';
 import 'my_settings.dart';
 
@@ -249,9 +249,9 @@ class RadioButtonSettingsTileState extends State<RadioButtonSettingsTile> {
   Widget build(BuildContext context) {
     final selected = widget.mySetting.value;
 
-    return RadioGroup<FutureEventsSourceID>(
+    return RadioGroup<ScheduleEventsSourceID>(
       groupValue: selected,
-      onChanged: (FutureEventsSourceID? v) {
+      onChanged: (ScheduleEventsSourceID? v) {
         if (v == null) return;
         widget.mySetting.setValue(v);
         widget.onChanged?.call();
@@ -259,8 +259,8 @@ class RadioButtonSettingsTileState extends State<RadioButtonSettingsTile> {
       },
       child: Column(
         children: [
-          for (final sourceID in FutureEventsSourceID.values)
-            RadioListTile<FutureEventsSourceID>(
+          for (final sourceID in ScheduleEventsSourceID.values)
+            RadioListTile<ScheduleEventsSourceID>(
               value: sourceID,
               title: Text(sourceID.description),
               // No groupValue/onChanged here — RadioGroup handles it.

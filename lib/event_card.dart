@@ -20,7 +20,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 
 import 'snackbarglobal.dart';
-import 'future_events.dart';
+import 'scheduled_events.dart';
 import 'event.dart';
 import 'outcome.dart';
 import 'activated_event_view_page.dart';
@@ -461,7 +461,7 @@ class _EventCardState extends State<EventCard> {
   String? validateStartCode(String? s, Event event) {
     if (s == null || s.isEmpty) return "Missing start code";
     if (false == AppSettings.isRusaIDSet) return "Rider not set.";
-    if (FutureEvents.eventInfoSource == null) return "No event authority. ";
+    if (ScheduledEvents.eventInfoSource == null) return "No event authority. ";
 
     s = s.toUpperCase();
     s = s.trim();

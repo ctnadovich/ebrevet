@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:ebrevet_card/future_events.dart';
+import 'package:ebrevet_card/scheduled_events.dart';
 import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -41,6 +41,7 @@ class AppSettings {
   static const int maxPERMID = infinity;
   // static const bool autoFirstControlCheckIn = true;
   static const double defaultProximityRadius = 500.0; // meters
+  static const int defaultKeepInFutureEventListAfterFinishHours = 12; // hours
 
   //////////
   // Secrets
@@ -50,7 +51,7 @@ class AppSettings {
 
   //////////
   // Filenames
-  static const String futureEventsFilename =
+  static const String scheduleEventsFilename =
       'futureEvents.json'; // File to save events locally
   static const String pastEventsFileName = 'pastEvents.json';
   static const String storedRegionsFilename =
@@ -134,15 +135,15 @@ class AppSettings {
   static MySetting<String> eventInfoURL = MySetting<String>(
     key: 'key-event-info-url',
     defaultValue: '',
-    title: FutureEventsSourceID.fromURL.description,
+    title: ScheduleEventsSourceID.fromURL.description,
     validator: urlFieldValidator,
     icon: const Icon(Icons.web_asset),
   );
 
-  static MySetting<FutureEventsSourceID> futureEventsSourceID =
-      MySetting<FutureEventsSourceID>(
+  static MySetting<ScheduleEventsSourceID> scheduleEventsSourceID =
+      MySetting<ScheduleEventsSourceID>(
           key: 'key-event-info-source-id',
-          defaultValue: FutureEventsSourceID.defaultID,
+          defaultValue: ScheduleEventsSourceID.defaultID,
           title: 'Event Information Source');
 
   // Other
@@ -183,6 +184,22 @@ class AppSettings {
     icon: const Icon(Icons.radar),
   );
 
+  static MySetting<int> keepInFutureEventListAfterFinishHours = MySetting(
+    key: 'key-keep-future-after-finish',
+    defaultValue: defaultKeepInFutureEventListAfterFinishHours,
+    title: 'Hours After Finish to keep future event',
+    validator: intValidator,
+    icon: const Icon(Icons.timer),
+  );
+
+  static MySetting<int> keepPastEventYears = MySetting(
+    key: 'key-keep-past-event-years',
+    defaultValue: 1,
+    title: 'Years of Past Events to load',
+    validator: intValidator,
+    icon: const Icon(Icons.radar),
+  );
+
   static MySetting<bool> openTimeOverride = MySetting(
     key: 'key-open-time-override',
     defaultValue: false,
@@ -214,13 +231,13 @@ class AppSettings {
       title: 'Pre-ride Date Window Override',
       icon: const Icon(Icons.settings));
 
-  static MySetting<bool> loadPastEvents = MySetting(
-      key: 'key-load-past-events',
-      defaultValue: false,
-      title: 'Include past events',
-      icon: const Icon(Icons.settings));
+  // static MySetting<bool> loadPastEvents = MySetting(
+  //     key: 'key-load-past-events',
+  //     defaultValue: false,
+  //     title: 'Include past events',
+  //     icon: const Icon(Icons.settings));
 
-  static MySetting<bool> authenticateFutureEvents = MySetting(
+  static MySetting<bool> authenticateEventsData = MySetting(
       key: 'key-authenticate-future-events',
       defaultValue: true,
       title: 'Authenticate events data',
@@ -297,6 +314,14 @@ class AppSettings {
     return null;
   }
 
+  static String? intValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter an integer';
+    }
+    if (false == isPositiveInteger(value)) return 'Not a positive integer';
+    return null;
+  }
+
   static bool isValidNumericID(String? value,
       {int maxValue = infinity, int minValue = 1}) {
     if (value == null) return false;
@@ -313,7 +338,16 @@ class AppSettings {
   static bool isPositiveReal(String? value) {
     if (value == null) return false;
     final numericID = double.tryParse(value);
-    if (numericID == null || numericID < 0) {
+    if (numericID == null || numericID <= 0) {
+      return false;
+    }
+    return true;
+  }
+
+  static bool isPositiveInteger(String? value) {
+    if (value == null) return false;
+    final numericID = int.tryParse(value);
+    if (numericID == null || numericID <= 0) {
       return false;
     }
     return true;

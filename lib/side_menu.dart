@@ -15,6 +15,7 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 // import 'package:ebrevet_card/mylogger.dart';
+import 'package:ebrevet_card/event.dart';
 import 'package:ebrevet_card/my_activated_events.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,6 +23,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'app_settings.dart';
 import 'settings_page.dart';
 import 'log_page.dart';
+import 'event_list_page.dart';
 
 class SideMenuDrawer extends StatelessWidget {
   final Function? onClose;
@@ -73,6 +75,28 @@ class SideMenuDrawer extends StatelessWidget {
               //.then((value) => onClose?.call());
             },
           ),
+          ExpansionTile(
+            leading: const Icon(Icons.pedal_bike),
+            title: Text('Available Events', style: menuItemStyle),
+            children: [
+              for (var filter in EventFilter.values)
+                ListTile(
+                  leading: const Icon(Icons.arrow_right),
+                  title: Text(filter.description),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ScheduledEventsPage(eventFilter: filter),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+
           // if (AppSettings.isMagicRusaID)  // Everyone can see log
           ListTile(
             leading: const Icon(Icons.newspaper),

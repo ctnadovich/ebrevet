@@ -36,22 +36,23 @@ import 'region.dart';
 
 // import 'current.dart';
 //
-enum FutureEventsSourceID {
+enum ScheduleEventsSourceID {
   fromRegion('US RUSA Region'),
   fromInternationalRegion('International Region'),
   // fromPerm('RUSA Permanent Search'),
   fromURL('Custom Event Data URL');
 
   final String description;
-  const FutureEventsSourceID(this.description);
+  const ScheduleEventsSourceID(this.description);
 
   String toJson() => name;
-  static FutureEventsSourceID fromJson(String json) => values.byName(json);
-  static const FutureEventsSourceID defaultID = FutureEventsSourceID.fromRegion;
+  static ScheduleEventsSourceID fromJson(String json) => values.byName(json);
+  static const ScheduleEventsSourceID defaultID =
+      ScheduleEventsSourceID.fromRegion;
 }
 
-class FutureEventsSource {
-  final FutureEventsSourceID id;
+class ScheduledEventsSource {
+  final ScheduleEventsSourceID id;
   final String url;
 
   String get description => id.description;
@@ -63,59 +64,41 @@ class FutureEventsSource {
   String get subDescription {
     String d;
     switch (id) {
-      case FutureEventsSourceID.fromRegion:
-      case FutureEventsSourceID.fromInternationalRegion:
+      case ScheduleEventsSourceID.fromRegion:
+      case ScheduleEventsSourceID.fromInternationalRegion:
         var rgn = Region.fromSettings();
         d = rgn.regionName;
         break;
-      case FutureEventsSourceID.fromURL:
+      case ScheduleEventsSourceID.fromURL:
         d = "($url)";
         break;
-      // case FutureEventsSourceID.fromPerm:
-      //   d = "($url)";
-      //   break;
     }
     return d;
   }
 
-  factory FutureEventsSource.fromSettingsSourceID() {
-    var sourceID = AppSettings.futureEventsSourceID.value;
+  factory ScheduledEventsSource.fromSettingsSourceID() {
+    var sourceID = AppSettings.scheduleEventsSourceID.value;
     String eventsURL;
     switch (sourceID) {
-      case FutureEventsSourceID.fromRegion:
+      case ScheduleEventsSourceID.fromRegion:
         var rgn = Region.fromSettings();
-        eventsURL = rgn.futureEventsURL;
+        eventsURL = rgn.scheduleEventsURL;
         break;
-      case FutureEventsSourceID.fromInternationalRegion:
+      case ScheduleEventsSourceID.fromInternationalRegion:
         var rgn = Region.fromSettings();
-        eventsURL = rgn.futureEventsURL;
+        eventsURL = rgn.scheduleEventsURL;
         break;
-      // case FutureEventsSourceID.fromPerm:
-      //   var perm = Permanent.fromSettings();
-      //   eventsURL = perm.futureEventsURL;
-      //   break;
-      case FutureEventsSourceID.fromURL:
+      case ScheduleEventsSourceID.fromURL:
         eventsURL = AppSettings.eventInfoURL.value;
         break;
     }
-    return FutureEventsSource(sourceID, eventsURL);
+    return ScheduledEventsSource(sourceID, eventsURL);
   }
 
-  // factory FutureEventsSource.fromSelectedRegion() {
-  //   var rgn = Region.fromSettings();
-  //   var eventsURL = rgn.futureEventsURL;
-  //   return FutureEventsSource(FutureEventsSourceID.fromRegion, eventsURL);
-  // }
+  ScheduledEventsSource(this.id, this.url);
 
-  // factory FutureEventsSource.fromCustomURL() {
-  //   var eventsURL = AppSettings.eventInfoURL;
-  //   return FutureEventsSource(FutureEventsSourceID.fromURL, eventsURL);
-  // }
-
-  FutureEventsSource(this.id, this.url);
-
-  FutureEventsSource.fromJson(Map<String, dynamic> json)
-      : id = FutureEventsSourceID.fromJson(json['id']),
+  ScheduledEventsSource.fromJson(Map<String, dynamic> json)
+      : id = ScheduleEventsSourceID.fromJson(json['id']),
         url = json['url'];
 
   Map<String, dynamic> toJson() => {
@@ -128,28 +111,28 @@ class FutureEventsSource {
 // and provides change notification to anything that cares
 
 class SourceSelection extends ChangeNotifier {
-  FutureEventsSource eventInfoSource;
+  ScheduledEventsSource eventInfoSource;
 
   SourceSelection()
-      : eventInfoSource = FutureEventsSource.fromSettingsSourceID();
+      : eventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
 
   updateFromSettings() {
-    eventInfoSource = FutureEventsSource.fromSettingsSourceID();
+    eventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
     notifyListeners();
   }
 }
 
-class FutureEvents {
+class ScheduledEvents {
   static var events = <Event>[]; // List of events
 
-  static FutureEventsSource?
+  static ScheduledEventsSource?
       eventInfoSource; // where did the above list of events come from
   static const eventInfoSourceFieldName = 'event_info_source';
 
   static DateTime? lastRefreshed; // Time when last refreshed from server
   static const lastRefreshedFieldName = 'last_refreshed';
 
-  static var storedEvents = FileStorage(AppSettings.futureEventsFilename);
+  static var storedEvents = FileStorage(AppSettings.scheduleEventsFilename);
 
   static void clear() {
     events.clear();
@@ -186,11 +169,12 @@ class FutureEvents {
         }
 
         if (eventMapFromFile.containsKey(eventInfoSourceFieldName)) {
-          eventInfoSource = FutureEventsSource.fromJson(
+          eventInfoSource = ScheduledEventsSource.fromJson(
               eventMapFromFile[eventInfoSourceFieldName]);
         } else {
-          eventInfoSource = FutureEventsSource(FutureEventsSourceID.fromRegion,
-              Region.fromSettings().futureEventsURL);
+          eventInfoSource = ScheduledEventsSource(
+              ScheduleEventsSourceID.fromRegion,
+              Region.fromSettings().scheduleEventsURL);
         }
 
         // refreshCount.value++;
@@ -228,12 +212,12 @@ class FutureEvents {
     return bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
   }
 
-  static Future<bool> refreshEventsFromServer(
-      FutureEventsSource futureEventsSource, BuildContext context) async {
+  static Future<bool> refreshScheduledEventsFromServer(
+      ScheduledEventsSource scheduleEventsSource, BuildContext context) async {
     try {
       MyLogger.entry(
-          "Refreshing events from SERVER for ${futureEventsSource.description} with"
-          " URL ${futureEventsSource.url}");
+          "Refreshing events from SERVER for ${scheduleEventsSource.description} with"
+          " URL ${scheduleEventsSource.url}");
 
       // Then try to fetch from the server in background with callback to process
       // Note that we add a nonce to the URL
@@ -242,15 +226,15 @@ class FutureEvents {
       bool authenticating = true;
       String txNonce = 'nononce';
 
-      if (AppSettings.authenticateFutureEvents.value) {
+      if (AppSettings.authenticateEventsData.value) {
         txNonce = generateNonce();
-        sourceURL = "${futureEventsSource.url}/$txNonce";
+        sourceURL = "${scheduleEventsSource.url}/$txNonce";
       } else {
-        sourceURL = futureEventsSource.url;
+        sourceURL = scheduleEventsSource.url;
         authenticating = false;
       }
 
-      var eventMapFromServer = await fetchFutureEventsFromServer(sourceURL);
+      var eventMapFromServer = await fetchScheduledEventsFromServer(sourceURL);
       if (null == eventMapFromServer) return false;
 
       // Verify signature
@@ -278,22 +262,22 @@ class FutureEvents {
       var now = DateTime.now();
       eventMapFromServer[lastRefreshedFieldName] =
           now.toUtc().toIso8601String();
-      eventMapFromServer[eventInfoSourceFieldName] = futureEventsSource;
+      eventMapFromServer[eventInfoSourceFieldName] = scheduleEventsSource;
       var writeStatus = await storedEvents.writeJSON(
           eventMapFromServer); // Save what we just downloaded to disk
       lastRefreshed = now;
-      eventInfoSource = futureEventsSource;
+      eventInfoSource = scheduleEventsSource;
 
       // refreshCount.value++;
       MyLogger.entry("Refresh complete. Write status: $writeStatus");
     } on CueWizardException catch (error) {
       if (context.mounted) {
-        cueWizardErrorDialog(error, futureEventsSource, context);
+        cueWizardErrorDialog(error, scheduleEventsSource, context);
       }
     } catch (error) {
       if (error is IncompatibleVersionException) {
         if (context.mounted) {
-          versionErrorDialog(error, futureEventsSource, context);
+          versionErrorDialog(error, scheduleEventsSource, context);
         }
         events.clear();
       } else {
@@ -307,7 +291,7 @@ class FutureEvents {
   }
 
   static Future<bool?> versionErrorDialog(IncompatibleVersionException error,
-          FutureEventsSource futureEventsSource, BuildContext context) =>
+          ScheduledEventsSource scheduledEventsSource, BuildContext context) =>
       showDialog<bool>(
           context: context,
           builder: (BuildContext ctx) {
@@ -316,7 +300,7 @@ class FutureEvents {
               title: const Text('Incompatible App Version'),
               content: Text(
                   "You have version ${error.actual} of this app installed, "
-                  "but the ${futureEventsSource.fullDescription} event data server requires "
+                  "but the ${scheduledEventsSource.fullDescription} event data server requires "
                   "version ${error.required} or newer. Please update this app to the latest version."),
               actions: [
                 // The "Yes" button
@@ -330,7 +314,7 @@ class FutureEvents {
           });
 
   static Future<bool?> cueWizardErrorDialog(CueWizardException e,
-          FutureEventsSource futureEventsSource, BuildContext context) =>
+          ScheduledEventsSource scheduledEventsSource, BuildContext context) =>
       showDialog<bool>(
           context: context,
           builder: (BuildContext ctx) {
@@ -342,7 +326,7 @@ class FutureEvents {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text("Errors/Warnings found in event data retrieved from "
-                        "the ${futureEventsSource.fullDescription}. "),
+                        "the ${scheduledEventsSource.fullDescription}. "),
                     Text(
                         style: Theme.of(context)
                             .textTheme
@@ -379,8 +363,6 @@ class FutureEvents {
   // But this code still should prune past events that accidentally
   // appear in the future_events download
 
-  static const keepInFutureEventListAfterFinishHours = 12; // hours
-
   static void rebuildEventList(Map eventMap) {
     List el = eventMap['event_list'];
     MyLogger.entry("Start rebuildEventList() from ${el.length} events in Map");
@@ -397,18 +379,19 @@ class FutureEvents {
         continue;
       }
 
-      if (eventToAdd.startTimeWindow.onTime == null) {
+      if (eventToAdd.startDateTime == null) {
         events.add(eventToAdd); // Permanent
       } else {
         var now = DateTime.now();
-        var graceDuration =
-            const Duration(hours: keepInFutureEventListAfterFinishHours);
-        var eventReallyEnds = eventToAdd.latestFinishTime!.add(graceDuration);
-        if (eventReallyEnds.isAfter(now) || AppSettings.loadPastEvents.value) {
+        var yearsDuration =
+            Duration(days: 365 * AppSettings.keepPastEventYears.value);
+        var eventTooOld =
+            eventToAdd.startDateTime!.add(yearsDuration).isBefore(now);
+        if (!eventTooOld) {
           events.add(eventToAdd);
         } else {
           MyLogger.entry(
-              "Ignoring past event ${eventToAdd.name} ${eventToAdd.distance}K on ${eventToAdd.startTimeWindow.onTime.toString()}");
+              "Ignoring very old past event ${eventToAdd.name} ${eventToAdd.distance}K on ${eventToAdd.startTimeWindow.onTime.toString()}");
         }
       }
     }
@@ -441,7 +424,7 @@ class FutureEvents {
     }
   }
 
-  static Future<Map<String, dynamic>?> fetchFutureEventsFromServer(
+  static Future<Map<String, dynamic>?> fetchScheduledEventsFromServer(
       String url) async {
     String responseBody = await fetchResponseFromServer(url);
     Map<String, dynamic> decodedResponse = jsonDecode(responseBody);

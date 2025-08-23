@@ -57,6 +57,22 @@ enum StartStyle {
   get description => _description[this];
 }
 
+enum EventFilter {
+  future,
+  past,
+  permanent,
+  all;
+
+  static Map _description = {
+    future: 'Upcoming Events',
+    past: 'Past Events',
+    permanent: 'Permanents',
+    all: 'All Events',
+  };
+
+  get description => _description[this];
+}
+
 class TimeWindow {
   Duration? early;
   Duration? late;
@@ -251,6 +267,11 @@ class Event {
 
   DateTime? get latestFinishTime => latestStartTime?.add(allowedDuration);
   DateTime? get earliestFinishTime => earliestStartTime?.add(allowedDuration);
+
+  get isFuture {
+    final now = DateTime.now();
+    return finishControlCloseTime.isBefore(now);
+  }
 
   get dateTime {
     if (startTimeWindow.startStyle == StartStyle.permanent ||

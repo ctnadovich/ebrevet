@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-import 'package:ebrevet_card/future_events.dart';
+import 'package:ebrevet_card/scheduled_events.dart';
 import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -63,7 +63,7 @@ class MySetting<T> {
 
   @override
   String toString() {
-    return this.value.toString();
+    return value.toString();
   }
 
   T get value {
@@ -81,9 +81,9 @@ class MySetting<T> {
         return double.parse(s) as T;
       } else if (T == Color) {
         return Utility.hexToColor(s) as T;
-      } else if (T == FutureEventsSourceID) {
+      } else if (T == ScheduleEventsSourceID) {
         var i = int.parse(s);
-        return FutureEventsSourceID.values[i] as T;
+        return ScheduleEventsSourceID.values[i] as T;
       } else {
         throw TypeError();
       }
@@ -118,14 +118,14 @@ class MySetting<T> {
 
   setValue(T val) async {
     String s;
-    if (this.defaultValue is Enum) {
+    if (defaultValue is Enum) {
       s = (val as Enum).index.toString();
     } else {
       s = val.toString();
     }
     MyLogger.entry('Setting $key to $s');
     await prefs.setString(key, s);
-    this.onChanged?.call();
+    onChanged?.call();
   }
 
   setValueFromString(String val) async {
