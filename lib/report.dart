@@ -17,6 +17,7 @@
 import 'package:ebrevet_card/exception.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 
 import 'control.dart';
 import 'snackbarglobal.dart';
@@ -30,6 +31,7 @@ import 'signature.dart';
 class Report {
   static late ActivatedEvent _reportingEvent;
   static String? reportURL;
+  static DateTime? lastSuccessfulServerAccess;
 
   static void constructReportAndSend(
     ActivatedEvent pe, {
@@ -44,6 +46,7 @@ class Report {
 
     _sendReportToServer(report).then((response) {
       _recordReportResponse(response);
+      lastSuccessfulServerAccess = DateTime.now();
       onUploadDone?.call();
     }).catchError((e) {
       if (e is NoPreviousDataException) {
@@ -165,5 +168,29 @@ class Report {
       },
       body: reportJSON,
     );
+  }
+
+  static Future<String> fetchResponseFromServer(String url) async {
+    MyLogger.entry('Fetching data from $url');
+    http.Response? response;
+
+    try {
+      response = await http
+          .get(Uri.parse(url))
+          .timeout(const Duration(seconds: AppSettings.httpGetTimeoutSeconds));
+    } on TimeoutException {
+      throw ServerException(
+          'No response from $url after (${AppSettings.httpGetTimeoutSeconds} sec timeout).');
+    } catch (e) {
+      throw NoInternetException('Network error: $e');
+    }
+
+    if (response.statusCode != 200) {
+      throw ServerException(
+          'Error response from $url (Status Code: ${response.statusCode})');
+    } else {
+      lastSuccessfulServerAccess = DateTime.now();
+      return (response.body);
+    }
   }
 }

@@ -47,6 +47,7 @@ dependencies:
   share_plus: ^7.0.1
   upgrader: ^6.5.0
   win32: ^5.5.3
+  another_flushbar: ^1.12.30
 
 
   # The following adds the Cupertino Icons font to your application.

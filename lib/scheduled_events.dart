@@ -27,7 +27,7 @@ import 'exception.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
 import 'region.dart';
-import 'network_helpers.dart';
+import 'report.dart';
 // import 'permanent.dart';
 
 // import 'current.dart';
@@ -408,7 +408,7 @@ class ScheduledEvents {
 
   static Future<Map<String, dynamic>?> fetchScheduledEventsFromServer(
       String url) async {
-    String responseBody = await fetchResponseFromServer(url);
+    String responseBody = await Report.fetchResponseFromServer(url);
     Map<String, dynamic> decodedResponse = jsonDecode(responseBody);
 
     if (decodedResponse is List && decodedResponse.isEmpty) {
