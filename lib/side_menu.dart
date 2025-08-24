@@ -145,7 +145,7 @@ class SideMenuDrawer extends StatelessWidget {
             height: 16,
           ),
           const Text(
-            'An electronic brevet card application for Electronic Proof of Passage in Randonneuring.',
+            'A self-auditing electronic brevet card for Randonneuring.',
             textAlign: TextAlign.center,
           ),
           InkWell(
