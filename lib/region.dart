@@ -103,8 +103,8 @@ class Region {
   // getters that add ebrevet function suffixes and
   // regionID parameter
 
-  String get scheduleEventsURL =>
-      "$_ebrevetServerURL/future_events/${regionID.toString()}";
+  String get scheduledEventsURL =>
+      "$_ebrevetServerURL/scheduled_events/${regionID.toString()}";
 
   // This should be overriden by checkin_post_url from future_events data
 

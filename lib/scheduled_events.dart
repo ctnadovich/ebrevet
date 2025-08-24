@@ -82,11 +82,11 @@ class ScheduledEventsSource {
     switch (sourceID) {
       case ScheduleEventsSourceID.fromRegion:
         var rgn = Region.fromSettings();
-        eventsURL = rgn.scheduleEventsURL;
+        eventsURL = rgn.scheduledEventsURL;
         break;
       case ScheduleEventsSourceID.fromInternationalRegion:
         var rgn = Region.fromSettings();
-        eventsURL = rgn.scheduleEventsURL;
+        eventsURL = rgn.scheduledEventsURL;
         break;
       case ScheduleEventsSourceID.fromURL:
         eventsURL = AppSettings.eventInfoURL.value;
@@ -180,7 +180,7 @@ class ScheduledEvents {
         } else {
           eventInfoSource = ScheduledEventsSource(
               ScheduleEventsSourceID.fromRegion,
-              Region.fromSettings().scheduleEventsURL);
+              Region.fromSettings().scheduledEventsURL);
         }
 
         // refreshCount.value++;
