@@ -14,11 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-// import 'package:flutter/material.dart';
-// import 'package:ebrevet_card/report.dart';
-// import 'package:ebrevet_card/my_settings.dart';
-// import 'package:ebrevet_card/my_settings.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:math';
@@ -32,6 +27,7 @@ import 'exception.dart';
 import 'app_settings.dart';
 import 'mylogger.dart';
 import 'region.dart';
+import 'network_helpers.dart';
 // import 'permanent.dart';
 
 // import 'current.dart';
@@ -408,29 +404,6 @@ class ScheduledEvents {
     // rider = r;
     var n = events.length;
     MyLogger.entry("Event List rebuilt with $n events.");
-  }
-
-  static Future<String> fetchResponseFromServer(String url) async {
-    MyLogger.entry('Fetching data from $url');
-    http.Response? response;
-
-    try {
-      response = await http
-          .get(Uri.parse(url))
-          .timeout(const Duration(seconds: AppSettings.httpGetTimeoutSeconds));
-    } on TimeoutException {
-      throw ServerException(
-          'No response from $url after (${AppSettings.httpGetTimeoutSeconds} sec timeout).');
-    } catch (e) {
-      throw NoInternetException('Network error: $e');
-    }
-
-    if (response.statusCode != 200) {
-      throw ServerException(
-          'Error response from $url (Status Code: ${response.statusCode})');
-    } else {
-      return (response.body);
-    }
   }
 
   static Future<Map<String, dynamic>?> fetchScheduledEventsFromServer(
