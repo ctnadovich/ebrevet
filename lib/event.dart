@@ -58,36 +58,63 @@ enum StartStyle {
 }
 
 enum EventFilter {
-  future(
-    description: 'Upcoming Events',
-    predicate: (Event? e) =>
-        e != null &&
-        e.latestFinishTime
-            .add(Duration(
-                hours: AppSettings.keepInFutureEventListAfterFinishHours))
-            .isAfter(DateTime.now()),
-  ),
-  past(
-    description: 'Past Events',
-    predicate: (Event? e) =>
-        e != null && e.startDateTime.isBefore(DateTime.now()),
-  ),
-  permanent(
-    description: 'Permanents',
-    predicate: (Event? e) => e == null,
-  ),
-  all(
-    description: 'All Events',
-    predicate: (Event? e) => true,
-  );
+  future,
+  past,
+  permanent,
+  all;
 
-  final String description;
-  final bool Function(Event?) predicate;
+  static const _description = {
+    EventFilter.future: 'Upcoming Events',
+    EventFilter.past: 'Past Events',
+    EventFilter.permanent: 'Permanents',
+    EventFilter.all: 'All Events',
+  };
 
-  const EventFilter({
-    required this.description,
-    required this.predicate,
-  });
+  String get description => _description[this]!;
+}
+
+extension EventFilterX on EventFilter {
+  // Filtering
+  bool apply(Event e) {
+    final now = DateTime.now();
+    switch (this) {
+      case EventFilter.future:
+        return e.startDateTime != null &&
+            e.latestFinishTime!.add(const Duration(hours: 12)).isAfter(now);
+      case EventFilter.past:
+        return e.startDateTime != null && e.startDateTime!.isBefore(now);
+      case EventFilter.permanent:
+        return e.startDateTime == null;
+      case EventFilter.all:
+        return true;
+    }
+  }
+
+  // Sorting
+  int compare(Event a, Event b) {
+    switch (this) {
+      case EventFilter.future:
+        // Ascending by startDateTime; nulls last (shouldn’t occur after apply, but safe)
+        final aStart = a.startDateTime, bStart = b.startDateTime;
+        if (aStart == null && bStart == null) return 0;
+        if (aStart == null) return 1;
+        if (bStart == null) return -1;
+        return aStart.compareTo(bStart);
+
+      case EventFilter.past:
+        // Descending by startDateTime; nulls last
+        final aStart = a.startDateTime, bStart = b.startDateTime;
+        if (aStart == null && bStart == null) return 0;
+        if (aStart == null) return 1;
+        if (bStart == null) return -1;
+        return bStart.compareTo(aStart);
+
+      case EventFilter.permanent:
+      case EventFilter.all:
+        // Alphabetical by name
+        return a.name.compareTo(b.name);
+    }
+  }
 }
 
 class TimeWindow {

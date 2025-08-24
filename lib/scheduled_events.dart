@@ -126,7 +126,9 @@ class ScheduledEvents {
   static var events = <Event>[]; // List of ALL events that have been loaded
 
   static List<Event> getFilteredEvents(EventFilter filter) {
-    return events.where(filter.predicate).toList();
+    final result = events.where((e) => filter.apply(e)).toList();
+    result.sort(filter.compare);
+    return result;
   }
 
   static ScheduledEventsSource?
@@ -259,7 +261,7 @@ class ScheduledEvents {
 
       if (authenticating) {
         MyLogger.entry(
-            'Received future_events map for Nonce="$rxNonce"; with valid Signature="$rxSignature"');
+            'Received scheduled events map for Nonce="$rxNonce"; with valid Signature="$rxSignature"');
       }
 
       rebuildEventList(eventMapFromServer);
@@ -357,15 +359,17 @@ class ScheduledEvents {
             );
           });
 
-  // The first event in the "future events" list needs to be available sufficiently after start time
-  // or the event ends.  We don't want it to "disappear" before we are done with it should
-  // a user refresh events from the server. Certainly riders need
-  // to be able to see events after they are done. And restarting the app should not lose
-  // the last events download.
+  // Behavior assumed for the server is that it will send all future events
+  // and some number of past events -- perhaps back a year, or at least
+  // several months.  We will put all these events into our list unless they
+  // are too old (set by AppSettings.keepPastEventMonths.value) which
+  // should be set similarly to the server
 
-  // Need belt and suspenders here -- the SQL should only send future events,
-  // But this code still should prune past events that accidentally
-  // appear in the future_events download
+  // the getFilteredEvents() method, above,  will take care of filtering
+  // out past or future events.
+
+  // the preferred URL for this will be 'ebrevet/scheduled_events' with
+  // the previous 'ebrevet/future_events' depreciated.
 
   static void rebuildEventList(Map eventMap) {
     List el = eventMap['event_list'];
@@ -387,15 +391,16 @@ class ScheduledEvents {
         events.add(eventToAdd); // Permanent
       } else {
         var now = DateTime.now();
-        var yearsDuration =
-            Duration(days: 365 * AppSettings.keepPastEventYears.value);
+        var months = AppSettings.keepPastEventMonths.value;
+        var days = ((365.25 / 12.0) * months).round();
+        var yearsDuration = Duration(days: days);
         var eventTooOld =
             eventToAdd.startDateTime!.add(yearsDuration).isBefore(now);
         if (!eventTooOld) {
           events.add(eventToAdd);
         } else {
           MyLogger.entry(
-              "Ignoring very old past event ${eventToAdd.name} ${eventToAdd.distance}K on ${eventToAdd.startTimeWindow.onTime.toString()}");
+              "Ignoring past event older than $months months:  ${eventToAdd.name} ${eventToAdd.distance}K on ${eventToAdd.startTimeWindow.onTime.toString()}");
         }
       }
     }

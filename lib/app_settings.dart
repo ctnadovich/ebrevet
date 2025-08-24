@@ -192,12 +192,12 @@ class AppSettings {
     icon: const Icon(Icons.timer),
   );
 
-  static MySetting<int> keepPastEventYears = MySetting(
-    key: 'key-keep-past-event-years',
-    defaultValue: 1,
-    title: 'Years of Past Events to load',
+  static MySetting<int> keepPastEventMonths = MySetting(
+    key: 'key-keep-past-event-months',
+    defaultValue: 12,
+    title: 'Months of Past Events to load',
     validator: intValidator,
-    icon: const Icon(Icons.radar),
+    icon: const Icon(Icons.calendar_month),
   );
 
   static MySetting<bool> openTimeOverride = MySetting(
