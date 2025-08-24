@@ -501,7 +501,7 @@ class _ControlCardState extends State<ControlCard> {
     final checkInDateTime =
         activeEvent.outcomes.getControlCheckInTime(control.index);
     final checkInTimeString = Utility.toBriefDateTimeString(checkInDateTime);
-    SnackbarGlobal.show(
+    FlushbarGlobal.show(
         "Checked into Control ${control.index + 1} at $checkInTimeString");
   }
 

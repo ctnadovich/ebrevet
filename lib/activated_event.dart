@@ -125,19 +125,23 @@ class ActivatedEvent {
     if (isFinishControl(control)) {
       if (areAllChecked() && isAllCheckedInOrder() && wereNoLateCheckIns()) {
         outcomes.overallOutcome = OverallOutcome.finish;
-        SnackbarGlobal.show(
+        FlushbarGlobal.show(
             'Congratulations! You have finished the ${_event.nameDist}. Your '
-            'elapsed time: $elapsedTimeString');
+            'elapsed time: $elapsedTimeString',
+            style: FlushbarStyle.success);
       } else if (areAllChecked() && !isAllCheckedInOrder()) {
         outcomes.overallOutcome = OverallOutcome.dnqScrambled;
-        SnackbarGlobal.show('Controls checked in wrong order!');
+        FlushbarGlobal.show('Controls checked in wrong order!',
+            style: FlushbarStyle.error);
       } else if (areAllChecked() && !wereNoLateCheckIns()) {
         outcomes.overallOutcome = OverallOutcome.dnqLateCheckIn;
-        SnackbarGlobal.show('Checked in LATE to one or more controls!');
+        FlushbarGlobal.show('Checked in LATE to one or more controls!',
+            style: FlushbarStyle.error);
       } else {
         outcomes.overallOutcome = OverallOutcome.dnqSkipped;
-        SnackbarGlobal.show(
-            'Failed to check into one or more intermediate controls!');
+        FlushbarGlobal.show(
+            'Failed to check into one or more intermediate controls!',
+            style: FlushbarStyle.error);
       }
     }
 

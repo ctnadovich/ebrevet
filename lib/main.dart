@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
     return Consumer<DayNight>(builder: (context, dayNight, child) {
       return MaterialApp(
 //        scaffoldMessengerKey: OldSnackbarGlobal.key,  // to be deleted
-        navigatorKey: SnackbarGlobal.navigatorKey,
+        navigatorKey: FlushbarGlobal.navigatorKey,
         title: 'eBrevet Card',
         debugShowCheckedModeBanner: false,
         theme: dayNight.dayTheme,

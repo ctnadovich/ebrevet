@@ -283,7 +283,7 @@ class ScheduledEvents {
         }
         events.clear();
       } else {
-        SnackbarGlobal.show(error.toString());
+        FlushbarGlobal.show(error.toString(), style: FlushbarStyle.error);
       }
       MyLogger.entry("Error refreshing events: $error");
 

@@ -101,7 +101,7 @@ class Control {
       valid = true;
     } catch (error) {
       var etxt = "Error converting JSON response control map: $error";
-      SnackbarGlobal.show(etxt);
+      FlushbarGlobal.show(etxt, style: FlushbarStyle.error);
     }
   }
 

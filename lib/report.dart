@@ -50,10 +50,13 @@ class Report {
       onUploadDone?.call();
     }).catchError((e) {
       if (e is NoPreviousDataException) {
-        SnackbarGlobal.show("Invalid event data: ${e.toString()}");
+        FlushbarGlobal.show("Invalid event data: ${e.toString()}",
+            style: FlushbarStyle.error);
       } else {
-        SnackbarGlobal.show("No Internet. "
-            "Cannot upload results now. Try later.");
+        FlushbarGlobal.show(
+            "No Internet. "
+            "Cannot upload results now. Try later.",
+            style: FlushbarStyle.error);
       }
 
       // Save the event history even if the upload was unsuccessful.
@@ -87,7 +90,8 @@ class Report {
       result = ('Check in data successfully uploaded to server.');
       // SnackbarGlobal.show(result);
     } else {
-      SnackbarGlobal.show("Failed to upload checkin: $result");
+      FlushbarGlobal.show("Failed to upload checkin: $result",
+          style: FlushbarStyle.error);
     }
 
     // It may seem excessive to save the whole event history

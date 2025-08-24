@@ -56,6 +56,9 @@ import 'package:another_flushbar/flushbar.dart';
 /// Enhanced enum with all style info per type.
 enum FlushbarStyle {
   info(),
+  success(
+    icon: Icons.emoji_events,
+  ),
   comment(
     position: FlushbarPosition.TOP,
     icon: Icons.comment,
@@ -85,7 +88,7 @@ class _FlushbarEntry {
   _FlushbarEntry({required this.message, required this.style});
 }
 
-class SnackbarGlobal {
+class FlushbarGlobal {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
 

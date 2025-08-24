@@ -211,7 +211,7 @@ class _LatestEventListState extends State<LatestEventList> {
           ),
           ElevatedButton.icon(
             onPressed: () {
-              SnackbarGlobal.show(
+              FlushbarGlobal.show(
                   'Updating events for ${sourceSelection.eventInfoSource.fullDescription}... (This may take a few seconds.)');
               setState(() {
                 fetchingFromServerNow = true;

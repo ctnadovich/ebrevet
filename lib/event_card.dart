@@ -256,7 +256,8 @@ class _EventCardState extends State<EventCard> {
       // ),
       onPressed: () async {
         if (AppSettings.isRusaIDSet == false) {
-          SnackbarGlobal.show("Can't RIDE. Rider ID not set.");
+          FlushbarGlobal.show("Can't RIDE. Rider ID not set.",
+              style: FlushbarStyle.error);
         } else {
           // If we did not (yet) start, then validate start.
 
@@ -267,7 +268,7 @@ class _EventCardState extends State<EventCard> {
               if (msg.contains(invalidCodeText)) {
                 await invalidStartCodeDialog(event, msg);
               } else {
-                SnackbarGlobal.show(msg);
+                FlushbarGlobal.show(msg);
               }
               return;
             }
@@ -284,12 +285,14 @@ class _EventCardState extends State<EventCard> {
             } else {
               // Starting event (unless not allowed)
               if (isPreride && !event.isPreridable) {
-                SnackbarGlobal.show("Can't Pre Ride now.");
+                FlushbarGlobal.show("Can't Pre Ride now.",
+                    style: FlushbarStyle.error);
                 return;
               }
 
               if (!isPreride && !event.isStartable) {
-                SnackbarGlobal.show("Can't start now.");
+                FlushbarGlobal.show("Can't start now.",
+                    style: FlushbarStyle.error);
                 return;
               }
 
@@ -318,7 +321,7 @@ class _EventCardState extends State<EventCard> {
                         checkInTime: event
                             .startTimeWindow.onTime, // check in time override
                       )
-                      .then((foo) => SnackbarGlobal.show(
+                      .then((foo) => FlushbarGlobal.show(
                           "Mass Start Control Check In at "
                           "${Utility.toBriefTimeString(event.startTimeWindow.onTime!.toLocal())}"));
                   break;
@@ -337,7 +340,7 @@ class _EventCardState extends State<EventCard> {
                                 "${pastEvent!.startStyle.description}. Automatic Check In",
                             controlState: controlState,
                           )
-                          .then((foo) => SnackbarGlobal.show(
+                          .then((foo) => FlushbarGlobal.show(
                               "Automatic Start Control Check In at "
                               "${Utility.toBriefTimeString(event.startTimeWindow.onTime!.toLocal())}"));
                     }
@@ -481,7 +484,7 @@ class _EventCardState extends State<EventCard> {
               cueVersion: cueVersion)
           .xyText;
       if (offeredCode == oldCode) {
-        SnackbarGlobal.show("Start Code from OLD cue version.");
+        FlushbarGlobal.show("Start Code from OLD cue version.");
         return null;
       }
       cueVersion--;
