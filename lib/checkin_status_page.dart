@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'checkin_status_rider.dart';
 import 'checkin_status_timed.dart';
 import 'event.dart';
-import 'network_helpers.dart';
+import 'report.dart';
 import 'exception.dart';
 import 'event_header_card.dart';
 
@@ -31,7 +31,7 @@ class _CheckinStatusPageState extends State<CheckinStatusPage>
   Future<List<dynamic>> _fetchCheckinData(Event event) async {
     String url = "${event.checkinStatusUrl}/json";
 
-    String responseBody = await fetchResponseFromServer(url);
+    String responseBody = await Report.fetchResponseFromServer(url);
     List<dynamic> decodedResponse = jsonDecode(responseBody);
 
     if (decodedResponse.isEmpty) {
