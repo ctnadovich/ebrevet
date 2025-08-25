@@ -49,6 +49,7 @@ dependencies:
   win32: ^5.5.3
   another_flushbar: ^1.12.30
   confetti: ^0.7.0
+  shimmer: ^3.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
