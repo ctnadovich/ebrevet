@@ -21,7 +21,7 @@ import 'app_settings.dart';
 import 'snackbarglobal.dart';
 import 'report.dart';
 import 'control_state.dart';
-import 'event_history.dart';
+import 'my_activated_events.dart';
 import 'signature.dart';
 import 'exception.dart';
 import 'dart:convert';
@@ -82,7 +82,8 @@ class ActivatedEvent {
     var eventID = _event.eventID;
     var now = checkInTime?.toUtc() ?? DateTime.now().toUtc();
 
-    ActivatedEvent? thisActiveEvent = EventHistory.lookupPastEvent(eventID);
+    ActivatedEvent? thisActiveEvent =
+        MyActivatedEvents.lookupMyActivatedEvent(eventID);
 
     // if (true) {
     //   return "Testing Failed Check-in. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ";
@@ -148,7 +149,7 @@ class ActivatedEvent {
 
     // Commit the check-in locally
 
-    var status = await EventHistory.save();
+    var status = await MyActivatedEvents.save();
     if (status == false) {
       return 'Check-in failed -- Problem saving check-in to local storage.';
     }
@@ -160,7 +161,7 @@ class ActivatedEvent {
 
     Report.constructReportAndSend(this, control: control, comment: comment,
         onUploadDone: () async {
-      var status = await EventHistory.save();
+      var status = await MyActivatedEvents.save();
       if (status == false) {
         return 'Failed to save check-in again after sending report.';
       }

@@ -16,7 +16,7 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:ebrevet_card/event_history.dart';
+import 'package:ebrevet_card/my_activated_events.dart';
 import 'package:ebrevet_card/app_settings.dart';
 import 'package:provider/provider.dart';
 
@@ -74,7 +74,7 @@ Future<void> initSettings() async {
   //     quiet: true); // will update disk if successful
 
   await ScheduledEvents.refreshEventsFromDisk();
-  await EventHistory.load();
+  await MyActivatedEvents.load();
 
   MyLogger.entry('...Init settings end');
 }

@@ -25,7 +25,7 @@ import 'event.dart';
 import 'outcome.dart';
 import 'activated_event_view_page.dart';
 import 'region.dart';
-import 'event_history.dart';
+import 'my_activated_events.dart';
 import 'activated_event.dart';
 import 'signature.dart';
 import 'app_settings.dart';
@@ -68,7 +68,7 @@ class _EventCardState extends State<EventCard> {
     final event = widget.event;
 
     final regionName = Region(regionID: event.regionID).clubName;
-    final pe = EventHistory.lookupPastEvent(event.eventID);
+    final pe = MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
     final OverallOutcome overallOutcomeInHistory =
         pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
     final String overallOutcomeDescriptionInHistory =
@@ -139,7 +139,8 @@ class _EventCardState extends State<EventCard> {
                     : null,
               ),
               if (overallOutcomeInHistory == OverallOutcome.finish)
-                Text(" ${EventHistory.getElapsedTimeString(event.eventID)}"),
+                Text(
+                    " ${MyActivatedEvents.getElapsedTimeString(event.eventID)}"),
               if (overallOutcomeInHistory == OverallOutcome.active)
                 IconButton(
                   onPressed: () {
@@ -147,7 +148,7 @@ class _EventCardState extends State<EventCard> {
                       pe!.overallOutcome = OverallOutcome.dnf;
                       // pe can't be null because overallOutcomeInHistory wasn't unknown
                     });
-                    EventHistory.save().then((status) {
+                    MyActivatedEvents.save().then((status) {
                       if (status == false) {
                         MyLogger.entry('Problem saving.');
                       }
@@ -202,7 +203,7 @@ class _EventCardState extends State<EventCard> {
                 TextButton(
                     onPressed: () {
                       // Remove the box
-                      EventHistory.deletePastEvent(pe);
+                      MyActivatedEvents.deleteMyActivatedEvent(pe);
 
                       // Close the dialog
                       Navigator.of(context).pop(true);
@@ -280,7 +281,7 @@ class _EventCardState extends State<EventCard> {
             if (pastEvent != null) {
               // Restarting event (unless DNQ)
               if (false == overallOutcomeInHistory.isDNQ) {
-                EventHistory.addActivate(event); // re-activate
+                MyActivatedEvents.addActivate(event); // re-activate
               }
             } else {
               // Starting event (unless not allowed)
@@ -296,7 +297,7 @@ class _EventCardState extends State<EventCard> {
                 return;
               }
 
-              pastEvent = EventHistory.addActivate(widget.event,
+              pastEvent = MyActivatedEvents.addActivate(widget.event,
                   riderID: AppSettings.rusaID.value,
                   startStyle: isPreride
                       ? StartStyle.preRide
@@ -353,7 +354,7 @@ class _EventCardState extends State<EventCard> {
 
             // need to save EventHistory now
 
-            EventHistory.save().then((status) {
+            MyActivatedEvents.save().then((status) {
               if (status == false) {
                 MyLogger.entry('Problem saving after activation.');
               }

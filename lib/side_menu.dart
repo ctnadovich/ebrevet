@@ -16,7 +16,7 @@
 
 // import 'package:ebrevet_card/mylogger.dart';
 import 'package:ebrevet_card/event.dart';
-import 'package:ebrevet_card/my_activated_events.dart';
+import 'package:ebrevet_card/my_activated_events_page.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 

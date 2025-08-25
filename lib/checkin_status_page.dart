@@ -4,14 +4,15 @@ import 'checkin_status_timed.dart';
 import 'event.dart';
 import 'event_header_card.dart';
 import 'activated_event.dart';
-import 'event_history.dart';
+import 'my_activated_events.dart';
 
 class CheckinStatusPage extends StatefulWidget {
   final Event event;
   final ActivatedEvent? activatedEvent;
 
   CheckinStatusPage({super.key, required this.event})
-      : activatedEvent = EventHistory.lookupPastEvent(event.eventID);
+      : activatedEvent =
+            MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
 
   @override
   State<CheckinStatusPage> createState() => _CheckinStatusPageState();
