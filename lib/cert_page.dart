@@ -189,13 +189,23 @@ class _CertificatePageState extends State<CertificatePage> {
 
                               const SizedBox(height: 4),
                               const Text('The Randonneur', style: emStyle),
-                              Text(AppSettings.fullName, style: titleMedium),
+                              Text(
+                                AppSettings.fullName,
+                                style: titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
                               Text('RUSA ID ${pastEvent.riderID}',
                                   style: titleSmall),
                               const SizedBox(height: 4),
                               const Text('Completed the', style: emStyle),
                               Text(event.region.regionName, style: titleMedium),
-                              Text('${event.nameDist}', style: titleLarge),
+                              Text(
+                                '${event.nameDist}',
+                                style:
+                                    titleLarge, // whatever style you already have
+                              ),
                               Text(
                                 '${event.eventSanction} ${event.eventType[0].toUpperCase()}${event.eventType.substring(1).toLowerCase()}',
                                 style: titleMedium,
