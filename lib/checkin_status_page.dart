@@ -1,16 +1,17 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'checkin_status_rider.dart';
 import 'checkin_status_timed.dart';
 import 'event.dart';
-import 'report.dart';
-import 'exception.dart';
 import 'event_header_card.dart';
+import 'activated_event.dart';
+import 'event_history.dart';
 
 class CheckinStatusPage extends StatefulWidget {
   final Event event;
+  final ActivatedEvent? activatedEvent;
 
-  const CheckinStatusPage({super.key, required this.event});
+  CheckinStatusPage({super.key, required this.event})
+      : activatedEvent = EventHistory.lookupPastEvent(event.eventID);
 
   @override
   State<CheckinStatusPage> createState() => _CheckinStatusPageState();
@@ -25,20 +26,8 @@ class _CheckinStatusPageState extends State<CheckinStatusPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _ridersFuture = _fetchCheckinData(widget.event);
-  }
-
-  Future<List<dynamic>> _fetchCheckinData(Event event) async {
-    String url = "${event.checkinStatusUrl}/json";
-
-    String responseBody = await Report.fetchResponseFromServer(url);
-    List<dynamic> decodedResponse = jsonDecode(responseBody);
-
-    if (decodedResponse.isEmpty) {
-      throw ServerException('Empty reponse from $url');
-    }
-
-    return decodedResponse;
+    _ridersFuture = widget.activatedEvent?.fetchCheckinData() ??
+        Future.value([]); // fallback if not activated
   }
 
   @override
@@ -49,91 +38,108 @@ class _CheckinStatusPageState extends State<CheckinStatusPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    ActivatedEvent? activatedEvent = widget.activatedEvent;
+    if (activatedEvent == null) {
+      return Scaffold(
         appBar: AppBar(
-          title: const Text("Check-ins"),
+          title: Text(widget.event.name),
         ),
-        body: Column(
-          children: [
-            EventHeaderCard(event: widget.event),
-            Material(
-              color: Theme.of(context).colorScheme.surface,
-              child: TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(icon: Icon(Icons.people), text: "By Rider"),
-                  Tab(icon: Icon(Icons.history), text: "By Time"),
-                ],
+        body: const Center(
+          child: Text(
+            "This event has not been activated yet. No check-ins available.",
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    } else {
+      final Event event = activatedEvent.event;
+      return Scaffold(
+          appBar: AppBar(
+            title: const Text("Check-ins"),
+          ),
+          body: Column(
+            children: [
+              EventHeaderCard(event: event),
+              Material(
+                color: Theme.of(context).colorScheme.surface,
+                child: TabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    Tab(icon: Icon(Icons.people), text: "By Rider"),
+                    Tab(icon: Icon(Icons.history), text: "By Time"),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: FutureBuilder<List<dynamic>>(
-                future: _ridersFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Card(
-                        margin: const EdgeInsets.all(16),
-                        color: Colors.red.shade50,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.error_outline,
-                                  color: Colors.red, size: 48),
-                              const SizedBox(height: 12),
-                              Text(
-                                "Something went wrong",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(
-                                      color: Colors.red.shade700,
-                                    ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                snapshot.error.toString(),
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              const SizedBox(height: 12),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  setState(() {
-                                    _ridersFuture = _fetchCheckinData(widget
-                                        .event); // whatever your reload is
-                                  });
-                                },
-                                icon: const Icon(Icons.refresh),
-                                label: const Text("Retry"),
-                              ),
-                            ],
+              Expanded(
+                child: FutureBuilder<List<dynamic>>(
+                  future: _ridersFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Card(
+                          margin: const EdgeInsets.all(16),
+                          color: Colors.red.shade50,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.error_outline,
+                                    color: Colors.red, size: 48),
+                                const SizedBox(height: 12),
+                                Text(
+                                  "Something went wrong",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        color: Colors.red.shade700,
+                                      ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  snapshot.error.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                const SizedBox(height: 12),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      _ridersFuture = activatedEvent
+                                          .fetchCheckinData(); // whatever your reload is
+                                    });
+                                  },
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text("Retry"),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                          child: Text("No check-ins available"));
+                    }
+
+                    final riders = snapshot.data!;
+
+                    return TabBarView(
+                      controller: _tabController,
+                      children: [
+                        RiderCheckinStatus(event: event, riders: riders),
+                        ChronologicalCheckinStatus(
+                            event: event, riders: riders),
+                      ],
                     );
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Center(child: Text("No check-ins available"));
-                  }
-
-                  final riders = snapshot.data!;
-
-                  return TabBarView(
-                    controller: _tabController,
-                    children: [
-                      RiderCheckinStatus(event: widget.event, riders: riders),
-                      ChronologicalCheckinStatus(
-                          event: widget.event, riders: riders),
-                    ],
-                  );
-                },
+                  },
+                ),
               ),
-            ),
-          ],
-        ));
+            ],
+          ));
+    }
   }
 }

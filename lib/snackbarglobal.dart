@@ -17,6 +17,7 @@
 import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:confetti/confetti.dart';
 
 // class OldSnackbarGlobal {
 //   static GlobalKey<ScaffoldMessengerState> key =
@@ -108,25 +109,64 @@ class FlushbarGlobal {
     if (context == null) {
       MyLogger.entry('No Context; Navigator not ready');
       return;
-    } // Navigator not ready yet.
+    }
 
     final theme = Theme.of(context);
-    final textStyle = theme.textTheme.titleLarge
-        ?.copyWith(color: theme.colorScheme.onSecondary);
-    final backgroundColor = Theme.of(context).colorScheme.secondary;
-
     final entry = _queue.removeAt(0);
     _isShowing = true;
 
-    Flushbar(
-      // message: entry.message,
-      messageText: Text(
+    // Base text style
+    final textStyle = theme.textTheme.titleLarge
+        ?.copyWith(color: theme.colorScheme.onSecondary);
+
+    // Base background color
+    final backgroundColor = theme.colorScheme.secondary;
+
+    // Confetti controller for success
+    ConfettiController? confettiController;
+    Widget? flushbarContent;
+
+    if (entry.style == FlushbarStyle.success) {
+      confettiController =
+          ConfettiController(duration: const Duration(seconds: 1));
+      confettiController.play();
+
+      flushbarContent = Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(
+            entry.message,
+            style: textStyle,
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          ConfettiWidget(
+            confettiController: confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            shouldLoop: false,
+            colors: const [
+              Colors.green,
+              Colors.blue,
+              Colors.orange,
+              Colors.purple,
+              Colors.yellow
+            ],
+          ),
+        ],
+      );
+    } else {
+      flushbarContent = Text(
         entry.message,
         style: textStyle,
         textAlign: TextAlign.center,
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
-      ),
+      );
+    }
+
+    Flushbar(
+      messageText: flushbarContent,
       backgroundColor: backgroundColor,
       icon: Icon(
         entry.style.icon,
@@ -141,6 +181,7 @@ class FlushbarGlobal {
       reverseAnimationCurve: Curves.easeIn,
     ).show(context).then((_) {
       _isShowing = false;
+      confettiController?.dispose();
       _tryShowNext(); // Show next in queue if any
     });
   }

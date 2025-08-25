@@ -212,7 +212,8 @@ class _LatestEventListState extends State<LatestEventList> {
           ElevatedButton.icon(
             onPressed: () {
               FlushbarGlobal.show(
-                  'Updating events for ${sourceSelection.eventInfoSource.fullDescription}... (This may take a few seconds.)');
+                  'Updating events for ${sourceSelection.eventInfoSource.fullDescription}... (This may take a few seconds.)',
+                  style: FlushbarStyle.info);
               setState(() {
                 fetchingFromServerNow = true;
               });

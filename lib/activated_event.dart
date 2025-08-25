@@ -23,7 +23,8 @@ import 'report.dart';
 import 'control_state.dart';
 import 'event_history.dart';
 import 'signature.dart';
-
+import 'exception.dart';
+import 'dart:convert';
 import 'mylogger.dart';
 
 // ActivatedEvent s are events with outcomes
@@ -168,6 +169,19 @@ class ActivatedEvent {
     });
 
     return null;
+  }
+
+  Future<List<dynamic>> fetchCheckinData() async {
+    String url = "${event.checkinStatusUrl}/json";
+
+    String responseBody = await Report.fetchResponseFromServer(url);
+    List<dynamic> decodedResponse = jsonDecode(responseBody);
+
+    if (decodedResponse.isEmpty) {
+      throw ServerException('Empty reponse from $url');
+    }
+
+    return decodedResponse;
   }
 
   String makeCheckInSignature(Control ctrl) =>
