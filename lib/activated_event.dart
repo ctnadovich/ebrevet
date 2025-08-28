@@ -26,6 +26,7 @@ import 'signature.dart';
 import 'exception.dart';
 import 'dart:convert';
 import 'mylogger.dart';
+import 'checkin.dart';
 
 // ActivatedEvent s are events with outcomes
 // when a plain Event is "activated" it becomes
@@ -172,17 +173,31 @@ class ActivatedEvent {
     return null;
   }
 
-  Future<List<dynamic>> fetchCheckinData() async {
-    String url = "${event.checkinStatusUrl}/json";
+  // Future<List<dynamic>> fetchCheckinData() async {
+  //   String url = "${event.checkinStatusUrl}/json";
 
-    String responseBody = await Report.fetchResponseFromServer(url);
-    List<dynamic> decodedResponse = jsonDecode(responseBody);
+  //   String responseBody = await Report.fetchResponseFromServer(url);
+  //   List<dynamic> decodedResponse = jsonDecode(responseBody);
 
+  //   if (decodedResponse.isEmpty) {
+  //     throw ServerException('Empty reponse from $url');
+  //   }
+
+  //   return decodedResponse;
+  // }
+
+  Future<List<RiderResults>> xfetchCheckinData() async {
+    final url = "${event.checkinStatusUrl}/json";
+    final responseBody = await Report.fetchResponseFromServer(url);
+
+    final decodedResponse = jsonDecode(responseBody) as List<dynamic>;
     if (decodedResponse.isEmpty) {
-      throw ServerException('Empty reponse from $url');
+      throw ServerException('Empty response from $url');
     }
 
-    return decodedResponse;
+    return decodedResponse
+        .map((json) => RiderResults.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   String makeCheckInSignature(Control ctrl) =>

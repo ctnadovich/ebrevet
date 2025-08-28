@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+// TODO  Event Card should have a Controls list viev
+
 import 'package:flutter/material.dart';
 
 import 'package:ebrevet_card/my_activated_events.dart';

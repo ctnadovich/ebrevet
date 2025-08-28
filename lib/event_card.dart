@@ -68,13 +68,15 @@ class _EventCardState extends State<EventCard> {
     final event = widget.event;
 
     final regionName = Region(regionID: event.regionID).clubName;
-    final pe = MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
+    final activatedEvent =
+        MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
     final OverallOutcome overallOutcomeInHistory =
-        pe?.outcomes.overallOutcome ?? OverallOutcome.dns;
+        activatedEvent?.outcomes.overallOutcome ??
+            OverallOutcome.dns; // DNS if never activated
     final String overallOutcomeDescriptionInHistory =
         overallOutcomeInHistory.description;
     final bool isOutcomeFullyUploaded =
-        pe?.isCurrentOutcomeFullyUploaded ?? false;
+        activatedEvent?.isCurrentOutcomeFullyUploaded ?? false;
 
     return Card(
       // Overall the Card is a Column
@@ -145,7 +147,7 @@ class _EventCardState extends State<EventCard> {
                 IconButton(
                   onPressed: () {
                     setState(() {
-                      pe!.overallOutcome = OverallOutcome.dnf;
+                      activatedEvent!.overallOutcome = OverallOutcome.dnf;
                       // pe can't be null because overallOutcomeInHistory wasn't unknown
                     });
                     MyActivatedEvents.save().then((status) {
@@ -159,15 +161,15 @@ class _EventCardState extends State<EventCard> {
                   tooltip: 'Abandon the event',
                 ),
               const Spacer(),
-              rideButton(context, event, pastEvent: pe),
+              rideButton(context, event, pastEvent: activatedEvent),
               const SizedBox(width: 8),
             ],
           ),
           // And finally in the column is a bunch of optional messages and buttons
           if (overallOutcomeInHistory != OverallOutcome.dns) ...[
-            Text(pe?.checkInFractionString ?? ''),
+            Text(activatedEvent?.checkInFractionString ?? ''),
             Text(
-              pe?.isFullyUploadedString ?? '',
+              activatedEvent?.isFullyUploadedString ?? '',
               style: TextStyle(
                   fontWeight: isOutcomeFullyUploaded
                       ? FontWeight.normal
@@ -178,7 +180,9 @@ class _EventCardState extends State<EventCard> {
           if (widget.hasDelete == true)
             IconButton(
               onPressed: () async {
-                var deleted = await confirmDeleteDialog(context, pe!) ?? false;
+                var deleted =
+                    await confirmDeleteDialog(context, activatedEvent!) ??
+                        false;
                 if (deleted) controlState.pastEventDeleted();
               },
               icon: const Icon(Icons.delete),

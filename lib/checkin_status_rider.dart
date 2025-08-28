@@ -1,11 +1,12 @@
+import 'package:ebrevet_card/checkin.dart';
 import 'package:flutter/material.dart';
 import 'event.dart';
 import 'checkin_rider_details.dart'; // adjust import to your path
-import 'checkin_helpers.dart';
 import 'checkin_progress.dart';
+import 'utility.dart';
 
 class RiderCheckinStatus extends StatelessWidget {
-  final List<dynamic> riders;
+  final List<RiderResults> riders;
   final Event event;
 
   const RiderCheckinStatus(
@@ -20,7 +21,7 @@ class RiderCheckinStatus extends StatelessWidget {
 
         // Rider cards
         ...riders.map((riderData) {
-          final rider = riderData as Map<String, dynamic>;
+          final rider = riderData;
 
           return RiderCheckinCard(rider: rider, event: event);
         }).toList(),
@@ -30,7 +31,7 @@ class RiderCheckinStatus extends StatelessWidget {
 }
 
 class RiderCheckinCard extends StatelessWidget {
-  final Map<String, dynamic> rider;
+  final RiderResults rider;
   final Event event;
 
   const RiderCheckinCard({
@@ -41,22 +42,15 @@ class RiderCheckinCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final riderName = rider['rider_name'] ?? '';
-    final riderId = rider['rider_id'] ?? '';
-    final result = (rider['result'] ?? '').toString().trim();
-    final elapsedTime = rider['elapsed_time'] ?? '';
-    final checklist = rider['checklist'] as List<dynamic>? ?? [];
-    final comments = extractComments(checklist);
-    // .where((e) => !(e['comment'] as String).contains('Automatic Check In'))
-    // .map((e) => "(${e['index'] + 1}) ${e['comment']}")
-    // .join(', ');
+    final comments = rider.extractComments();
+    final numControls = event.controls.length;
 
     String lastCheckInText = "None";
-    final lastCheckIn = getLastCheckin(checklist);
-    if (lastCheckIn != null) {
-      final i = lastCheckIn['index'];
-      final t = convertToLocalTime(lastCheckIn['checkin_datetime']);
-      lastCheckInText = "Control $i, $t";
+    if (rider.isReallyPreride == false && rider.checklist.isNotEmpty) {
+      final i = rider.checklist.length;
+      final t =
+          Utility.toBriefDateTimeString(rider.checklist.last.checkinDatetime);
+      lastCheckInText = "Control $i/$numControls, $t";
     }
 
     return Card(
@@ -73,7 +67,7 @@ class RiderCheckinCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    "$riderName ($riderId)",
+                    "${rider.riderName} (${rider.riderId})",
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -97,12 +91,12 @@ class RiderCheckinCard extends StatelessWidget {
             const SizedBox(height: 4),
 
             /// Status + elapsed time
-            if (result.isNotEmpty) ...[
+            if (rider.result.isNotEmpty) ...[
               Row(
                 children: [
                   Icon(
                     () {
-                      switch (result.toUpperCase()) {
+                      switch (rider.result.toUpperCase()) {
                         case "FINISH":
                           return Icons.flag;
                         case "ACTIVE":
@@ -115,16 +109,16 @@ class RiderCheckinCard extends StatelessWidget {
                     color: Colors.blueGrey,
                   ),
                   const SizedBox(width: 6),
-                  Text("Status: $result"),
+                  Text("Status: ${rider.result}"),
                 ],
               ),
-              if (result.toUpperCase() == "FINISH") ...[
+              if (rider.result.toUpperCase() == "FINISH") ...[
                 const SizedBox(height: 2),
                 Row(
                   children: [
                     const Icon(Icons.timer, size: 16, color: Colors.blueGrey),
                     const SizedBox(width: 6),
-                    Text("Elapsed Time: $elapsedTime"),
+                    Text("Elapsed Time: ${rider.formatElapsedHHMM()}"),
                   ],
                 ),
               ],
@@ -133,7 +127,7 @@ class RiderCheckinCard extends StatelessWidget {
             const SizedBox(height: 6),
 
             /// Last check-in + progress
-            if (result.toUpperCase() != "FINISH") ...[
+            if (rider.result.toUpperCase() != "FINISH") ...[
               Text(
                 "Last check-in: $lastCheckInText",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -142,7 +136,8 @@ class RiderCheckinCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               if (lastCheckInText != 'None')
-                CheckinProgress(checklist: checklist),
+                CheckinProgress(
+                    checklist: rider.checklist, numControls: numControls),
             ],
 
             /// Last comment

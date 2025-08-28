@@ -31,7 +31,7 @@ enum OverallOutcome {
       this == dnqSkipped || this == dnqScrambled || this == dnqLateCheckIn;
 
   static Map _description = {
-    dns: 'Not Started',
+    dns: 'Did Not Ride',
     dnf: 'Did Not Finish',
     dnqSkipped: 'RBA Review: skipped control',
     dnqScrambled: 'RBA Review: control order',

@@ -113,6 +113,8 @@ class SourceSelection extends ChangeNotifier {
       : eventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
 
   updateFromSettings() {
+    final newEventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
+    if (newEventInfoSource != eventInfoSource) ScheduledEvents.clear();
     eventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
     notifyListeners();
   }

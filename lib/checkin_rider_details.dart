@@ -1,12 +1,12 @@
 import 'package:ebrevet_card/utility.dart';
 import 'package:flutter/material.dart';
-import 'checkin_helpers.dart'; // convertToLocalTime
 import 'checkin_progress.dart';
 import 'control.dart'; // For Control and ControlStyle
 import 'event.dart';
+import 'checkin.dart';
 
 class RiderCheckinDetailsPage extends StatelessWidget {
-  final Map<String, dynamic> rider;
+  final RiderResults rider;
   final Event event; // Pass this from Event object
 
   const RiderCheckinDetailsPage({
@@ -17,29 +17,23 @@ class RiderCheckinDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<dynamic>? checklist = rider['checklist'];
-
-    // Filter out nulls
-    final validCheckins =
-        checklist?.asMap().entries.where((e) => e.value != null).toList();
+    final List<Checkin> checklist = rider.checklist;
 
     final bool isPreride =
-        (checklist != null && checklist.isNotEmpty && checklist[0] != null)
-            ? (checklist[0]['is_prerideq'] == true)
-            : false;
+        rider.isReallyPreride ?? false; // assume not preride if no checkins
 
-    final DateTime? prerideStartDateTime = (isPreride)
-        ? DateTime.parse(checklist[0]['checkin_datetime']).toLocal()
-        : null;
+    final DateTime? prerideStartDateTime =
+        (isPreride) ? checklist[0].checkinDatetime : null;
 
-    final result = rider['result']?.toString() ?? '';
-    final elapsedTime = rider['elapsed_time']?.toString() ?? '';
+    //final result = rider.result ?? '';
+    final elapsedTime = rider.formatElapsedHHMM();
     final List<Control> controls = event.controls;
+    final numControls = controls.length;
     final String eventName = event.nameDist;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(rider['rider_name'] ?? 'Rider Details'),
+        title: Text(rider.riderName),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,24 +58,23 @@ class RiderCheckinDetailsPage extends StatelessWidget {
                     ],
                   ),
                 ],
-                if (result.isNotEmpty) ...[
+                if (rider.result.isNotEmpty) ...[
                   Row(
                     children: [
                       Icon(
-                        result.toUpperCase() == "FINISH"
+                        rider.result.toUpperCase() == "FINISH"
                             ? Icons.flag
-                            : result.toUpperCase() == "ACTIVE"
+                            : rider.result.toUpperCase() == "ACTIVE"
                                 ? Icons.directions_bike
                                 : Icons.info_outline,
                         size: 16,
                         color: Colors.blueGrey,
                       ),
                       const SizedBox(width: 6),
-                      Text("Status: $result"),
+                      Text("Status: ${rider.result}"),
                     ],
                   ),
-                  if (result.toUpperCase() == "FINISH" &&
-                      elapsedTime.isNotEmpty) ...[
+                  if (rider.result.toUpperCase() == "FINISH") ...[
                     const SizedBox(height: 2),
                     Row(
                       children: [
@@ -94,8 +87,11 @@ class RiderCheckinDetailsPage extends StatelessWidget {
                   ],
                   const SizedBox(height: 12),
                 ],
-                if (checklist != null && checklist.isNotEmpty)
-                  CheckinProgress(checklist: checklist),
+                if (checklist.isNotEmpty)
+                  CheckinProgress(
+                    checklist: checklist,
+                    numControls: numControls,
+                  ),
               ],
             ),
           ),
@@ -104,34 +100,33 @@ class RiderCheckinDetailsPage extends StatelessWidget {
 
           // ===== SCROLLABLE CHECKIN LIST =====
           Expanded(
-            child: validCheckins == null || validCheckins.isEmpty
+            child: checklist.isEmpty
                 ? const Center(child: Text("No checkins available"))
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: validCheckins.length,
+                    itemCount: checklist.length,
                     itemBuilder: (context, index) {
-                      final entryIndex = validCheckins[index].key;
-                      final checkin = validCheckins[index].value;
+                      final checkin = checklist[index];
 
                       // Extract comment, skipping "Automatic Check In"
                       String? comment;
-                      final rawComment = checkin?['comment']?.toString().trim();
-                      if (rawComment != null &&
-                          rawComment.isNotEmpty &&
+                      final rawComment = (checkin.comment ?? "").trim();
+                      if (rawComment.isNotEmpty &&
                           !rawComment.contains("Automatic Check In")) {
                         comment = rawComment;
                       }
 
                       // Lookup the corresponding control
                       Control? control;
-                      if (entryIndex < controls.length) {
-                        control = controls[entryIndex];
+                      if (checkin.index > 0 &&
+                          checkin.index <= controls.length) {
+                        control = controls[checkin.index - 1];
                       }
 
                       if (control == null) throw Exception('Null control');
 
                       final checkinText =
-                          formatCheckinWithControlTimes(checkin, control);
+                          checkin.formatCheckinWithControlTimes(control);
 
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 6.0),

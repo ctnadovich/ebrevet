@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'checkin.dart';
 
 class CheckinProgress extends StatelessWidget {
-  final List<dynamic>? checklist;
+  final List<Checkin>? checklist;
+  final int numControls;
 
-  const CheckinProgress({super.key, required this.checklist});
+  const CheckinProgress(
+      {super.key, required this.checklist, required this.numControls});
 
   @override
   Widget build(BuildContext context) {
@@ -13,14 +16,14 @@ class CheckinProgress extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final count = checklist!.length;
+        // final count = checklist!
+        // .length;
         final maxWidth = constraints.maxWidth;
-        final circleDiameter = (maxWidth / count) - 6;
+        final circleDiameter = (maxWidth / numControls) - 6;
         final radius = (circleDiameter / 2).clamp(8.0, 15.0);
 
-        final completedCount = checklist!
-            .where((entry) => entry?['checkin_datetime'] != null)
-            .length;
+        final completedCount = checklist?.length ?? 0;
+        // checklist!.where((entry) => entry.checkinDatetime != null).length;
 
         return SizedBox(
           height: radius * 2,
@@ -29,7 +32,7 @@ class CheckinProgress extends StatelessWidget {
               Positioned.fill(
                 child: CustomPaint(
                   painter: _ChecklistProgressLinePainter(
-                    circleCount: count,
+                    circleCount: numControls,
                     radius: radius,
                     width: maxWidth,
                     completedCount: completedCount,
@@ -40,25 +43,23 @@ class CheckinProgress extends StatelessWidget {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: checklist!.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final controlNum = index + 1;
-                  final hasCheckin = entry.value?['checkin_datetime'] != null;
-
-                  return CircleAvatar(
-                    radius: radius,
-                    backgroundColor:
-                        hasCheckin ? Colors.green : Colors.grey.shade400,
-                    child: Text(
-                      "$controlNum",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: radius * 0.9,
-                        fontWeight: FontWeight.bold,
+                children: [
+                  for (int i = 0; i < numControls; i++)
+                    CircleAvatar(
+                      radius: radius,
+                      backgroundColor: i < completedCount
+                          ? Colors.green
+                          : Colors.grey.shade400,
+                      child: Text(
+                        "${i + 1}",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: radius * 0.9,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  );
-                }).toList(),
+                    )
+                ],
               ),
             ],
           ),
