@@ -34,6 +34,7 @@ class SideMenuDrawer extends StatelessWidget {
     var textTheme = Theme.of(context).textTheme;
     var menuTitleStyle = textTheme.titleLarge;
     var menuItemStyle = textTheme.titleMedium;
+    var subtitleStyle = textTheme.titleSmall;
     var headerColor = Theme.of(context).colorScheme.primaryContainer;
 
     return Drawer(
@@ -44,7 +45,18 @@ class SideMenuDrawer extends StatelessWidget {
             decoration: BoxDecoration(
               color: headerColor,
             ),
-            child: Text('eBrevet Main Menu', style: menuTitleStyle),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('eBrevet Main Menu', style: menuTitleStyle),
+                const SizedBox(
+                  height: 8,
+                ),
+                Text(
+                    'Rider: ${AppSettings.firstName.value} ${AppSettings.lastName.value} (${AppSettings.rusaID.value})',
+                    style: subtitleStyle),
+              ],
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.settings),

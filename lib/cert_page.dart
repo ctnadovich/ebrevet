@@ -22,7 +22,7 @@ import 'package:shimmer/shimmer.dart';
 
 import 'activated_event.dart';
 import 'day_night.dart';
-import 'activated_event_view_page.dart';
+import 'controls_view_page.dart';
 import 'control_state.dart';
 import 'app_settings.dart';
 import 'screen_shot.dart';
@@ -245,12 +245,8 @@ class _CertificatePageState extends State<CertificatePage> {
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ActivatedEventViewPage(
-                            event: pastEvent,
-                            isLiveView: false,
-                            showScreenshotButton: true,
-                          ),
-                        ));
+                            builder: (context) => ControlsViewPage(
+                                event: event, style: ControlsViewStyle.past)));
                       },
                       child: const Text('Control Detail'),
                     ),

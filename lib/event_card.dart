@@ -23,7 +23,7 @@ import 'snackbarglobal.dart';
 import 'scheduled_events.dart';
 import 'event.dart';
 import 'outcome.dart';
-import 'activated_event_view_page.dart';
+import 'controls_view_page.dart';
 import 'region.dart';
 import 'my_activated_events.dart';
 import 'activated_event.dart';
@@ -47,12 +47,17 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   late TextEditingController controller;
-  String startCode = '';
-  final String invalidCodeText = "INVALID Start Code";
+  late Event event;
+  late ActivatedEvent? activatedEvent;
+
+  // String startCode = '';
+  // final String invalidCodeText = "INVALID Start Code";
 
   @override
   void initState() {
     super.initState();
+    event = widget.event;
+    activatedEvent = MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
     controller = TextEditingController();
   }
 
@@ -68,8 +73,8 @@ class _EventCardState extends State<EventCard> {
     final event = widget.event;
 
     final regionName = Region(regionID: event.regionID).clubName;
-    final activatedEvent =
-        MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
+    // final activatedEvent =
+    //     MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
     final OverallOutcome overallOutcomeInHistory =
         activatedEvent?.outcomes.overallOutcome ??
             OverallOutcome.dns; // DNS if never activated
@@ -161,7 +166,8 @@ class _EventCardState extends State<EventCard> {
                   tooltip: 'Abandon the event',
                 ),
               const Spacer(),
-              rideButton(context, event, pastEvent: activatedEvent),
+              rideButton(
+                  context), // , event, activatedEvent: widget.activatedEvent),
               const SizedBox(width: 8),
             ],
           ),
@@ -224,13 +230,12 @@ class _EventCardState extends State<EventCard> {
             );
           });
 
-  Widget rideButton(BuildContext context, Event event,
-      {ActivatedEvent? pastEvent}) {
+  Widget rideButton(BuildContext context) {
     var controlState = context
         .read<ControlState>(); // So addActivate can dirty the control card
 
     final OverallOutcome overallOutcomeInHistory =
-        pastEvent?.outcomes.overallOutcome ?? OverallOutcome.dns;
+        activatedEvent?.outcomes.overallOutcome ?? OverallOutcome.dns;
     final notYetStarted = overallOutcomeInHistory == OverallOutcome.dns;
     final isFinished = overallOutcomeInHistory == OverallOutcome.finish;
     final notYetFinished = !isFinished;
@@ -270,7 +275,7 @@ class _EventCardState extends State<EventCard> {
             final startCode = await getStartCodeDialog();
             final msg = validateStartCode(startCode, event);
             if (null != msg) {
-              if (msg.contains(invalidCodeText)) {
+              if (msg.contains("INVALID Start Code")) {
                 await invalidStartCodeDialog(event, msg);
               } else {
                 FlushbarGlobal.show(msg);
@@ -282,7 +287,7 @@ class _EventCardState extends State<EventCard> {
           // OK to start, or re-activate. Unless we are finished!
 
           if (notYetFinished) {
-            if (pastEvent != null) {
+            if (activatedEvent != null) {
               // Restarting event (unless DNQ)
               if (false == overallOutcomeInHistory.isDNQ) {
                 MyActivatedEvents.addActivate(event); // re-activate
@@ -301,7 +306,7 @@ class _EventCardState extends State<EventCard> {
                 return;
               }
 
-              pastEvent = MyActivatedEvents.addActivate(widget.event,
+              activatedEvent = MyActivatedEvents.addActivate(widget.event,
                   riderID: AppSettings.rusaID.value,
                   startStyle: isPreride
                       ? StartStyle.preRide
@@ -310,18 +315,18 @@ class _EventCardState extends State<EventCard> {
             }
 
             // Auto first-control check in
-            if (pastEvent!.outcomes.checkInTimeList.isEmpty &&
+            if (activatedEvent!.outcomes.checkInTimeList.isEmpty &&
                 (event.isPreridable || event.isStartable)) {
               // no checkins yet, but starting OK
 
-              switch (pastEvent!.startStyle) {
+              switch (activatedEvent!.startStyle) {
                 case StartStyle.massStart:
                   // Auto checkin for massStart is allowed at any (startable) time, any location
-                  pastEvent!
+                  activatedEvent!
                       .controlCheckIn(
                         control: event.controls[event.startControlKey],
                         comment:
-                            "${pastEvent!.startStyle.description}. Automatic Check In",
+                            "${activatedEvent!.startStyle.description}. Automatic Check In",
                         controlState: controlState,
                         checkInTime: event
                             .startTimeWindow.onTime, // check in time override
@@ -333,16 +338,17 @@ class _EventCardState extends State<EventCard> {
                 case StartStyle.preRide:
                 case StartStyle.freeStart:
                 case StartStyle.permanent:
-                  if (pastEvent!.isControlNearby(event.startControlKey) ||
+                  if (activatedEvent!.isControlNearby(event.startControlKey) ||
                       AppSettings.controlProximityOverride.value) {
                     var doAutoCheckin =
-                        await confirmAutoCheckinDialog(pastEvent!) ?? false;
+                        await confirmAutoCheckinDialog(activatedEvent!) ??
+                            false;
                     if (doAutoCheckin) {
-                      pastEvent!
+                      activatedEvent!
                           .controlCheckIn(
                             control: event.controls[event.startControlKey],
                             comment:
-                                "${pastEvent!.startStyle.description}. Automatic Check In",
+                                "${activatedEvent!.startStyle.description}. Automatic Check In",
                             controlState: controlState,
                           )
                           .then((foo) => FlushbarGlobal.show(
@@ -373,7 +379,7 @@ class _EventCardState extends State<EventCard> {
             // so conceivably the preriders could have a different "event" saved than the day-of riders
           }
 
-          assert(pastEvent !=
+          assert(activatedEvent !=
               null); // by now there must be an activated event pastEvent
 
           if (context.mounted) {
@@ -382,13 +388,12 @@ class _EventCardState extends State<EventCard> {
                 .push(MaterialPageRoute(
                   builder: (context) => overallOutcomeInHistory !=
                           OverallOutcome.finish
-                      ? ActivatedEventViewPage(
-                          event: pastEvent!,
-                          isLiveView: true,
-                          showScreenshotButton: false,
+                      ? ControlsViewPage(
+                          event: widget.event,
+                          style: ControlsViewStyle.live,
                         )
                       : CertificatePage(
-                          pastEvent!), // will implicitly ride event just activated
+                          activatedEvent!), // will implicitly ride event just activated
                 ))
                 .then((_) => setState(() {}));
           } else {
@@ -497,7 +502,7 @@ class _EventCardState extends State<EventCard> {
     MyLogger.entry(
         "Invalid Start Code $offeredCode; Valid code is '$validCode'; ",
         severity: Severity.hidden);
-    return "$invalidCodeText: $offeredCode";
+    return "INVALID Start Code: $offeredCode";
   }
 
   Future<String?> getStartCodeDialog() {

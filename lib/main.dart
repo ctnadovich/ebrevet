@@ -14,7 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
-// TODO  Event Card should have a Controls list viev
+// TODO  Event Card (or Checkins view) should have a Control Details list viev
+// A link to ControlsViewPage
+// which is  displayed on the activatedEventView as well
+// as off the cert page
+
+// TODO Take another look at Flushbar formatting for different cases
+// Test them.
 
 import 'package:flutter/material.dart';
 

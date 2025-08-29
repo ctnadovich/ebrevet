@@ -312,7 +312,7 @@ class ActivatedEvent {
   String get checkInFractionString {
     return (outcomes.overallOutcome == OverallOutcome.dns)
         ? ""
-        : "Checked into $numberOfCheckIns/$numberOfControls controls";
+        : "Checked into $numberOfCheckIns of $numberOfControls controls";
   }
 
   bool areAllChecked({int? upToIndex}) {

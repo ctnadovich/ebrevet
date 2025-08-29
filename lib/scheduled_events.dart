@@ -57,6 +57,12 @@ class ScheduledEventsSource {
     return "${id.description}: $subDescription";
   }
 
+  String get sourceID {
+    final srcID = id.index.toString();
+    final rgnID = Region.fromSettings().regionID;
+    return "$srcID.$rgnID";
+  }
+
   String get subDescription {
     String d;
     switch (id) {
@@ -113,8 +119,10 @@ class SourceSelection extends ChangeNotifier {
       : eventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
 
   updateFromSettings() {
-    final newEventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
-    if (newEventInfoSource != eventInfoSource) ScheduledEvents.clear();
+    // final newEventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
+    // if (newEventInfoSource.sourceID != eventInfoSource.sourceID) {
+    ScheduledEvents.clear();
+    // }
     eventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
     notifyListeners();
   }
