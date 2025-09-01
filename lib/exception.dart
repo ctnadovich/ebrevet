@@ -60,6 +60,14 @@ class NoInternetException implements Exception {
       "This function requires access to the internet. Is your Internet service off? $message";
 }
 
+class NotActivatedException implements Exception {
+  String message;
+  Object? error;
+  NotActivatedException(this.message, {this.error});
+  @override
+  String toString() => "Event not activated: $message";
+}
+
 class ThisCantHappen implements Exception {
   String message;
   ThisCantHappen(this.message);

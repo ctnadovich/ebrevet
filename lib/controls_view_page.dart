@@ -1,3 +1,4 @@
+import 'package:ebrevet_card/exception.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,7 +13,7 @@ import 'location.dart';
 import 'day_night.dart';
 import 'signature.dart';
 import 'screen_shot.dart';
-// import 'utility.dart';
+import 'mylogger.dart';
 import 'outcome.dart';
 import 'snackbarglobal.dart';
 // import 'region.dart';
@@ -48,7 +49,7 @@ class ControlsViewPage extends StatefulWidget {
 class _ControlsViewPageState extends State<ControlsViewPage> {
   bool _updating = false;
 
-  Future<void> _handleUpdate() async {
+  Future<void> _handleGPSUpdate() async {
     // MyLogger.entry("GPS Update button pressed.");
     setState(() => _updating = true);
 
@@ -61,6 +62,28 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
       if (mounted) {
         setState(() => _updating = false);
         FlushbarGlobal.show("GPS Location Updated");
+      }
+    }
+  }
+
+  Future<void> _handleUpload() async {
+    setState(() => _updating = true);
+
+    try {
+      if (widget.activatedEvent == null) {
+        throw NotActivatedException("Can't updload results.");
+      }
+      await Report.constructReportAndSend(
+        widget.activatedEvent!,
+        onUploadDone: () async {
+          // optional: handle per-chunk upload completion
+        },
+      );
+      await Future.delayed(const Duration(seconds: 1));
+    } finally {
+      if (mounted) {
+        setState(() => _updating = false);
+        FlushbarGlobal.show("Current checkin status uploaded.");
       }
     }
   }
@@ -232,14 +255,16 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
             ElevatedButton(
               onPressed: () {
                 // MyLogger.entry("Calling _handleUpdate()");
-                _handleUpdate();
+                _handleGPSUpdate();
               },
               child: const Text("GPS Update"),
             ),
             const Spacer(),
             ElevatedButton(
-                onPressed: () => Report.constructReportAndSend(activatedEvent,
-                    onUploadDone: () async {}),
+                onPressed: () {
+                  MyLogger.entry("Calling _handleUpload()");
+                  _handleUpload();
+                },
                 child: const Text("Upload results")),
           ],
         ),

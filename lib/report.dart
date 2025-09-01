@@ -33,12 +33,12 @@ class Report {
   static String? reportURL;
   static DateTime? lastSuccessfulServerAccess;
 
-  static void constructReportAndSend(
+  static Future<void> constructReportAndSend(
     ActivatedEvent pe, {
     Control? control,
     String? comment,
     Function? onUploadDone,
-  }) {
+  }) async {
     _reportingEvent = pe;
 
     Map<String, dynamic> report =
