@@ -14,6 +14,7 @@ import 'signature.dart';
 import 'screen_shot.dart';
 // import 'utility.dart';
 import 'outcome.dart';
+import 'snackbarglobal.dart';
 // import 'region.dart';
 
 // TODO should be able to work with either an ordinary Event
@@ -27,7 +28,7 @@ import 'outcome.dart';
 
 enum ControlsViewStyle { future, live, past }
 
-class ControlsViewPage extends StatelessWidget {
+class ControlsViewPage extends StatefulWidget {
   final Event event;
   final ControlsViewStyle style;
   final ActivatedEvent? activatedEvent;
@@ -41,11 +42,35 @@ class ControlsViewPage extends StatelessWidget {
   static GlobalKey previewContainer = GlobalKey();
 
   @override
+  State<ControlsViewPage> createState() => _ControlsViewPageState();
+}
+
+class _ControlsViewPageState extends State<ControlsViewPage> {
+  bool _updating = false;
+
+  Future<void> _handleUpdate() async {
+    // MyLogger.entry("GPS Update button pressed.");
+    setState(() => _updating = true);
+
+    try {
+      await RiderLocation.updateLocation();
+
+      if (!mounted) return; // ensure widget still exists
+      context.read<ControlState>().positionUpdated();
+    } finally {
+      if (mounted) {
+        setState(() => _updating = false);
+        FlushbarGlobal.show("GPS Location Updated");
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final dayNight = context.watch<DayNight>();
 
-    final bool showScreenshotButton = (style == ControlsViewStyle.past);
-    final bool isLiveView = (style == ControlsViewStyle.live);
+    final bool showScreenshotButton = (widget.style == ControlsViewStyle.past);
+    final bool isLiveView = (widget.style == ControlsViewStyle.live);
 
     // final regionName = Region(regionID: event.regionID).clubName;
 
@@ -59,7 +84,7 @@ class ControlsViewPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(event.nameDist),
+        title: Text(widget.event.nameDist),
         actions: [
           if (isLiveView)
             IconButton(
@@ -71,33 +96,46 @@ class ControlsViewPage extends StatelessWidget {
       floatingActionButton: showScreenshotButton
           ? FloatingActionButton(
               onPressed: () => ScreenShot.take(
-                  "Control-Detail-${event.eventID}.png", previewContainer),
+                  "Control-Detail-${widget.event.eventID}.png",
+                  ControlsViewPage.previewContainer),
               child: const Icon(Icons.share),
             )
           : null,
-      body: Container(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        padding: const EdgeInsets.all(16),
-        child: RepaintBoundary(
-          key: previewContainer,
-          child: Column(
-            children: [
-              _buildHeader(context, style),
-              Divider(
-                indent: MediaQuery.of(context).size.width * 0.15,
-                endIndent: MediaQuery.of(context).size.width * 0.15,
+      body: Stack(
+        children: [
+          Container(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            padding: const EdgeInsets.all(16),
+            child: RepaintBoundary(
+              key: ControlsViewPage.previewContainer,
+              child: Column(
+                children: [
+                  _buildHeader(context, widget.style),
+                  Divider(
+                    indent: MediaQuery.of(context).size.width * 0.15,
+                    endIndent: MediaQuery.of(context).size.width * 0.15,
+                  ),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        for (var c in widget.event.controls)
+                          ControlCard(c, widget.activatedEvent!)
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: ListView(
-                  children: [
-                    for (var c in event.controls)
-                      ControlCard(c, activatedEvent!)
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          if (_updating)
+            Container(
+              color: const Color.fromRGBO(128, 128, 128,
+                  0.3), // overlay background, // translucent background
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -114,13 +152,12 @@ class ControlsViewPage extends StatelessWidget {
   }
 
   Widget _buildLiveViewHeader(BuildContext context) {
-    if (this.activatedEvent == null) {
+    if (widget.activatedEvent == null) {
       return const Text('Event not activated. LiveView unavailable.');
     }
 
-    final ActivatedEvent activatedEvent = this.activatedEvent!;
+    final ActivatedEvent activatedEvent = widget.activatedEvent!;
 
-    final controlState = context.watch<ControlState>();
     final lastLocationUpdate = RiderLocation.lastLocationUpdate;
     final outcomes = activatedEvent.outcomes;
     final isFinished = activatedEvent.isFinished;
@@ -141,7 +178,7 @@ class ControlsViewPage extends StatelessWidget {
       }
     }
 
-    final eventObj = event;
+    final eventObj = widget.event;
     final gpct =
         ((100.0 * eventObj.gravelDistance) / (1.0 * eventObj.distance)).round();
 
@@ -193,9 +230,12 @@ class ControlsViewPage extends StatelessWidget {
         Row(
           children: [
             ElevatedButton(
-                onPressed: () => RiderLocation.updateLocation()
-                    .then((_) => controlState.positionUpdated()),
-                child: const Text("GPS Update")),
+              onPressed: () {
+                // MyLogger.entry("Calling _handleUpdate()");
+                _handleUpdate();
+              },
+              child: const Text("GPS Update"),
+            ),
             const Spacer(),
             ElevatedButton(
                 onPressed: () => Report.constructReportAndSend(activatedEvent,
@@ -210,11 +250,11 @@ class ControlsViewPage extends StatelessWidget {
   Widget _buildHistoryViewHeader(BuildContext context) {
     final controlState = context.watch<ControlState>();
 
-    if (this.activatedEvent == null) {
+    if (widget.activatedEvent == null) {
       return const Text('Event not activated. HistoryView unavailable.');
     }
 
-    final ActivatedEvent activatedEvent = this.activatedEvent!;
+    final ActivatedEvent activatedEvent = widget.activatedEvent!;
 
     final outcomes = activatedEvent.outcomes;
     final isFinished = activatedEvent.isFinished;
@@ -246,69 +286,4 @@ class ControlsViewPage extends StatelessWidget {
       ],
     );
   }
-
-  // Widget _buildControlList(BuildContext context) {
-  //   if (isLiveView) {
-  //     // RidePage controls
-  //     return ListView(
-  //       children: [for (var c in event.controls) ControlCard(c, activatedEvent!)],
-  //     );
-  //   } else {
-  //     // ControlDetailPage check-ins
-  //     return ListView(
-  //       children: [
-  //         for (var checkIn in activatedEvent.outcomes.checkInTimeList)
-  //           _checkInCard(event, checkIn)
-  //       ],
-  //     );
-  //   }
-  // }
-
-/*   Widget _checkInCard(ActivatedEvent activatedEvent, List<String> checkIn) {
-    final controlIndex = int.parse(checkIn[0]);
-    final ciDateTime = DateTime.parse(checkIn[1]).toLocal();
-    final ciDateTimeString = Utility.toBriefDateTimeString(ciDateTime);
-
-    final eventObj = activatedEvent.event;
-    final control = eventObj.controls[controlIndex];
-    final courseMile = control.distMi;
-    final controlName = control.name;
-
-    final checkInSignature = activatedEvent.makeCheckInSignature(control);
-
-    Icon checkInIcon;
-    final lastUpload = activatedEvent.outcomes.lastUpload;
-    final checkInTime =
-        activatedEvent.outcomes.getControlCheckInTime(control.index);
-
-    if (checkInTime != null) {
-      checkInIcon = (lastUpload != null && lastUpload.isAfter(checkInTime))
-          ? const Icon(Icons.check_circle, color: Colors.green)
-          : const Icon(Icons.pending_sharp, color: Colors.orangeAccent);
-    } else {
-      checkInIcon = const Icon(Icons.broken_image, color: Colors.red);
-    }
-
-    return Card(
-      child: ListTile(
-        leading: Icon(controlIndex == eventObj.startControlKey
-            ? Icons.play_arrow
-            : (controlIndex == eventObj.finishControlKey
-                ? Icons.stop
-                : Icons.pedal_bike)),
-        title: Text(controlName),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(control.address),
-            Text(
-                'Control ${controlIndex + 1} ($courseMile mi): $ciDateTimeString'),
-            Text("Check-in Code: $checkInSignature"),
-            Row(children: [const Text('Upload: '), checkInIcon]),
-          ],
-        ),
-      ),
-    );
-  }
- */
 }

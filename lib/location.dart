@@ -81,7 +81,7 @@ class RiderLocation {
         }
         riderLocation = await Geolocator.getCurrentPosition(
                 desiredAccuracy: LocationAccuracy.high)
-            .timeout(const Duration(seconds: 5));
+            .timeout(const Duration(seconds: 10));
         lastLocationUpdate = DateTime.now();
         MyLogger.entry(
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
