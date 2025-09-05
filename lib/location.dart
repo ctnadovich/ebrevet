@@ -66,7 +66,7 @@ class RiderLocation {
   // of location not just when checiking in
   // Perhaps as settings option with different period
 
-  static Future<void> updateLocation() async {
+  static Future<String?> updateLocation() async {
     try {
       gpsServiceEnabled = await Geolocator.isLocationServiceEnabled();
       if (gpsServiceEnabled == false) {
@@ -81,14 +81,19 @@ class RiderLocation {
         }
         riderLocation = await Geolocator.getCurrentPosition(
                 desiredAccuracy: LocationAccuracy.high)
-            .timeout(const Duration(seconds: 10));
+            .timeout(const Duration(seconds: 8));
         lastLocationUpdate = DateTime.now();
         MyLogger.entry(
             'GPS Location updated at $lastLocationUpdateString was $latLongString');
+        return null;
       }
     } catch (e) {
       // SnackbarGlobal.show('GPS Error: ${e.toString()}');
       MyLogger.entry('GPS Error: ${e.toString()}');
+
+      return e.toString().contains("TimeoutException")
+          ? "No GPS Signal"
+          : e.toString();
     }
   }
 

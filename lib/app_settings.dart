@@ -174,6 +174,13 @@ class AppSettings {
     icon: const Icon(Icons.confirmation_num),
   );
 
+  static MySetting<bool> notifyOtherRiderComments = MySetting(
+    key: 'key-notify-comments',
+    defaultValue: true,
+    title: 'Notifications for rider comments',
+    icon: const Icon(Icons.comment),
+  );
+
   // Advanced Developer
 
   static MySetting<double> proximityRadius = MySetting(

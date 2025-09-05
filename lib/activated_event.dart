@@ -382,8 +382,8 @@ class ActivatedEvent {
   Duration? get elapsedDuration {
     var s = startDateTimeActual;
     var f = finishDateTimeActual;
-    if ((s ?? f) == null) return null;
-    return f!.difference(s!);
+    if (s == null || f == null) return null;
+    return f.difference(s);
   }
 
   String get elapsedTimeString {

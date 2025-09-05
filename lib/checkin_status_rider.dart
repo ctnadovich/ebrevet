@@ -46,11 +46,15 @@ class RiderCheckinCard extends StatelessWidget {
     final numControls = event.controls.length;
 
     String lastCheckInText = "None";
+
+// TODO do we want isReallyPreride conditional?
+
     if (rider.isReallyPreride == false && rider.checklist.isNotEmpty) {
       final i = rider.checklist.length;
-      final t =
-          Utility.toBriefDateTimeString(rider.checklist.last.checkinDatetime);
-      lastCheckInText = "Control $i/$numControls, $t";
+      final t = Utility.toBriefTimeString(rider.checklist.last.checkinDatetime);
+      final controlDist = event.controls[i - 1].distMi;
+      final controlName = event.controls[i - 1].name;
+      lastCheckInText = "$controlName ($controlDist mi) @ $t";
     }
 
     return Card(
@@ -129,15 +133,17 @@ class RiderCheckinCard extends StatelessWidget {
             /// Last check-in + progress
             if (rider.result.toUpperCase() != "FINISH") ...[
               Text(
-                "Last check-in: $lastCheckInText",
+                lastCheckInText,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              const SizedBox(height: 4),
-              if (lastCheckInText != 'None')
+              const SizedBox(height: 5),
+              if (lastCheckInText != 'None') ...[
                 CheckinProgress(
                     checklist: rider.checklist, numControls: numControls),
+              ],
+              const SizedBox(height: 5),
             ],
 
             /// Last comment
@@ -148,7 +154,7 @@ class RiderCheckinCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      "@ Control ${comments.last['index']}: ${comments.last['comment']}",
+                      "@ Control ${comments.last.controlIndex}: ${comments.last.text}",
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),

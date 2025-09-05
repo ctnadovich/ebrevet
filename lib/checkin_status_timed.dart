@@ -12,35 +12,6 @@ class ChronologicalCheckinStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Build a flat list of all check-ins with rider reference
-    // final List<Map<String, dynamic>> allCheckins = [];
-
-    // for (final rider in riders) {
-    //   final riderMap = rider as Map<String, dynamic>;
-    //   final riderName = riderMap['rider_name'] ?? '';
-    //   final checklist = riderMap['checklist'] as List<dynamic>? ?? [];
-
-    //   for (int i = 0; i < checklist.length; i++) {
-    //     final checkin = checklist[i];
-    //     if (checkin == null) continue;
-    //     if (checkin['is_prerideq'] ?? false) continue;
-
-    //     allCheckins.add({
-    //       'riderName': riderName,
-    //       'controlIndex': i + 1,
-    //       'checkinTime': checkin['checkin_datetime'],
-    //       'comment': checkin['comment'] ?? '',
-    //     });
-    //   }
-    // }
-
-    // // Sort chronologically by checkinTime
-    // allCheckins.sort((a, b) {
-    //   final aTime = DateTime.parse(a['checkinTime']);
-    //   final bTime = DateTime.parse(b['checkinTime']);
-    //   return bTime.compareTo(aTime);
-    // });
-
     final allCheckins = riders.toTimeline();
 
     if (allCheckins.isEmpty) {
@@ -64,7 +35,7 @@ class ChronologicalCheckinStatus extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              Utility.toBriefTimeString(checkin.checkinTime),
+              Utility.toBriefTimeString(checkin.dateTime),
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondaryContainer,
                     fontWeight: FontWeight.bold,
@@ -78,8 +49,8 @@ class ChronologicalCheckinStatus extends StatelessWidget {
                 checkin.riderName,
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              if ((checkin.comment ?? "").trim().isNotEmpty &&
-                  !checkin.comment!.contains("Automatic Check In"))
+              if (checkin.text.trim().isNotEmpty &&
+                  !checkin.text.contains("Automatic Check In"))
                 Flexible(
                   child: Transform.translate(
                     offset: const Offset(4, -6), // lift bubble upward a bit
@@ -99,7 +70,7 @@ class ChronologicalCheckinStatus extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              checkin.comment ?? "",
+                              checkin.text,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall

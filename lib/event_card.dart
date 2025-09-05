@@ -33,6 +33,7 @@ import 'mylogger.dart';
 import 'control_state.dart';
 import 'utility.dart';
 import 'checkin_status_page.dart';
+import 'checkin.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -96,17 +97,31 @@ class _EventCardState extends State<EventCard> {
               },
               icon: const Icon(Icons.info_outline),
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.checklist_rtl),
-              tooltip: 'View Check-Ins',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CheckinStatusPage(event: widget.event),
+            trailing: Wrap(
+              spacing: 4,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.checklist_rtl),
+                  tooltip: 'View Check-Ins',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CheckinStatusPage(event: widget.event),
+                      ),
+                    );
+                  },
+                ),
+                if (activatedEvent != null)
+                  IconButton(
+                    icon: const Icon(Icons.comment),
+                    tooltip: 'Show all comments',
+                    onPressed: () {
+                      CommentFetcher.fetchAndFlush(activatedEvent!,
+                          allNew: true);
+                    },
                   ),
-                );
-              },
+              ],
             ),
             title: Text(
               event.nameDist,

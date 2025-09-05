@@ -19,40 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:confetti/confetti.dart';
 
-// class OldSnackbarGlobal {
-//   static GlobalKey<ScaffoldMessengerState> key =
-//       GlobalKey<ScaffoldMessengerState>();
-
-//   static void show(String message, {Color? color}) {
-//     var themeColor = Theme.of(key.currentContext!).primaryColorDark;
-//     MyLogger.entry("SnackBar: $message");
-//     key.currentState!
-//       ..hideCurrentSnackBar()
-//       ..showSnackBar(SnackBar(
-//         content: Container(
-//             padding: const EdgeInsets.all(16),
-//             // height: 100,
-//             decoration: BoxDecoration(
-//                 color: color ?? themeColor,
-//                 borderRadius: const BorderRadius.all(Radius.circular(20.0))),
-//             child: Column(
-//               children: [
-//                 Text(
-//                   message,
-//                   style: const TextStyle(fontSize: 16, color: Colors.white),
-//                   textAlign: TextAlign.center,
-//                   maxLines: 3,
-//                   overflow: TextOverflow.ellipsis,
-//                 ),
-//               ],
-//             )),
-//         behavior: SnackBarBehavior.floating,
-//         duration: const Duration(seconds: 6),
-//         backgroundColor: Colors.transparent,
-//         elevation: 0,
-//       ));
-//   }
-// }
+enum FlushBarTextSize { small, medium, large }
 
 /// Enhanced enum with all style info per type.
 enum FlushbarStyle {
@@ -63,7 +30,8 @@ enum FlushbarStyle {
   comment(
     position: FlushbarPosition.TOP,
     icon: Icons.comment,
-    duration: Duration(seconds: 6), // override default
+    textSize: FlushBarTextSize.medium,
+    duration: Duration(seconds: 8), // override default
   ),
   error(
     icon: Icons.error,
@@ -72,12 +40,14 @@ enum FlushbarStyle {
   final Duration duration;
   final FlushbarPosition position;
   final IconData icon;
+  final FlushBarTextSize textSize;
 
   // Default values
   const FlushbarStyle({
     this.duration = const Duration(seconds: 3),
     this.position = FlushbarPosition.BOTTOM,
     this.icon = Icons.info,
+    this.textSize = FlushBarTextSize.large,
   });
 }
 
@@ -116,8 +86,22 @@ class FlushbarGlobal {
     _isShowing = true;
 
     // Base text style
-    final textStyle = theme.textTheme.titleLarge
-        ?.copyWith(color: theme.colorScheme.onSecondary);
+    TextStyle? themeTextSize;
+
+    switch (entry.style.textSize) {
+      case FlushBarTextSize.small:
+        themeTextSize = theme.textTheme.titleSmall;
+        break;
+      case FlushBarTextSize.medium:
+        themeTextSize = theme.textTheme.titleMedium;
+        break;
+      case FlushBarTextSize.large:
+        themeTextSize = theme.textTheme.titleLarge;
+        break;
+    }
+
+    final textStyle =
+        themeTextSize?.copyWith(color: theme.colorScheme.onSecondary);
 
     // Base background color
     final backgroundColor = theme.colorScheme.secondary;

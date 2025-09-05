@@ -1,7 +1,8 @@
-import 'package:ebrevet_card/exception.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 
+import 'app_settings.dart';
 import 'activated_event.dart';
 import 'my_activated_events.dart';
 import 'event.dart';
@@ -18,7 +19,7 @@ import 'outcome.dart';
 import 'snackbarglobal.dart';
 // import 'region.dart';
 
-// TODO should be able to work with either an ordinary Event
+// TODO should be able to work with either a future, un-activated Event
 // as a control preview, or with
 // an ActivatedEvent showing this rider's check ins.
 // Perhaps RiderCheckinDetailsPage could be implemnted
@@ -49,19 +50,56 @@ class ControlsViewPage extends StatefulWidget {
 class _ControlsViewPageState extends State<ControlsViewPage> {
   bool _updating = false;
 
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Call immediately once
+    // () async {
+    //   await RiderLocation.updateLocation();
+    //   if (mounted) setState(() {});
+    // }();
+
+    if (widget.style != ControlsViewStyle.live) return;
+
+    _handleGPSUpdate();
+
+    _timer = Timer.periodic(
+      Duration(seconds: AppSettings.gpsRefreshPeriod.value),
+      (timer) async {
+        await RiderLocation.updateLocation();
+        if (mounted) setState(() {});
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _handleGPSUpdate() async {
     // MyLogger.entry("GPS Update button pressed.");
     setState(() => _updating = true);
+    String? gpsStatus;
 
     try {
-      await RiderLocation.updateLocation();
+      gpsStatus = await RiderLocation.updateLocation();
 
       if (!mounted) return; // ensure widget still exists
       context.read<ControlState>().positionUpdated();
     } finally {
       if (mounted) {
         setState(() => _updating = false);
-        FlushbarGlobal.show("GPS Location Updated");
+        if (gpsStatus == null) {
+          FlushbarGlobal.show("GPS Location Updated");
+        } else {
+          FlushbarGlobal.show(
+              "GPS Unavailable. Position not updated: $gpsStatus");
+        }
       }
     }
   }
@@ -70,9 +108,7 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
     setState(() => _updating = true);
 
     try {
-      if (widget.activatedEvent == null) {
-        throw NotActivatedException("Can't updload results.");
-      }
+      if (widget.activatedEvent == null) return;
       await Report.constructReportAndSend(
         widget.activatedEvent!,
         onUploadDone: () async {

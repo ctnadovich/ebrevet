@@ -262,6 +262,9 @@ class ScheduledEvents {
 
       if (authenticating &&
           (false == verifySignature(eventMapFromServer, regionSecret))) {
+        MyLogger.entry(
+            severity: Severity.hidden,
+            "Bad signature assuming secret = '${maskSecondHalf(regionSecret)}'");
         throw ServerException('Signature invalid RX: $rxSignature');
       }
 
@@ -300,6 +303,13 @@ class ScheduledEvents {
       return false;
     }
     return true;
+  }
+
+  static String maskSecondHalf(String s) {
+    final halfLength = s.length ~/ 2; // integer division
+    final firstHalf = s.substring(0, halfLength);
+    final masked = firstHalf.padRight(s.length, '*');
+    return masked;
   }
 
   static Future<bool?> versionErrorDialog(IncompatibleVersionException error,

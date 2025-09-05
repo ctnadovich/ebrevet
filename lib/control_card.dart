@@ -29,6 +29,7 @@ import 'activated_event.dart';
 import 'control_state.dart';
 import 'utility.dart';
 import 'snackbarglobal.dart';
+import 'checkin.dart';
 
 class ControlCard extends StatefulWidget {
   final Control control;
@@ -335,9 +336,10 @@ class _ControlCardState extends State<ControlCard> {
           onPressed: () {
             if (AppSettings.allowCheckinComment.value ||
                 activeEvent.wouldSkip(c)) {
+              // Force dialog if skipping
               openCheckInDialog();
             } else {
-              submitCheckInDialog(popAfter: false);
+              submitCheckIn(popAfter: false);
             }
           },
           child: Column(
@@ -394,7 +396,7 @@ class _ControlCardState extends State<ControlCard> {
             ),
           TextButton(
               onPressed: () {
-                submitCheckInDialog();
+                submitCheckIn();
               },
               child: skipping
                   ? const Text('CHECK IN ANYWAY')
@@ -454,14 +456,17 @@ class _ControlCardState extends State<ControlCard> {
           TextField(
             decoration: const InputDecoration(hintText: 'Comment (optional)'),
             controller: controller,
-            onSubmitted: (_) => submitCheckInDialog(),
+            onSubmitted: (_) => submitCheckIn(),
           ),
         ],
       ),
     );
   }
 
-  void submitCheckInDialog({popAfter = true}) {
+  // This initiates the checkin with controlCheckIn() and then
+  // presents some after-check-in nitices.
+
+  void submitCheckIn({popAfter = true}) {
     var controlState = context.read<ControlState>();
 
     // this will do the actual check-in
@@ -478,13 +483,22 @@ class _ControlCardState extends State<ControlCard> {
 
       final isFinished = !(activeEvent.isIntermediateControl(control) ||
           !activeEvent.isFinished);
-      if ((result != null) ||
+      if ((result != null) || // Force dialog if anything interesting happened
           isFinished ||
           isDisqualified ||
           AppSettings.enablePostCheckinDialog.value) {
         openPostCheckInDialog(result);
       } else {
-        postCheckInSnackBar();
+        postCheckInSnackBar(); // otherwise just give a snackbar notice.
+      }
+
+      // Attempt to download
+      // the list of recent comments and put the new ones into the snackbar.
+
+      if (AppSettings.notifyOtherRiderComments.value) {
+        CommentFetcher.fetchAndFlush(activeEvent,
+            excludeRiderID: AppSettings.rusaID.value,
+            delay: const Duration(seconds: 5));
       }
     });
     controller.clear();

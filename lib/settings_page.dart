@@ -253,6 +253,7 @@ class _OptionalAppSettingsState extends State<OptionalAppSettings> {
                 child: Column(children: [
                   SwitchSettingsTile(AppSettings.allowCheckinComment),
                   SwitchSettingsTile(AppSettings.enablePostCheckinDialog),
+                  SwitchSettingsTile(AppSettings.notifyOtherRiderComments),
                   DialogInputSettingsTile(AppSettings.gpsRefreshPeriod),
                 ])),
           ),

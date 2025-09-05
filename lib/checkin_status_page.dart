@@ -22,21 +22,14 @@ class CheckinStatusPage extends StatefulWidget {
 class _CheckinStatusPageState extends State<CheckinStatusPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late Future<List<RiderResults>> _ridersFuture;
+  late Future<List<RiderResults>> _riderResults;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _ridersFuture = RiderResults.fetchFromServer(
+    _riderResults = RiderResults.fetchAllFromServer(
         widget.event.checkinStatusUrl); // fallback if not activated
-
-    // if (widget.activatedEvent == null) {
-    //   _ridersFuture = Future.value([]);
-    // } else {
-    //   _ridersFuture = RiderResults.fetchFromServer(widget
-    //       .activatedEvent!.event.checkinStatusUrl); // fallback if not activated
-    // }
   }
 
   @override
@@ -47,20 +40,6 @@ class _CheckinStatusPageState extends State<CheckinStatusPage>
 
   @override
   Widget build(BuildContext context) {
-    // ActivatedEvent? activatedEvent = widget.activatedEvent;
-    // if (activatedEvent == null) {
-    //   return Scaffold(
-    //     appBar: AppBar(
-    //       title: Text(widget.event.name),
-    //     ),
-    //     body: const Center(
-    //       child: Text(
-    //         "This event has not been activated yet. No check-ins available.",
-    //         textAlign: TextAlign.center,
-    //       ),
-    //     ),
-    //   );
-    // } else {
     final Event event = widget.event;
     return Scaffold(
         appBar: AppBar(
@@ -81,7 +60,7 @@ class _CheckinStatusPageState extends State<CheckinStatusPage>
             ),
             Expanded(
               child: FutureBuilder<List<RiderResults>>(
-                future: _ridersFuture,
+                future: _riderResults,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -117,8 +96,8 @@ class _CheckinStatusPageState extends State<CheckinStatusPage>
                               ElevatedButton.icon(
                                 onPressed: () {
                                   setState(() {
-                                    _ridersFuture =
-                                        RiderResults.fetchFromServer(event
+                                    _riderResults =
+                                        RiderResults.fetchAllFromServer(event
                                             .checkinStatusUrl); // whatever your reload is
                                   });
                                 },

@@ -24,10 +24,6 @@
 
 // TODO Prerider checkins?
 
-// TODO Checkin browser persistence? 
-
-// TODO Latest Comment pop-up
-
 import 'package:flutter/material.dart';
 
 import 'package:ebrevet_card/my_activated_events.dart';
