@@ -641,6 +641,21 @@ class _EventCardState extends State<EventCard> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
+                      builder: (_) => ControlsViewPage(
+                          event: event, style: ControlsViewStyle.future),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.control_point),
+                label: const Text('Control Detail'),
+              ),
+            ),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
                       builder: (_) => CheckinStatusPage(event: event),
                     ),
                   );

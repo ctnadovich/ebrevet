@@ -25,6 +25,9 @@ import 'snackbarglobal.dart';
 // Perhaps RiderCheckinDetailsPage could be implemnted
 // with this widget, instead of being yet another checkin view?
 
+// or maybe this widget shoud be replaced with rider checkin details.
+// or some synthesis of the two created.
+
 // This must serve as a LiveView for riders actively riding, as
 // a historical record of their ride, and as a preview of the controls
 
@@ -178,7 +181,7 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
                     child: ListView(
                       children: [
                         for (var c in widget.event.controls)
-                          ControlCard(c, widget.activatedEvent!)
+                          ControlCard(c, widget.event)
                       ],
                     ),
                   ),

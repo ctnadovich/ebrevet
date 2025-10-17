@@ -125,7 +125,7 @@ class ActivatedEvent {
     }
 
     // Detect FINISH, or misordered controls at finish  (TODO Does this go here?)
-    if (isFinishControl(control)) {
+    if (event.isFinishControl(control)) {
       if (areAllChecked() && isAllCheckedInOrder() && wereNoLateCheckIns()) {
         outcomes.overallOutcome = OverallOutcome.finish;
         FlushbarGlobal.show(
@@ -205,11 +205,6 @@ class ActivatedEvent {
 
   bool get isFinished => (outcomes.overallOutcome == OverallOutcome.finish);
   bool get isDisqualified => outcomes.overallOutcome.isDNQ;
-
-  bool isIntermediateControl(control) =>
-      control.index != event.finishControlKey &&
-      control.index != event.startControlKey;
-  bool isFinishControl(control) => control.index == event.finishControlKey;
 
   bool get isFinalOutcomeFullyUploaded {
     var lastUpload = outcomes.lastUpload;
@@ -425,12 +420,6 @@ class ActivatedEvent {
   String closeActualString(int controlKey) =>
       closeActual(controlKey)?.toLocal().toString().substring(0, 16) ?? '';
 
-  bool isUntimedControl(Control c) {
-    return c.style.isUntimedStyle ||
-        (isIntermediateControl(c) && _event.gravelDistance > 0) ||
-        c.timed == false;
-  }
-
   bool checkedInLate(Control control) {
     var checkInActual = controlCheckInTime(control);
 
@@ -438,7 +427,7 @@ class ActivatedEvent {
     if (checkInActual == null) return false;
 
     // untimed controls are always open
-    if (isUntimedControl(control)) return false;
+    if (event.isUntimedControl(control)) return false;
 
     // otherwise, calulate close and compare
     var closeDur = control.closeDuration(_event.controls.first.open);
@@ -472,7 +461,7 @@ class ActivatedEvent {
     if (startDateTimeActual == null) return false;
 
     // untimed controls are always open
-    if (isUntimedControl(control)) return true;
+    if (event.isUntimedControl(control)) return true;
 
     // otherwise, calulate open/close and compare
     var openDur = control.openDuration(_event.controls.first.open);

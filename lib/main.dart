@@ -18,11 +18,16 @@
 // A link to ControlsViewPage
 // which is  displayed on the activatedEventView as well
 // as off the cert page
+// The PROBLEM with this is that ControlsViewPage calls
 
 // TODO Take another look at Flushbar formatting for different cases
 // Test them.
 
 // TODO Prerider checkins?
+
+// TODO Checkin refresh button and/or timer refresh
+
+// TODO The live page in landscape looks lame.
 
 import 'package:flutter/material.dart';
 

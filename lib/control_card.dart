@@ -30,12 +30,16 @@ import 'control_state.dart';
 import 'utility.dart';
 import 'snackbarglobal.dart';
 import 'checkin.dart';
+import 'event.dart';
+import 'my_activated_events.dart';
 
 class ControlCard extends StatefulWidget {
   final Control control;
-  final ActivatedEvent activeEvent;
+  final Event event;
+  final ActivatedEvent? activeEvent;
 
-  const ControlCard(this.control, this.activeEvent, {super.key});
+  ControlCard(this.control, this.event, {super.key})
+      : activeEvent = MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
 
   @override
   State<ControlCard> createState() => _ControlCardState();
@@ -61,21 +65,25 @@ class _ControlCardState extends State<ControlCard> {
     context.watch<ControlState>();
     var activeEvent = widget.activeEvent;
     var control = widget.control;
-    var checkInTime = activeEvent.controlCheckInTime(control);
+    var checkInTime = activeEvent?.controlCheckInTime(control);
 
-    var isNotFinished =
-        activeEvent.isIntermediateControl(control) || !activeEvent.isFinished;
+    var isNotFinished = activeEvent == null ||
+        widget.event.isIntermediateControl(control) ||
+        !activeEvent.isFinished;
 
-    var isDisqualified = activeEvent.isDisqualified;
+    var isDisqualified =
+        activeEvent == null ? false : activeEvent.isDisqualified;
 
-    final startIndex = activeEvent.event.startControlKey;
-    final finishIndex = activeEvent.event.finishControlKey;
+    final startIndex = widget.event.startControlKey;
+    final finishIndex = widget.event.finishControlKey;
     final isStart = control.index == startIndex;
     final isFinish = control.index == finishIndex;
 
-    var checkInSignatureString = (isNotFinished)
-        ? Signature.checkInCode(activeEvent, control).wordText
-        : Signature.forCert(activeEvent).xyText;
+    var checkInSignatureString = activeEvent == null
+        ? ""
+        : ((isNotFinished)
+            ? Signature.checkInCode(activeEvent, control).wordText
+            : Signature.forCert(activeEvent).xyText);
 
     return Card(
       child: Column(
@@ -120,7 +128,7 @@ class _ControlCardState extends State<ControlCard> {
               children: [
                 Text(exactDistanceString(control.cLoc)),
                 Text(controlStatusString()),
-                if (isDisqualified && activeEvent.isFinishControl(control))
+                if (isDisqualified && widget.event.isFinishControl(control))
                   Text(
                     activeEvent.overallOutcomeDescription,
                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -146,10 +154,10 @@ class _ControlCardState extends State<ControlCard> {
     var c = widget.control;
     int controlKey = c.index;
     var activeEvent = widget.activeEvent;
-    var open = activeEvent.openActual(controlKey);
-    var close = activeEvent.closeActual(controlKey);
+    var open = activeEvent?.openActual(controlKey);
+    var close = activeEvent?.closeActual(controlKey);
     if ((open ?? close) == null) return ""; // Pre ride undefined open/close
-    if (activeEvent.isUntimedControl(c)) {
+    if (widget.event.isUntimedControl(c)) {
       return "Open (untimed)";
     }
     if (open!.isAfter(now)) {
@@ -190,20 +198,23 @@ class _ControlCardState extends State<ControlCard> {
   Future openControlInfoDialog() {
     var activeEvent = widget.activeEvent;
     var control = widget.control;
-    var checkInTime = activeEvent.controlCheckInTime(control);
+    var checkInTime = activeEvent?.controlCheckInTime(control);
 
     Widget? checkInRow;
 
     if (checkInTime != null) {
-      var checkInSignatureString = activeEvent.makeCheckInSignature(control);
+      var checkInSignatureString = activeEvent?.makeCheckInSignature(control);
 
-      var lastUpload = activeEvent.outcomes.lastUpload;
+      var lastUpload = activeEvent?.outcomes.lastUpload;
 
-      var checkInIcon = (lastUpload != null &&
-              (lastUpload.isAfter(checkInTime) ||
-                  activeEvent.wasAutoChecked(control.index)))
-          ? const Icon(Icons.check_circle, color: Colors.green)
-          : const Icon(Icons.pending_sharp, color: Colors.orangeAccent);
+      var checkInIcon = activeEvent == null
+          ? const Icon(Icons.check_box_outline_blank_outlined,
+              color: Colors.green)
+          : ((lastUpload != null &&
+                  (lastUpload.isAfter(checkInTime) ||
+                      activeEvent.wasAutoChecked(control.index)))
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : const Icon(Icons.pending_sharp, color: Colors.orangeAccent));
       checkInRow = Row(
         children: [
           const Text('Check In: '),
@@ -223,17 +234,25 @@ class _ControlCardState extends State<ControlCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-                "Control: ${1 + control.index} of ${activeEvent.event.controls.length}"),
+                "Control: ${1 + control.index} of ${widget.event.controls.length}"),
             Text("Address: ${control.address}"),
             Text("Style: ${control.style.name}"),
             Text('Course distance: ${control.distMi.toString()} mi'),
             Text(exactDistanceString(control.cLoc)),
             Text("Location: ${control.lat} N;  ${control.long}E"),
             Text(controlStatusString()),
-            Text(
-                '${activeEvent.isUntimedControl(control) ? 'Suggested ' : ''}Open Time: ${activeEvent.openActualString(control.index)}'),
-            Text(
-                '${activeEvent.isUntimedControl(control) ? 'Suggested ' : ''}Close Time: ${activeEvent.closeActualString(control.index)}'),
+            if (activeEvent != null)
+              Text(
+                  '${widget.event.isUntimedControl(control) ? 'Suggested ' : ''}Open Time: ${activeEvent.openActualString(control.index)}')
+            else
+              Text(
+                  '${widget.event.isUntimedControl(control) ? 'Suggested ' : ''}Open Time: ${widget.event.openTimeString(control.index)}'),
+            if (activeEvent != null)
+              Text(
+                  '${widget.event.isUntimedControl(control) ? 'Suggested ' : ''}Close Time: ${activeEvent.closeActualString(control.index)}')
+            else
+              Text(
+                  '${widget.event.isUntimedControl(control) ? 'Suggested ' : ''}Close Time: ${widget.event.closeTimeString(control.index)}'),
             checkInRow ?? const Text('Not checked in.'),
           ],
         ),
@@ -252,15 +271,17 @@ class _ControlCardState extends State<ControlCard> {
   // This is also the "gateway" to checkin, deciding if the rider
   // should be allowed to check in.
 
-  Widget checkInButton() {
+  Widget? checkInButton() {
     final activeEvent = widget.activeEvent;
     final c = widget.control;
-    final checkInTime = activeEvent.controlCheckInTime(c);
-    final lastUpload = activeEvent.outcomes.lastUpload;
+    final checkInTime = activeEvent?.controlCheckInTime(c);
+    final lastUpload = activeEvent?.outcomes.lastUpload;
 
     // As a fix for situations when the route loops back to the same
     // control location and riders can be confused with multiple check-in buttons
     // this will make sure only one such button is ever available.
+
+    if (activeEvent == null) return null;
 
     var firstAvailableIndex =
         activeEvent.firstAvailableUncheckedUnskippedControl();
@@ -363,7 +384,8 @@ class _ControlCardState extends State<ControlCard> {
 
   Future openCheckInDialog() {
     final control = widget.control;
-    var activeEvent = widget.activeEvent;
+    var activeEvent =
+        widget.activeEvent!; // Only can be used with activated events
     var skipping = activeEvent.wouldSkip(control);
 
     return showDialog(
@@ -408,7 +430,8 @@ class _ControlCardState extends State<ControlCard> {
 
   Widget checkInDialogContent() {
     final control = widget.control;
-    var activeEvent = widget.activeEvent;
+    var activeEvent =
+        widget.activeEvent!; // Only can be used with activated events
     var isAvailable = activeEvent
         .isControlAvailable(control.index); // sets activeEvent.lateCheckIn
 
@@ -470,18 +493,19 @@ class _ControlCardState extends State<ControlCard> {
     var controlState = context.read<ControlState>();
 
     // this will do the actual check-in
-    widget.activeEvent
+    widget.activeEvent!
         .controlCheckIn(
       control: widget.control,
       comment: controller.text,
       controlState: controlState,
     )
         .then((result) {
-      final activeEvent = widget.activeEvent;
+      final activeEvent =
+          widget.activeEvent!; // Only can be used on activated events
       final control = widget.control;
       final isDisqualified = activeEvent.isDisqualified;
 
-      final isFinished = !(activeEvent.isIntermediateControl(control) ||
+      final isFinished = !(widget.event.isIntermediateControl(control) ||
           !activeEvent.isFinished);
       if ((result != null) || // Force dialog if anything interesting happened
           isFinished ||
@@ -513,7 +537,7 @@ class _ControlCardState extends State<ControlCard> {
     // var checkInPhrase = Signature.checkInCode(activeEvent, control).wordText;
 
     final checkInDateTime =
-        activeEvent.outcomes.getControlCheckInTime(control.index);
+        activeEvent!.outcomes.getControlCheckInTime(control.index);
     final checkInTimeString = Utility.toBriefDateTimeString(checkInDateTime);
     FlushbarGlobal.show(
         "Checked into Control ${control.index + 1} at $checkInTimeString");
@@ -525,7 +549,7 @@ class _ControlCardState extends State<ControlCard> {
           final activeEvent = widget.activeEvent;
           final control = widget.control;
           final checkInDateTime =
-              activeEvent.outcomes.getControlCheckInTime(control.index);
+              activeEvent!.outcomes.getControlCheckInTime(control.index);
           final checkInTimeString = Utility.toBriefTimeString(checkInDateTime);
           final textTheme = Theme.of(context).textTheme;
           final signatureStyle = textTheme.headlineMedium;
@@ -542,7 +566,7 @@ class _ControlCardState extends State<ControlCard> {
           );
 
           final isDisqualified = activeEvent.isDisqualified;
-          final isNotFinished = activeEvent.isIntermediateControl(control) ||
+          final isNotFinished = widget.event.isIntermediateControl(control) ||
               !activeEvent.isFinished;
 
           var checkInPhrase =
@@ -645,7 +669,7 @@ class _ControlCardState extends State<ControlCard> {
                     Text(
                       (overallOutcome == OverallOutcome.finish)
                           ? "Congratulations! You have finished the ${activeEvent.event.nameDist} in ${activeEvent.elapsedTimeString}."
-                          : (activeEvent.isIntermediateControl(control)
+                          : (widget.event.isIntermediateControl(control)
                               ? "Ride On!"
                               : "RBA Review Needed"),
                       textAlign: TextAlign.center,

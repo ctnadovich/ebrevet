@@ -353,20 +353,6 @@ class RiderComment {
   });
 }
 
-// class TimelineCheckin {
-//   final String riderName;
-//   final int controlIndex;
-//   final DateTime checkinTime;
-//   final String? comment;
-
-//   TimelineCheckin({
-//     required this.riderName,
-//     required this.controlIndex,
-//     required this.checkinTime,
-//     required this.comment,
-//   });
-// }
-
 extension RiderCheckinsTimeline on List<RiderResults> {
   List<RiderComment> toTimeline() {
     final allCheckins = <RiderComment>[];

@@ -293,6 +293,11 @@ class Event {
   DateTime get startControlCloseTime => controls[startControlKey].close;
   DateTime get finishControlCloseTime => controls[finishControlKey].close;
 
+  String openTimeString(int controlKey) =>
+      controls[controlKey].open.toLocal().toString().substring(0, 16);
+  String closeTimeString(int controlKey) =>
+      controls[controlKey].close.toLocal().toString().substring(0, 16);
+
   Duration get allowedDuration {
     // if (startTimeWindow == null) return null; // Permanent
     return finishControlCloseTime.difference(startControlOpenTime);
@@ -384,6 +389,16 @@ class Event {
   Region get region => Region(regionID: regionID);
 
   bool get isGravel => (gravelDistance > 0);
+
+  bool isIntermediateControl(control) =>
+      control.index != finishControlKey && control.index != startControlKey;
+  bool isFinishControl(control) => control.index == finishControlKey;
+
+  bool isUntimedControl(Control c) {
+    return c.style.isUntimedStyle ||
+        (isIntermediateControl(c) && gravelDistance > 0) ||
+        c.timed == false;
+  }
 
   // Time window +/- from the official start time that
   // starts will be allowed. In minutes.
