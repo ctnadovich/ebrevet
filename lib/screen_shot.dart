@@ -42,7 +42,7 @@ class ScreenShot {
       Uint8List pngBytes = byteData.buffer.asUint8List();
       // print(pngBytes);
       File imgFile = File('$directory/$filename');
-      imgFile.writeAsBytes(pngBytes);
+      imgFile.writeAsBytesSync(pngBytes);
 
       MyLogger.entry("Wrote image of ${pngBytes.length} bytes to $imgFile");
 
