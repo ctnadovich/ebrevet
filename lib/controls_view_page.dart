@@ -133,6 +133,7 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
 
     final bool showScreenshotButton = (widget.style == ControlsViewStyle.past);
     final bool isLiveView = (widget.style == ControlsViewStyle.live);
+    // final bool isFutureView = (widget.style == ControlsViewStyle.future);
 
     // final regionName = Region(regionID: event.regionID).clubName;
 
@@ -181,7 +182,11 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
                     child: ListView(
                       children: [
                         for (var c in widget.event.controls)
-                          ControlCard(c, widget.event)
+                          ControlCard(
+                            c,
+                            widget.event,
+                            style: widget.style,
+                          )
                       ],
                     ),
                   ),
@@ -208,9 +213,27 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
         return _buildLiveViewHeader(context);
       case ControlsViewStyle.past:
         return _buildHistoryViewHeader(context);
+      case ControlsViewStyle.future:
+        return _buildFutureViewHeader(context);
       default:
         return const Text("Unknown header view.");
     }
+  }
+
+  Widget _buildFutureViewHeader(BuildContext context) {
+    return Column(children: [
+      Text(
+        'Controls:',
+        style: Theme.of(context)
+            .textTheme
+            .titleLarge
+            ?.copyWith(color: Theme.of(context).colorScheme.primary),
+      ),
+      // Text('Region: ${widget.event.region.regionName}'),
+      // Text('Club: ${widget.event.region.clubName}'),
+      // Text('Location: ${widget.event.startCity}, ${widget.event.startState}'),
+      // Text('Latest Cue Ver: ${widget.event.cueVersionString}'),
+    ]);
   }
 
   Widget _buildLiveViewHeader(BuildContext context) {
@@ -304,7 +327,10 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
                   MyLogger.entry("Calling _handleUpload()");
                   _handleUpload();
                 },
-                child: const Text("Upload results")),
+
+// TODO -- This needs to be renamed
+
+                child: const Text("Resend Checkins")),
           ],
         ),
       ],
@@ -343,7 +369,7 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
             ElevatedButton(
                 onPressed: () => Report.constructReportAndSend(activatedEvent,
                     onUploadDone: controlState.reportUploaded),
-                child: const Text("Upload results")),
+                child: const Text("Resend Checkins")),
             const SizedBox(width: 8),
           ],
         ),

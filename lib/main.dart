@@ -20,6 +20,10 @@
 // as off the cert page
 // The PROBLEM with this is that ControlsViewPage calls
 
+// TODO Perhaps UNDERWAY events should be highlighted in
+// upcoming events or otherwise indicated beyond the
+// very basic Underway! text.
+
 // TODO Take another look at Flushbar formatting for different cases
 // Test them.
 

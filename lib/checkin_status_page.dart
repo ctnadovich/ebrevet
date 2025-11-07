@@ -7,6 +7,16 @@ import 'event_header_card.dart';
 // import 'my_activated_events.dart';
 import 'checkin.dart';
 
+// TODO Checkin -- by control?
+// The table view on the website is by rider in
+// the rows, and by control in the columns. The existing
+// By Rider view is a summary of this that expands
+// each row of this. An analagous By Control would
+// be columns of this table.
+
+// TODO Refresh Button -- this page badly needs 
+// a reload/refresh button
+
 class CheckinStatusPage extends StatefulWidget {
   final Event event;
 //   final ActivatedEvent? activatedEvent;

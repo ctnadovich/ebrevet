@@ -370,6 +370,23 @@ class Event {
     }
   }
 
+  get isUnderway {
+    if (startTimeWindow.startStyle == StartStyle.permanent ||
+        startTimeWindow.onTime == null) {
+      return false;
+    }
+    DateTime now = DateTime.now();
+    if (earliestStartTime!.isAfter(now)) {
+      // Event in future
+      return false;
+    } else if (finishControlCloseTime.isBefore(now)) {
+      // Event in past
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   String get cueVersionString {
     if (cueVersion > 0) {
       return '$cueVersion';

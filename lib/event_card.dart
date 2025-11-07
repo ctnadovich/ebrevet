@@ -112,15 +112,15 @@ class _EventCardState extends State<EventCard> {
                     );
                   },
                 ),
-                if (activatedEvent != null)
-                  IconButton(
-                    icon: const Icon(Icons.comment),
-                    tooltip: 'Show all comments',
-                    onPressed: () {
-                      CommentFetcher.fetchAndFlush(activatedEvent!,
-                          allNew: true);
-                    },
-                  ),
+                // if (activatedEvent != null)
+                //   IconButton(
+                //     icon: const Icon(Icons.comment),
+                //     tooltip: 'Show all comments',
+                //     onPressed: () {
+                //       CommentFetcher.fetchAndFlush(activatedEvent!,
+                //           allNew: true);
+                //     },
+                //   ),
               ],
             ),
             title: Text(
@@ -140,8 +140,17 @@ class _EventCardState extends State<EventCard> {
                 if (event.gravelDistance > 0)
                   Text('Gravel: ${event.gravelDistance}K of ${event.distance}K'
                       ' (${(100.0 * event.gravelDistance / event.distance).round()}%) unpaved'),
-                if (event.startTimeWindow.onTime != null)
-                  Text('${event.dateTime} (${event.eventStatusText})'),
+                if (event.startTimeWindow.onTime != null && !event.isUnderway)
+                  Text(
+                    '${event.dateTime} (${event.eventStatusText})',
+                  ),
+                if (event.startTimeWindow.onTime != null && event.isUnderway)
+                  const Text(
+                    'UNDERWAY!',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 Text('Latest Cue Ver: ${event.cueVersionString}'),
               ],
             ),
@@ -641,6 +650,8 @@ class _EventCardState extends State<EventCard> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
+// TODO This seems to be broken
+
                       builder: (_) => ControlsViewPage(
                           event: event, style: ControlsViewStyle.future),
                     ),

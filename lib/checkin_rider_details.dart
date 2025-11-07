@@ -98,19 +98,22 @@ class RiderCheckinDetailsPage extends StatelessWidget {
 
           const Divider(height: 1),
 
+          // TODO Is this another redundant control card list?
+
           // ===== SCROLLABLE CHECKIN LIST =====
           Expanded(
             child: checklist.isEmpty
                 ? const Center(child: Text("No checkins available"))
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: checklist.length,
+                    itemCount: numControls, // checklist.length,
                     itemBuilder: (context, index) {
-                      final checkin = checklist[index];
+                      final checkin =
+                          index < checklist.length ? checklist[index] : null;
 
                       // Extract comment, skipping "Automatic Check In"
                       String? comment;
-                      final rawComment = (checkin.comment ?? "").trim();
+                      final rawComment = (checkin?.comment ?? "").trim();
                       if (rawComment.isNotEmpty &&
                           !rawComment.contains("Automatic Check In")) {
                         comment = rawComment;
@@ -118,15 +121,33 @@ class RiderCheckinDetailsPage extends StatelessWidget {
 
                       // Lookup the corresponding control
                       Control? control;
-                      if (checkin.index > 0 &&
-                          checkin.index <= controls.length) {
-                        control = controls[checkin.index - 1];
-                      }
+                      // if (checkin.index > 0 &&
+                      //     checkin.index <= controls.length) {
+                      //   control = controls[checkin.index - 1];
+                      // }
 
-                      if (control == null) throw Exception('Null control');
+                      control = controls[index];
+
+                      // if (control == null) throw Exception('Null control');
 
                       final checkinText =
-                          checkin.formatCheckinWithControlTimes(control);
+                          checkin?.formatCheckinWithControlTimes(control) ??
+                              "Not Checked In";
+
+                      // TODO Would be great to estimate arrivals at
+                      // not checked in controls
+
+                      final checkinIcon = checkin != null
+                          ? const Icon(
+                              Icons.check_circle_outline_outlined,
+                              color: Colors.green,
+                              size: 30,
+                            )
+                          : const Icon(
+                              Icons.radio_button_unchecked,
+                              color: Colors.orange,
+                              size: 30,
+                            );
 
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 6.0),
@@ -137,11 +158,7 @@ class RiderCheckinDetailsPage extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(
-                                    Icons.check_circle_outline_outlined,
-                                    color: Colors.green,
-                                    size: 30,
-                                  ),
+                                  checkinIcon,
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(

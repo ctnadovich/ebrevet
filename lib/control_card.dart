@@ -15,11 +15,14 @@
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
 import 'dart:async';
+import 'package:ebrevet_card/controls_view_page.dart';
 import 'package:ebrevet_card/mylogger.dart';
 import 'package:ebrevet_card/outcome.dart';
 import 'package:ebrevet_card/signature.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+// import 'map_icon_button.dart';
 
 import 'control.dart';
 import 'time_till.dart';
@@ -36,9 +39,11 @@ import 'my_activated_events.dart';
 class ControlCard extends StatefulWidget {
   final Control control;
   final Event event;
+  final ControlsViewStyle style;
   final ActivatedEvent? activeEvent;
 
-  ControlCard(this.control, this.event, {super.key})
+  ControlCard(this.control, this.event,
+      {this.style = ControlsViewStyle.live, super.key})
       : activeEvent = MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
 
   @override
@@ -109,6 +114,10 @@ class _ControlCardState extends State<ControlCard> {
                     const TextSpan(
                         text: 'Finish: ',
                         style: TextStyle(fontWeight: FontWeight.bold)),
+                  if (!isStart && !isFinish)
+                    TextSpan(
+                        text: '${1 + control.index}: ',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                   TextSpan(
                     text: control.name,
                     style: TextStyle(
@@ -126,8 +135,19 @@ class _ControlCardState extends State<ControlCard> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(exactDistanceString(control.cLoc)),
-                Text(controlStatusString()),
+                if (widget.style == ControlsViewStyle.live) ...[
+                  Text(exactDistanceString(control.cLoc)),
+                  Text(controlStatusString()),
+                ],
+                if (widget.style == ControlsViewStyle.future) ...[
+                  // Text( "Control: ${1 + control.index} of ${widget.event.controls.length}"),
+                  Text("Address: ${control.address}"),
+                  Text("Style: ${control.style.name}"),
+                  Text('Course distance: ${control.distMi.toString()} mi'),
+                  // Text(exactDistanceString(control.cLoc)),
+                  // Text("Location: ${control.lat} N;  ${control.long}E"),
+                  // MapIconButton(latitude: control.lat, longitude: control.long),
+                ],
                 if (isDisqualified && widget.event.isFinishControl(control))
                   Text(
                     activeEvent.overallOutcomeDescription,

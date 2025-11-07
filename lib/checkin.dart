@@ -359,6 +359,8 @@ extension RiderCheckinsTimeline on List<RiderResults> {
 
     for (final rider in this) {
       // Skip preride riders entirely
+      // TODO -- do we want to skip these?
+
       if (rider.isReallyPreride == true) continue;
 
       for (int i = 0; i < rider.checklist.length; i++) {
@@ -374,7 +376,7 @@ extension RiderCheckinsTimeline on List<RiderResults> {
       }
     }
 
-    allCheckins.sortByDateTime();
+    allCheckins.sortByDateTime(ascending: false);
     return allCheckins;
   }
 }
