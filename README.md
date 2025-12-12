@@ -126,7 +126,7 @@ within the open/close interval of that control. When you are eligible
 to check in, a "Check In" button will appear. Click this and the Check
 In dialog will open. To actually check in, press the "CHECK IN NOW"
 button. You can enter an optional check-in comment that will be posted
-to the event chat channel. 
+on the web along with your check-in time. 
 
 ![eBrevet Screen Shots](https://parando.org/ebrevet/v28/check_in_sequence.png)
 
@@ -148,6 +148,23 @@ the "Resend Check-Ins" button to have all your checkins are uploaded to the web 
 <div style="text-align: center;">
 <img src="https://parando.org/ebrevet/v19/ScreenShots/no_yes_upload.png" width=67%/>
 </div>
+
+### Check In Dialogs
+
+You can enter an optional check-in comment that will be posted
+on the web along with your check-in time. It's fun to read the comments 
+of riders as they experience the trials and tribulations of brevet riding. Check in 
+comments are entered into the 
+dialog that opens after you hit the check-in button.  Comments are optional. If you never 
+use comments and don't want to be bothered by that dialog, you can disable comments in the 
+settings page and hitting the Check-in button will imediately check you in without asking for 
+a comment unless there is some error or warning (eg Late or Skipping).
+
+Similarly, there is a post-check-in dialog that confirms the checkin was successful and provides 
+the check-in phrase you can write on your card. If you don't want to be bothered with this dialog,
+you can disable it in the Settings.  
+
+
 
 ### Skipping Controls
 
