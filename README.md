@@ -128,7 +128,7 @@ In dialog will open. To actually check in, press the "CHECK IN NOW"
 button. You can enter an optional check-in comment that will be posted
 on the web along with your check-in time. 
 
-![eBrevet Screen Shots](https://parando.org/ebrevet/v28/check_in_sequence.png)
+![eBrevet Screen Shots](https://parando.org/ebrevet/v28/Check_in_sequence.png)
 
 When you press the "CHECK IN NOW" button, your check-in is recorded on
 your phone and the app will attempt to report the check-in to your
