@@ -47,6 +47,8 @@ class Report {
     _sendReportToServer(report).then((response) {
       _recordReportResponse(response);
       lastSuccessfulServerAccess = DateTime.now();
+      FlushbarGlobal.show("Current checkin status uploaded.");
+
       onUploadDone?.call();
     }).catchError((e) {
       if (e is NoPreviousDataException) {

@@ -118,7 +118,6 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
     } finally {
       if (mounted) {
         setState(() => _updating = false);
-        FlushbarGlobal.show("Current checkin status uploaded.");
       }
     }
   }

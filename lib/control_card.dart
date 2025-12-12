@@ -321,7 +321,7 @@ class _ControlCardState extends State<ControlCard> {
               (lastUpload.isAfter(checkInTime) ||
                   activeEvent.wasAutoChecked(c.index)))
           ? const Icon(Icons.check_circle, color: Colors.green)
-          : const Icon(Icons.pending_sharp, color: Colors.orangeAccent);
+          : const Icon(Icons.check_circle, color: Colors.orangeAccent);
       return Column(
         children: [
           checkInIcon,
