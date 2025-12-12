@@ -146,7 +146,7 @@ of the event. It helps the RBA/organizer to have your complete set of checkins a
 the "Resend Check-Ins" button to have all your checkins are uploaded to the web and turn your checks green. Of course, be sure to find working Internet service before pressing "Resend Check-Ins"!*
 
 <div style="text-align: center;">
-<img src="https://parando.org/ebrevet/v19/ScreenShots/no_yes_upload.png" width=67%/>
+<img src="https://parando.org/ebrevet/v19/ScreenShots/No_yes_upload.png" width=67%/>
 </div>
 
 ### Dialog and Notification Settings
