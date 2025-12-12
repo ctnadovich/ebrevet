@@ -174,6 +174,13 @@ the settings.
 
  Because eBrevet doesn't "track" you, it cannot warn you when you ride past a control. If you are relying on eBrevet for proof of passage, just like a paper card it's your responsibility to know the controls on the brevet card and to stop as required to check in. When you skip a control eBrevet won't warn you until you try to check into the next control *after* the one you skipped. At that moment you still have the option of backtracking to the skipped control, checking in, and then all will be good. But if you DO skip the control by checking-in to subsequent controls after the skipped one, eBrevet will record this and there is no "UNDO". Because you skipped a control, the app will not issue a finish certificate and will mark your result as requiring RBA review. At that point its up to your RBA whether you have a qualified finish. If you have some other proof of passage, either EPP or signatures/receipts for the skipped control, you should be fine. 
 
+ There are two reasons riders skip controls. The most common reason is that they simply forgot to stop and check in. There's no real excuse for this, but it happens.  Either have a backup proof of passage (eg EPP), or beg your RBA for mercy. 
+ 
+ Another more insidious situation
+ occurs at a central control for a figure-8 or cloverleaf brevet, often the overnight.  Riders will arrive at 
+ the overnight, and check in normally and correctly. Then at some later time they might look at eBrevet and see an available "Check In" 
+ button. This is the check in for the NEXT time they will arrive at this control -- after they ride the cloverleaf petal loop. Nevertheless, this future instance of the central control might very well be open, time wise, and they are at the location, and thus the control is available for check-in. Of course, the rider has NOT ridden the loop and if they check in AGAIN at the same location, they will have skipped all the controls on the loop. eBrevet will warn about skipped controls. Hopefully, the sleepy rider (possibly with the help of a volunteer) will see the warning and know not to check in again.
+
  ### Late to Controls
 
  If the RWGPS data has a control set with a timed=yes attribute, or is of a style that implies timed=yes, the control will have a closing time enforced by eBrevet. For such controls, eBrevet will still allow checkin after the closing time, but will add a "LATE!" warning to any checkin after closing and will not issue a finish code or finish certificate at the end of the ride. This is similar to the behavior for skipped controls.  It will be up to the RBA/Organizer to 
