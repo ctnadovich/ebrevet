@@ -44,6 +44,9 @@ eBrevet is supported by the [RBA Tools at Randonneuring.org](https://randonneuri
 - Finish certificate sharable on social media with unique "finish code" verification.
 - Reports control check ins back to server allowing rider progess monitoring.
 - Can be used by any club publishing event details in specified JSON format. 
+- Can display check-ins and comments of other riders when internet is available. 
+- Saves results of past events.
+- Issues a "Finish Certificate" that certifies timely check-in at all controls and is sharable on social media.
 - Free, open source software.
 
 ## Rider Instructions
@@ -61,9 +64,11 @@ an event or there may be trouble checking into controls.*
 
 When you first open the app, you *must* enter your Name and Rider
 ID number. Your Rider ID is your RUSA ID number 
-in the USA. Please make sure you you enter your Rider ID correctly. If
-you enter the wrong Rider ID, you wll not be able to use the app
-till this is corrected. In the USA, your Rider ID is your RUSA number. 
+in the USA. Outside the USA, the Rider ID is provided by the organizer of 
+your event. Typically it's the "frame number" or similar identifier. 
+
+Please make sure you you enter your Rider ID correctly. If
+you enter the wrong Rider ID, you wll not be able to start the event till this is corrected. The start code is unique to each rider ID and will not work with the wrong ID. 
 
 <img src="https://parando.org/ebrevet/v26/required_settings.png" width=33%/>
 
@@ -105,7 +110,7 @@ printed on your brevet card, or available from the event
 organizer. Every rider has a different start code.  If your Start Code
 isn't working, make sure you have the latest version of the events
 refreshed from the Server, and that you have the latest version of the
-eBrevet app. 
+eBrevet app. Also be sure you entered your Rider ID correctly. 
 
 <img src="https://parando.org/ebrevet/v28/start_code.png" width=33%/>
 
@@ -128,26 +133,17 @@ to the event chat channel.
 When you press the "CHECK IN NOW" button, your check-in is recorded on
 your phone and the app will attempt to report the check-in to your
 Club/Region's server. After you dismiss the check-in dialogs and
-return to the ride page, you will see either a orange three-dots icon,
+return to the ride page, you will see either a orange check icon,
 or a green check next to the control. The green check means you've
 checked in and your check-in time has been uploaded to the Club/Region
-server. Ride on with confidence that your check-in at that
-control is solid.
+server. If the check is orange, you also have checked in just fine, but 
+the check-in hasn't yet been reported to the web server (probably because your internet service is off or limited). But whether orange or green, if you get a check mark, ride on with confidence that your check-in at that
+control is solid. You will receive an official finish code and certificate even if some checkmarks are orange. 
 
-On the other hand, if you see an orange three-dots icon, that means
-the app itself has recorded your check-in, but your check-in has not
-yet been uploaded to the Club/Region. This will occur if your phone is
-in Airplane Mode or if there is no data service on your phone. At some
-point in the future when your phone has internet service again, press
-the "Upload Results" button and you should see all your orange marks
-turn into green checks. 
 
-**IMPORTANT:** *Be sure all your controls show green checks at the end
-of the event. When all your controls are green you have officially
-completed the event and your results have been recorded at the
-Club/Region. If you still have some orange three-dot marks next to
-controls, you need to find working Internet service and upload your
-results ASAP.*
+**IMPORTANT:** *Even if orange checkmarks are still good, it's better if all your controls show green checks at the end
+of the event. It helps the RBA/organizer to have your complete set of checkins uploaded. Use 
+the "Resend Check-Ins" button to make sure all your checkins are uploaded to the web. Be sure to find working Internet service before pressing "Resend Check-Ins.*
 
 <div style="text-align: center;">
 <img src="https://parando.org/ebrevet/v19/ScreenShots/no_yes_upload.png" width=67%/>
@@ -173,7 +169,7 @@ attempt to finish.
 A check-in confirmation dialog appers with an official check in
 "signature" code. It's wise to write this code and the check-in time
 on your paper brevet card, particularly if you see
-orange dots indicating that your check-in hasn't been uploaded
+orange checks (rather than green) indicating that your check-in hasn't been uploaded
 and backed up at the Club/Region. Should something happen to your
 phone, writing down the check in signature code is
 evidence you were at the control at the required time. 
