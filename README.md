@@ -149,7 +149,7 @@ the "Resend Check-Ins" button to have all your checkins are uploaded to the web 
 <img src="https://parando.org/ebrevet/v19/ScreenShots/no_yes_upload.png" width=67%/>
 </div>
 
-### Check In Dialogs
+### Dialog and Notification Settings
 
 You can enter an optional check-in comment that will be posted
 on the web along with your check-in time. It's fun to read the comments 
@@ -163,6 +163,10 @@ a comment unless there is some error or warning (eg Late or Skipping).
 Similarly, there is a post-check-in dialog that confirms the checkin was successful and provides 
 the check-in phrase you can write on your card. If you don't want to be bothered with this dialog,
 you can disable it in the Settings.  
+
+Even if you've disabled the comment entry dialog, when other riders make comments you will see
+snackbar notifications of their comments. If you don't want to see these, these notifications can be disabled in
+the settings. 
 
 
 
