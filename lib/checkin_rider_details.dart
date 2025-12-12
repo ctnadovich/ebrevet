@@ -183,6 +183,9 @@ class RiderCheckinDetailsPage extends StatelessWidget {
                                       .bodySmall
                                       ?.copyWith(color: Colors.grey[700]),
                                 ),
+
+// TODO The open and close times given here are invalid for a preride
+
                               Text(
                                 "OPEN: ${control.openTimeString}",
                                 style: Theme.of(context)

@@ -14,9 +14,6 @@ import 'checkin.dart';
 // each row of this. An analagous By Control would
 // be columns of this table.
 
-// TODO Refresh Button -- this page badly needs 
-// a reload/refresh button
-
 class CheckinStatusPage extends StatefulWidget {
   final Event event;
 //   final ActivatedEvent? activatedEvent;
@@ -57,7 +54,21 @@ class _CheckinStatusPageState extends State<CheckinStatusPage>
         ),
         body: Column(
           children: [
-            EventHeaderCard(event: event),
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                setState(() {
+                  _riderResults = RiderResults.fetchAllFromServer(
+                    widget.event.checkinStatusUrl,
+                  );
+                });
+              },
+              child: EventHeaderCard(event: event),
+            ),
+            Text(
+              "(Tap above to refresh)",
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
             Material(
               color: Theme.of(context).colorScheme.surface,
               child: TabBar(

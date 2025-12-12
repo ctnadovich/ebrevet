@@ -49,7 +49,8 @@ class RiderCheckinCard extends StatelessWidget {
 
 // TODO do we want isReallyPreride conditional?
 
-    if (rider.isReallyPreride == false && rider.checklist.isNotEmpty) {
+    // if (rider.isReallyPreride == false && rider.checklist.isNotEmpty) {
+    if (rider.checklist.isNotEmpty) {
       final i = rider.checklist.length;
       final t = Utility.toBriefTimeString(rider.checklist.last.checkinDatetime);
       final controlDist = event.controls[i - 1].distMi;

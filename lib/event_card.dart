@@ -33,7 +33,6 @@ import 'mylogger.dart';
 import 'control_state.dart';
 import 'utility.dart';
 import 'checkin_status_page.dart';
-import 'checkin.dart';
 
 class EventCard extends StatefulWidget {
   final Event event;
@@ -650,8 +649,6 @@ class _EventCardState extends State<EventCard> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-// TODO This seems to be broken
-
                       builder: (_) => ControlsViewPage(
                           event: event, style: ControlsViewStyle.future),
                     ),

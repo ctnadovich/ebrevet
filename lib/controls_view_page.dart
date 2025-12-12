@@ -19,12 +19,8 @@ import 'outcome.dart';
 import 'snackbarglobal.dart';
 // import 'region.dart';
 
-// TODO should be able to work with either a future, un-activated Event
-// as a control preview, or with
-// an ActivatedEvent showing this rider's check ins.
-// Perhaps RiderCheckinDetailsPage could be implemnted
+// TODO Perhaps RiderCheckinDetailsPage could be implemnted
 // with this widget, instead of being yet another checkin view?
-
 // or maybe this widget shoud be replaced with rider checkin details.
 // or some synthesis of the two created.
 
@@ -327,9 +323,6 @@ class _ControlsViewPageState extends State<ControlsViewPage> {
                   MyLogger.entry("Calling _handleUpload()");
                   _handleUpload();
                 },
-
-// TODO -- This needs to be renamed
-
                 child: const Text("Resend Checkins")),
           ],
         ),

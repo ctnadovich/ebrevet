@@ -16,7 +16,6 @@
 
 import 'package:ebrevet_card/mylogger.dart';
 
-import 'exception.dart';
 import 'dart:convert';
 import 'report.dart';
 import 'utility.dart';
@@ -30,6 +29,7 @@ class Checkin {
   final String? comment;
   final bool? isEarly;
   final bool? isLate;
+  final bool? isPreride;
   final int index; // 1-based index in the checklist
 
   Checkin({
@@ -37,6 +37,7 @@ class Checkin {
     this.comment,
     this.isEarly,
     this.isLate,
+    this.isPreride,
     required this.index,
   });
 
@@ -46,6 +47,7 @@ class Checkin {
       comment: json['comment'] as String?,
       isEarly: json['is_earlyq'] as bool?,
       isLate: json['is_lateq'] as bool?,
+      isPreride: json['is_prerideq'] as bool?,
       index: index,
     );
   }
@@ -56,6 +58,7 @@ class Checkin {
       'comment': comment,
       'is_earlyq': isEarly,
       'is_lateq': isLate,
+      'is_prerideq': isPreride,
       'index': index,
     };
   }
@@ -63,7 +66,8 @@ class Checkin {
   String formatCheckinWithControlTimes(Control control) {
     final controlNum = control.index + 1;
     final checkinTime = Utility.toBriefDateTimeString(checkinDatetime);
-    final warning = (isEarly == true || isLate == true) ? ' ⚠️' : '';
+    final warning =
+        (isPreride != true) && (isEarly == true || isLate == true) ? ' ⚠️' : '';
 
     return "Control $controlNum: $checkinTime $warning";
   }
@@ -131,7 +135,8 @@ class RiderResults {
 
     final decodedResponse = jsonDecode(responseBody) as List<dynamic>;
     if (decodedResponse.isEmpty) {
-      throw ServerException('Empty response from $url');
+      // throw ServerException('Empty response from $url');
+      return [];
     }
 
     return fromJsonList(decodedResponse);
@@ -359,7 +364,12 @@ extension RiderCheckinsTimeline on List<RiderResults> {
 
     for (final rider in this) {
       // Skip preride riders entirely
-      // TODO -- do we want to skip these?
+      //
+      // I suppose an option could be created to allow
+      // preride checkins to appear in the timeline. Not sure
+      // the value.
+      //
+      // TODO Maybe a better approach is to have a more general way to filter checkins.
 
       if (rider.isReallyPreride == true) continue;
 
