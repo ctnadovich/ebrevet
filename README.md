@@ -141,13 +141,30 @@ the check-in hasn't yet been reported to the web server (probably because your i
 control is solid. You will receive an official finish code and certificate even if some checkmarks are orange. 
 
 
-**IMPORTANT:** *Even if orange checkmarks are still good, it's better if all your controls show green checks at the end
-of the event. It helps the RBA/organizer to have your complete set of checkins uploaded. Use 
-the "Resend Check-Ins" button to make sure all your checkins are uploaded to the web. Be sure to find working Internet service before pressing "Resend Check-Ins.*
+**IMPORTANT:** *Orange checkmarks are still good, but if possible it's a little better if all your controls show green checks at the end
+of the event. It helps the RBA/organizer to have your complete set of checkins and finish time uploaded. This reduces work and possible error. To turn your checks green, use 
+the "Resend Check-Ins" button to have all your checkins are uploaded to the web and turn your checks green. Of course, be sure to find working Internet service before pressing "Resend Check-Ins"!*
 
 <div style="text-align: center;">
 <img src="https://parando.org/ebrevet/v19/ScreenShots/no_yes_upload.png" width=67%/>
 </div>
+
+### Skipping Controls
+
+ Because eBrevet doesn't "track" you, it cannot warn you when you ride past a control, oblivious. If you are relying on eBrevet for proof of passage, just like a paper card it's your responsibility to know the controls on the brevet card and to stop as required to check in. When you skip a control eBrevet won't warn you until you try to check into the next control *after* the one you skipped. At that moment you still have the option of backtracking to the skipped control, checking in, and then all will be good. But if you DO skip the control by checking-in to subsequent controls after the skipped one, eBrevet will record this and there is no "UNDO". Because you skipped a control, the app will not issue a finish certificate and will mark your result as requiring RBA review. At that point its up to your RBA whether you have a qualified finish. If you have some other proof of passage, either EPP or signatures/receipts for the skipped control, you should be fine. 
+
+ ### Late to Controls
+
+ If the RWGPS data has a control set with a timed=yes attribute, or is of a style that implies timed=yes, the control will have a closing time enforced by eBrevet. For such controls, eBrevet will still allow checkin after the closing time, but will add a "LATE!" warning to any checkin after closing and will not issue a finish code or finish certificate at the end of the ride. This is similar to the behavior for skipped controls.  It will be up to the RBA/Organizer to 
+ certify results with late checkins. 
+
+ **Note** *eBrevet behavior for timed controls is determined by the RWGPS data tags. If an organizer/RBA wants all untimed controls, they are free to add timed=no to every control, regardless of style. *
+
+
+
+ or Late to Controls
+
+
 
 ### Abandoning a Ride
 
