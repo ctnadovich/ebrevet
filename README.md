@@ -209,14 +209,14 @@ about your legs). Assuming your time hasn't run out, just
 hit "RIDE" again and the app will resume your ride so you can 
 attempt to finish. 
 
-### Check-In and Finish Codes
+### Check-In Phrases and Finish Codes
 
 A check-in confirmation dialog appers with an official check in
-"signature" code. It's wise to write this code and the check-in time
+"phrase". It's wise to write this phrase and the check-in time
 on your paper brevet card, particularly if you see
 orange checks (rather than green) indicating that your check-in hasn't been uploaded
 and backed up at the Club/Region. Should something happen to your
-phone, writing down the check in signature code is
+phone, writing down the check in phrase is
 evidence you were at the control at the required time. 
 
 If for some reason uploads fail and you don't have green checks on all
@@ -224,6 +224,16 @@ your controls when you've finished an event, now it's *really* a good
 idea to write those check-in codes onto your paper brevet card. There
 will also be an event Finish Code that certifies you checked into all
 the controls at the proper times and in the right order! 
+
+The organizer can check the correctness of any check-in phrase or finish 
+code at the randonneuring.org website.
+When logged in as organizer/RBA, the checkin-status page displays the correct phrases 
+and finish code so that the RBA (if they want) can verify them. Normally this
+checking is not necessary -- if the app has uploaded a FINISH result, this is sufficient
+proof that the rider finished the ride and checked into all controls as required. The
+phrases and codes are only there as a backup mechanism.
+
+
 
 ### Auto Check-In for Mass Start
 
@@ -297,15 +307,20 @@ open the side drawer menu. This menu allows you to access app settings
 a log of app activity, 
 and the About eBrevet dialog. 
 
-<img src="https://parando.org/ebrevet/v28/side_menu.png" width=33%/>
+<img src="https://parando.org/ebrevet/v28/side_menu_1_5.png" width=33%/>
 
 
-### Past Events
+### My Rides
 
-After your complete an event, the results will be visible on the "Past
-Events" page accessible from the drawer menu. Past events are stored
-on your phone. Should the app be uninstalled, Past Events will be
-erased.
+After your complete an event, the results will be visible on the "My
+Rides" page accessible from the drawer menu.  You can browse your check
+in times, finish certificate, and other information about each ride you 
+completed. You will also see data for a ride you are currently riding, or 
+a ride you may have abandoned. 
+
+*NB: Should the app be uninstalled, My Rides will be
+erased. Data on rides you have completed is stored
+on your phone, not the cloud.*
 
 ![eBrevet Screen Shots](https://parando.org/ebrevet/v19/ScreenShots/finish_sequence.png)
 
@@ -315,11 +330,23 @@ A good way to finalize your completion of a past event and make
 sure your results are also stored in Le Grand Livre for posterity is
 to share your certificate of completion. Each event you've finished
 will show a CERTIFICATE button. If you press this button, a
-certificate of completion will appear. On the lower right of the
+certificate of completion will appear, which includes the finish code. 
+On the lower right of the
 certificate there is a "share" icon. Press this and your phone's
 share media page will open. You can use this to save the certificate
 to photos, google or dropbox, or to attach it to an email or social
 media post. 
+### Available Events ###
+
+Events published by the Event Info Source you have selected (eg all the brevets in a given region) may
+be viewed  under Available Events. Filter options are available for Upcoming Events, Past Events, or Permanents 
+published.  Upcoming events (events that haven't yet finished) is the usual default display because riders generally want 
+to start one of these, or check into an event they are riding now. 
+
+Past events can be useful for anyone who wants to see the results of an event that has completed. All 
+the check in data is available. 
+
+
 
 ### Activity Log
 
