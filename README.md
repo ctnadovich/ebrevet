@@ -285,12 +285,16 @@ select.
 <img src="https://parando.org/ebrevet/v26/no_events_yet.png" width=50%/>
 
 
-The app presents a list of regions in the US. The default is PA:
-Eastern, but any US region can be selected. Please only select regions
+The app allows you to select from a list of regions in the US, from international regions,
+or to specify a custom URL from which to fetch event data. The default is PA:
+Eastern. Please only select regions
 that support eBrevet.  If a region does not support eBrevet, you will
 not be able to use eBrevet for those events. Talk to your RBA and RUSA
 about supporting eBrevet for the events you want to ride. More
 supported regions are being added all the time.  
+
+<img src="https://parando.org/ebrevet/v28/info_source.png" width=33%/>
+
 
 There is also an option for selecting a Custom Event Data URL. This
 allows you to enter a special URL given to you by your RBA or event
@@ -303,7 +307,9 @@ the Brevet Region list built into eBrevet.
 On the main eBrevet page you will see three horizontal lines in the
 upper left corner (the so called hamburger icon). Clicking this will
 open the side drawer menu. This menu allows you to access app settings
-(eg Rider Name, Rider ID, Event Info Source), as well as Past Events, 
+(eg Rider Name, Rider ID, select the Event Info Source (ie brevet region) and all the events
+published by that region. You can also see 
+Rides you have completed, 
 a log of app activity, 
 and the About eBrevet dialog. 
 
