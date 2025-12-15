@@ -387,11 +387,24 @@ also a link back to the event website.
 
 
 
+## Supporting eBrevet in your Region
 
-## Club/Region Webserver Support
+The simplest way for an RBA or organizer to support eBrevet for their region is to get an account 
+at randonneuring.org. This account allows you to use the turnkey tools provided there to 
+give eBrevet access to data for their events. 
 
-In order to support the eBrevet app for your Club/Region/Organization,
-you will need to configure a webserver to provide event details in
+To learn more about randonneuring.org and how it helps you
+to support eBrevet, visit the [Randonneuring.org Documentation Page](https://randonneuring.org/about).
+
+### Direct Club/Region Webserver Support
+
+*NB Technical Users Only -- most regions should use randonneuring.org, above.*
+
+If you are a technically inclined RBA or organizer, with web application development skills, you 
+can choose to support eBrevet directly with your club or organizanion webserver, rather than 
+using randonneuring.org. 
+
+To do this, you will need to configure your webserver to provide event details in
 JSON format on a public URL, and to accept JSON formatted check-in
 results on another URL. This can be as simple as a static JSON file,
 or a dynamic database. The randonneuring.org webserver can provide
