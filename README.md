@@ -75,6 +75,47 @@ you enter the wrong Rider ID, you wll not be able to start the event till this i
 Once you've set your name and rider ID number, press "Continue". This will take
 you to the main eBrevet Events screen. 
 
+### Selecting your Region
+
+The first thing you should do after configuring your name and Rider ID is to 
+select the region for the events you want to ride. This is called the "Event Info Source" 
+because the source of information about events comes from the region's webserver or their 
+randonneuring.org 
+account (RUSA does not support event info for eBrevet).
+
+By default, the app fetches event info from the PA: Eastern region. If you
+want to ride events in some other region, you will need to select that
+region under "Event Info Source". That way the app knows where 
+to fetch information about the events you want to ride. 
+
+The info source selection can be
+changed in the Settings menu reached through the "hamburger" icon on
+the upper left, or by clicking the search-settings icon to the right
+of the "Update event data" button. You will want to set your Event
+Info Source to be the RUSA Club/Region or ACP Club for the events you
+want to ride. Once you select the region, hit the "Update event data" 
+button. You will only see events from the Club/Region you
+select. 
+
+<img src="https://parando.org/ebrevet/v26/no_events_yet.png" width=50%/>
+
+
+The app allows you to select from a list of regions in the US, from international regions,
+or to specify a custom URL from which to fetch event data. The default is PA:
+Eastern. Please only select regions
+that support eBrevet.  If a region does not support eBrevet, you will
+not be able to use eBrevet for those events. Talk to your RBA and RUSA
+about supporting eBrevet for the events you want to ride. More
+supported regions are being added all the time.  
+
+<img src="https://parando.org/ebrevet/v28/info_source.png" width=33%/>
+
+
+There is also an option for selecting a Custom Event Data URL. This
+allows you to enter a special URL given to you by your RBA or event
+organizer, allowing you to use eBrevet even if your region is not on
+the Brevet Region list built into eBrevet. 
+
 ### Downloading Events
 
 The main eBrevet Events screen will show you future events that you
@@ -268,38 +309,7 @@ to go near to the start control at the correct time
 hit the check-in button when you actually want to start. 
 
 
-### Event Info Source
 
-If you
-want to ride non-PA events, you will need to select the "Event Info Source", which is
-where the app goes to fetch information about the events you can ride. 
-
-The info source selection can be
-changed in the Settings menu reached through the "hamburger" icon on
-the upper left, or by clicking the search-settings icon to the right
-of the "Update event data" button. You will want to set your Event
-Info Source to be the RUSA Club/Region or ACP Club for the events you
-want to ride. You will only see events from the Club/Region you
-select. 
-
-<img src="https://parando.org/ebrevet/v26/no_events_yet.png" width=50%/>
-
-
-The app allows you to select from a list of regions in the US, from international regions,
-or to specify a custom URL from which to fetch event data. The default is PA:
-Eastern. Please only select regions
-that support eBrevet.  If a region does not support eBrevet, you will
-not be able to use eBrevet for those events. Talk to your RBA and RUSA
-about supporting eBrevet for the events you want to ride. More
-supported regions are being added all the time.  
-
-<img src="https://parando.org/ebrevet/v28/info_source.png" width=33%/>
-
-
-There is also an option for selecting a Custom Event Data URL. This
-allows you to enter a special URL given to you by your RBA or event
-organizer, allowing you to use eBrevet even if your region is not on
-the Brevet Region list built into eBrevet. 
 
 
 ### Side Drawer Menu
