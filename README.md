@@ -215,7 +215,7 @@ the settings.
 
  Because eBrevet doesn't "track" you, it cannot warn you when you ride past a control. If you are relying on eBrevet for proof of passage, just like a paper card it's your responsibility to know the controls on the brevet card and to stop as required to check in. When you skip a control eBrevet won't warn you until you try to check into the next control *after* the one you skipped. At that moment you still have the option of backtracking to the skipped control, checking in, and then all will be good. But if you DO skip the control by checking-in to subsequent controls after the skipped one, eBrevet will record this and there is no "UNDO". Because you skipped a control, the app will not issue a finish certificate and will mark your result as requiring RBA review. At that point its up to your RBA whether you have a qualified finish. If you have some other proof of passage, either EPP or signatures/receipts for the skipped control, you should be fine. 
 
- There are two reasons riders skip controls. The most common reason is that they simply forgot to stop and check in. There's no real excuse for this, but it happens.  Either have a backup proof of passage (eg EPP), or beg your RBA for mercy. 
+ There are two common reasons riders skip controls. The most popular reason is that they simply forgot to stop and check in -- or maybe they don't want to bother. There's no real excuse for this, but it happens.  Either have a backup proof of passage (eg EPP), or beg your RBA for mercy. 
  
  Another more insidious situation
  occurs at a central control for a figure-8 or cloverleaf brevet, often the overnight.  Riders will arrive at 
@@ -362,8 +362,6 @@ to start one of these, or check into an event they are riding now.
 Past events can be useful for anyone who wants to see the results of an event that has completed. All 
 the check in data is available. 
 
-
-
 ### Activity Log
 
 The side drawer menu provides access to the Activity Log. 
@@ -372,6 +370,22 @@ displayed through this menu entry. Normally riders will have
 no need to look at the app activity log, but in case there are problems with the app, 
 the log might show error messages and other information that could 
 help them debug problems. 
+
+### Browsing Detailed Event Data (Check Ins)  
+
+*NB: Some of these features require Internet Access*
+
+The event "cards" displayed in any list of events have two icons that allow you to find 
+information about that event, or to browse the check-in data. 
+
+<img src="https://parando.org/ebrevet/v28/event_list.png" width=50%/>
+
+The Event Info icon will display a box containing a summary of information 
+eBrevet knows about the event. There are buttons that give more detailed 
+information, such as a list of the controls, or the check in data. There's 
+also a link back to the event website. 
+
+
 
 
 ## Club/Region Webserver Support
