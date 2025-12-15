@@ -648,7 +648,7 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-Copyright (C) 2023 Chris Nadovich
+Copyright (C) 2025 Chris Nadovich
 This file is part of eBrevet <https://github.com/ctnadovich/ebrevet>.
 
 eBrevet is free software: you can redistribute it and/or modify
