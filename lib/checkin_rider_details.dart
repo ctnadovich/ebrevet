@@ -135,7 +135,8 @@ class RiderCheckinDetailsPage extends StatelessWidget {
                               "Not Checked In";
 
                       // TODO Would be great to estimate arrivals at
-                      // not checked in controls
+                      // not checked in controls, or at least to
+                      // provide statistics like average speed
 
                       final checkinIcon = checkin != null
                           ? const Icon(
