@@ -128,6 +128,9 @@ class _ScheduledEventsPageState extends State<ScheduledEventsPage> {
   }
 }
 
+// Generic Event Lister widget. Shows a filtered list of events
+// as event cards.
+
 class LatestEventList extends StatefulWidget {
   final EventFilter eventFilter;
 

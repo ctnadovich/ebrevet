@@ -35,6 +35,7 @@ import 'snackbarglobal.dart';
 import 'checkin.dart';
 import 'event.dart';
 import 'my_activated_events.dart';
+import 'confetti_dialog.dart';
 
 class ControlCard extends StatefulWidget {
   final Control control;
@@ -297,16 +298,16 @@ class _ControlCardState extends State<ControlCard> {
     final checkInTime = activeEvent?.controlCheckInTime(c);
     final lastUpload = activeEvent?.outcomes.lastUpload;
 
+    if (activeEvent == null) return null;
+
     // As a fix for situations when the route loops back to the same
     // control location and riders can be confused with multiple check-in buttons
     // this will make sure only one such button is ever available.
 
-    if (activeEvent == null) return null;
-
     var firstAvailableIndex =
         activeEvent.firstAvailableUncheckedUnskippedControl();
 
-    // Can't check in -- you skipped me
+    // Can't check in -- you skipped me -- SKIPPED! Text
     if (activeEvent.wasSkipped(c)) {
       return Text('SKIPPED!',
           style: TextStyle(
@@ -368,19 +369,26 @@ class _ControlCardState extends State<ControlCard> {
         ],
       );
     } else if (c.index != firstAvailableIndex) {
+      // Not the first available control -- display an UP arrow
       return const Tooltip(
           message: 'Check into earlier open control first.',
           child: Icon(Icons.arrow_upward));
-      // Otherwise, control is available. Gosh, let the cat check in.
     } else {
+      // Otherwise, control is available. Gosh, let the cat check in
+      // with ACTUAL CHECK IN BUTTON!
       return ElevatedButton(
-          onPressed: () {
+          onPressed: () async {
             if (AppSettings.allowCheckinComment.value ||
                 activeEvent.wouldSkip(c)) {
               // Force dialog if skipping
-              openCheckInDialog();
+              var comment = await openCheckInDialog();
+              if (comment != null) {
+                submitCheckIn(comment);
+              } else {
+                MyLogger.entry("Null comment -- Cancel check-in");
+              }
             } else {
-              submitCheckIn(popAfter: false);
+              submitCheckIn("");
             }
           },
           child: Column(
@@ -402,13 +410,13 @@ class _ControlCardState extends State<ControlCard> {
     }
   }
 
-  Future openCheckInDialog() {
+  Future<String?> openCheckInDialog() async {
     final control = widget.control;
     var activeEvent =
         widget.activeEvent!; // Only can be used with activated events
     var skipping = activeEvent.wouldSkip(control);
 
-    return showDialog(
+    return showDialog<String?>(
       context: context,
       builder: (context) => AlertDialog(
         icon: skipping
@@ -432,13 +440,14 @@ class _ControlCardState extends State<ControlCard> {
           if (skipping)
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Just close the dialog
+                Navigator.of(context).pop(null); // Just close the dialog
               },
               child: const Text("CANCEL"),
             ),
           TextButton(
               onPressed: () {
-                submitCheckIn();
+                // submitCheckIn();
+                Navigator.of(context).pop(controller.text);
               },
               child: skipping
                   ? const Text('CHECK IN ANYWAY')
@@ -499,7 +508,10 @@ class _ControlCardState extends State<ControlCard> {
           TextField(
             decoration: const InputDecoration(hintText: 'Comment (optional)'),
             controller: controller,
-            onSubmitted: (_) => submitCheckIn(),
+            onSubmitted: (comment) {
+              Navigator.of(context).pop(comment);
+            },
+            // onSubmitted: (_) => submitCheckIn(),
           ),
         ],
       ),
@@ -509,46 +521,40 @@ class _ControlCardState extends State<ControlCard> {
   // This initiates the checkin with controlCheckIn() and then
   // presents some after-check-in nitices.
 
-  void submitCheckIn({popAfter = true}) {
+  void submitCheckIn(String comment) async {
     var controlState = context.read<ControlState>();
 
     // this will do the actual check-in
-    widget.activeEvent!
-        .controlCheckIn(
+    var result = await widget.activeEvent!.controlCheckIn(
       control: widget.control,
-      comment: controller.text,
+      comment: comment,
       controlState: controlState,
-    )
-        .then((result) {
-      final activeEvent =
-          widget.activeEvent!; // Only can be used on activated events
-      final control = widget.control;
-      final isDisqualified = activeEvent.isDisqualified;
+    );
 
-      final isFinished = !(widget.event.isIntermediateControl(control) ||
-          !activeEvent.isFinished);
-      if ((result != null) || // Force dialog if anything interesting happened
-          isFinished ||
-          isDisqualified ||
-          AppSettings.enablePostCheckinDialog.value) {
-        openPostCheckInDialog(result);
-      } else {
-        postCheckInSnackBar(); // otherwise just give a snackbar notice.
-      }
+    final activeEvent =
+        widget.activeEvent!; // Only can be used on activated events
+    final control = widget.control;
+    final isDisqualified = activeEvent.isDisqualified;
 
-      // Attempt to download
-      // the list of recent comments and put the new ones into the snackbar.
+    final isFinished = !(widget.event.isIntermediateControl(control) ||
+        !activeEvent.isFinished);
+    if ((result != null) || // Force dialog if anything interesting happened
+        isFinished ||
+        isDisqualified ||
+        AppSettings.enablePostCheckinDialog.value) {
+      openPostCheckInDialog(result);
+    } else {
+      postCheckInSnackBar(); // otherwise just give a snackbar notice.
+    }
 
-      if (AppSettings.notifyOtherRiderComments.value) {
-        CommentFetcher.fetchAndFlush(activeEvent,
-            excludeRiderID: AppSettings.rusaID.value,
-            delay: const Duration(seconds: 5));
-      }
-    });
-    controller.clear();
-    // if submitCheckInDialog is called directly because
-    // there was no checkin comment option, then the pop isn't needed.
-    if (popAfter) Navigator.of(context).pop();
+    // Attempt to download
+    // the list of recent comments and put the new ones into the snackbar.
+
+    if (AppSettings.notifyOtherRiderComments.value) {
+      CommentFetcher.fetchAndFlush(activeEvent,
+          excludeRiderID: AppSettings.rusaID.value,
+          delay: const Duration(seconds: 5));
+    }
   }
 
   void postCheckInSnackBar() {
@@ -563,150 +569,148 @@ class _ControlCardState extends State<ControlCard> {
         "Checked into Control ${control.index + 1} at $checkInTimeString");
   }
 
-  Future openPostCheckInDialog(String? checkInResult) => showDialog(
-        context: context,
-        builder: (context) {
-          final activeEvent = widget.activeEvent;
-          final control = widget.control;
-          final checkInDateTime =
-              activeEvent!.outcomes.getControlCheckInTime(control.index);
-          final checkInTimeString = Utility.toBriefTimeString(checkInDateTime);
-          final textTheme = Theme.of(context).textTheme;
-          final signatureStyle = textTheme.headlineMedium;
-          final signatureColor = Theme.of(context).colorScheme.onError;
-          final titleStyle = textTheme.headlineMedium;
-          final smallPrint = textTheme.bodySmall;
-          final largePrint = textTheme.bodyLarge;
-          final overallOutcome = activeEvent.outcomes.overallOutcome;
-          const spaceBox = SizedBox(
-            height: 16,
+  void openPostCheckInDialog(String? checkInResult) {
+    final activeEvent = widget.activeEvent;
+    final control = widget.control;
+    final checkInDateTime =
+        activeEvent!.outcomes.getControlCheckInTime(control.index);
+    final checkInTimeString = Utility.toBriefTimeString(checkInDateTime);
+    final textTheme = Theme.of(context).textTheme;
+    final signatureStyle = textTheme.headlineMedium;
+    final signatureColor = Theme.of(context).colorScheme.onError;
+    final titleStyle = textTheme.headlineMedium;
+    final smallPrint = textTheme.bodySmall;
+    final largePrint = textTheme.bodyLarge;
+    final overallOutcome = activeEvent.outcomes.overallOutcome;
+    const spaceBox = SizedBox(
+      height: 16,
+    );
+    const thinSpaceBox = SizedBox(
+      height: 8,
+    );
+
+    final shouldConfetti = checkInResult == null &&
+        AppSettings.finishConfetti.value == true &&
+        overallOutcome == OverallOutcome.finish;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        final isDisqualified = activeEvent.isDisqualified;
+        final isNotFinished = widget.event.isIntermediateControl(control) ||
+            !activeEvent.isFinished;
+
+        var checkInPhrase =
+            Signature.checkInCode(activeEvent, control).wordText;
+
+        var checkInSignatureString = isDisqualified
+            ? 'RBA Review'
+            : (isNotFinished
+                ? checkInPhrase
+                : Signature.forCert(activeEvent).xyText);
+
+        MyLogger.entry("Control check-in: $checkInSignatureString");
+
+        if (checkInResult != null) {
+          return AlertDialog(
+            icon: const Icon(Icons.error, size: 62.0),
+            title: const Text("Check In FAILED"),
+            content: Column(
+              children: [
+                const Text("Something went wrong with your check-in:"),
+                thinSpaceBox,
+                Text(checkInResult,
+                    style: largePrint, textAlign: TextAlign.center),
+                thinSpaceBox,
+                const Text(
+                    "You can try checking in again. If this problem persists, use "
+                    "your brevet card the old fashioned way. If you think this is an app "
+                    "bug you should share the Activity Log to your RBA. You'll find that log "
+                    "in app settings."),
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: const Text("Continue"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
           );
-          const thinSpaceBox = SizedBox(
-            height: 8,
-          );
-
-          final isDisqualified = activeEvent.isDisqualified;
-          final isNotFinished = widget.event.isIntermediateControl(control) ||
-              !activeEvent.isFinished;
-
-          var checkInPhrase =
-              Signature.checkInCode(activeEvent, control).wordText;
-
-          var checkInSignatureString = isDisqualified
-              ? 'RBA Review'
-              : (isNotFinished
-                  ? checkInPhrase
-                  : Signature.forCert(activeEvent).xyText);
-
-          MyLogger.entry("Control check-in: $checkInSignatureString");
-
-          if (checkInResult != null) {
-            return AlertDialog(
-              icon: const Icon(Icons.error, size: 62.0),
-              title: const Text("Check In FAILED"),
-              content: Column(
+        } else {
+          return ConfettiDialog(
+            shouldConfetti: shouldConfetti,
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text("Something went wrong with your check-in:"),
+                  Text(
+                    (isNotFinished) ? 'Check In Recorded' : 'Ride Completed',
+                    style: titleStyle,
+                  ),
+                  Text(
+                    "At $checkInTimeString",
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  spaceBox,
+                  Text(
+                    isDisqualified
+                        ? "RBA REVIEW NEEDED"
+                        : ((isNotFinished) ? 'Check-In Phrase' : 'Finish Code'),
+                  ),
                   thinSpaceBox,
-                  Text(checkInResult,
-                      style: largePrint, textAlign: TextAlign.center),
-                  thinSpaceBox,
-                  const Text(
-                      "You can try checking in again. If this problem persists, use "
-                      "your brevet card the old fashioned way. If you think this is an app "
-                      "bug you should share the Activity Log to your RBA. You'll find that log "
-                      "in app settings."),
+                  Container(
+                    color: signatureColor,
+                    padding: const EdgeInsets.all(8),
+                    child: Text(
+                      checkInSignatureString,
+                      style: signatureStyle,
+                    ),
+                  ),
+                  spaceBox,
+                  if (isDisqualified)
+                    Text(
+                      'Last Control Check-in Phrase:',
+                      style: smallPrint,
+                    ),
+                  if (isDisqualified)
+                    Text(
+                      checkInPhrase,
+                      style: smallPrint,
+                    ),
+                  if (!isDisqualified && isNotFinished)
+                    Text(
+                      'OPTIONAL: Write Phrase and Time',
+                      style: smallPrint,
+                    ),
+                  if (!isDisqualified && isNotFinished)
+                    Text(
+                      'on Brevet Card as backup!',
+                      style: smallPrint,
+                    ),
+                  if (!isDisqualified && !isNotFinished)
+                    Text(
+                      'Record Finish Code as Proof',
+                      style: smallPrint,
+                    ),
+                  spaceBox,
+                  Text(activeEvent.checkInFractionString),
+                  Text(
+                    (overallOutcome == OverallOutcome.finish)
+                        ? "Congratulations! You have finished the ${activeEvent.event.nameDist} in ${activeEvent.elapsedTimeString}."
+                        : (widget.event.isIntermediateControl(control)
+                            ? "Ride On!"
+                            : "RBA Review Needed"),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontStyle: FontStyle.italic),
+                  ),
                 ],
               ),
-              actions: [
-                TextButton(
-                  child: const Text("Continue"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          } else {
-            return AlertDialog(
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      (isNotFinished) ? 'Check In Recorded' : 'Ride Completed',
-                      style: titleStyle,
-                    ),
-                    Text(
-                      "At $checkInTimeString",
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    spaceBox,
-                    Text(
-                      isDisqualified
-                          ? "RBA REVIEW NEEDED"
-                          : ((isNotFinished)
-                              ? 'Check-In Phrase'
-                              : 'Finish Code'),
-                    ),
-                    thinSpaceBox,
-                    Container(
-                      color: signatureColor,
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        checkInSignatureString,
-                        style: signatureStyle,
-                      ),
-                    ),
-                    spaceBox,
-                    if (isDisqualified)
-                      Text(
-                        'Last Control Check-in Phrase:',
-                        style: smallPrint,
-                      ),
-                    if (isDisqualified)
-                      Text(
-                        checkInPhrase,
-                        style: smallPrint,
-                      ),
-                    if (!isDisqualified && isNotFinished)
-                      Text(
-                        'OPTIONAL: Write Phrase and Time',
-                        style: smallPrint,
-                      ),
-                    if (!isDisqualified && isNotFinished)
-                      Text(
-                        'on Brevet Card as backup!',
-                        style: smallPrint,
-                      ),
-                    if (!isDisqualified && !isNotFinished)
-                      Text(
-                        'Record Finish Code as Proof',
-                        style: smallPrint,
-                      ),
-                    spaceBox,
-                    Text(activeEvent.checkInFractionString),
-                    Text(
-                      (overallOutcome == OverallOutcome.finish)
-                          ? "Congratulations! You have finished the ${activeEvent.event.nameDist} in ${activeEvent.elapsedTimeString}."
-                          : (widget.event.isIntermediateControl(control)
-                              ? "Ride On!"
-                              : "RBA Review Needed"),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontStyle: FontStyle.italic),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('CONTINUE'))
-              ],
-            );
-          }
-        },
-      );
+            ),
+          );
+        }
+      },
+    );
+  }
 }

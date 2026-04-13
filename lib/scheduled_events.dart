@@ -49,7 +49,6 @@ enum ScheduleEventsSourceID {
 
 class ScheduledEventsSource {
   final ScheduleEventsSourceID id;
-  final String url;
 
   String get description => id.description;
 
@@ -57,11 +56,11 @@ class ScheduledEventsSource {
     return "${id.description}: $subDescription";
   }
 
-  String get sourceID {
-    final srcID = id.index.toString();
-    final rgnID = Region.fromSettings().regionID;
-    return "$srcID.$rgnID";
-  }
+  // String get sourceID {
+  //   final srcID = id.index.toString();
+  //   final rgnID = Region.fromSettings().regionID;
+  //   return "$srcID.$rgnID";
+  // }
 
   String get subDescription {
     String d;
@@ -72,6 +71,7 @@ class ScheduledEventsSource {
         d = rgn.regionName;
         break;
       case ScheduleEventsSourceID.fromURL:
+        var url = AppSettings.eventInfoURL.value;
         d = "($url)";
         break;
     }
@@ -80,12 +80,16 @@ class ScheduledEventsSource {
 
   factory ScheduledEventsSource.fromSettingsSourceID() {
     var sourceID = AppSettings.scheduleEventsSourceID.value;
+    return ScheduledEventsSource(sourceID);
+  }
+
+  ScheduledEventsSource(this.id);
+
+  get url {
+    var sourceID = AppSettings.scheduleEventsSourceID.value;
     String eventsURL;
     switch (sourceID) {
       case ScheduleEventsSourceID.fromRegion:
-        var rgn = Region.fromSettings();
-        eventsURL = rgn.scheduledEventsURL;
-        break;
       case ScheduleEventsSourceID.fromInternationalRegion:
         var rgn = Region.fromSettings();
         eventsURL = rgn.scheduledEventsURL;
@@ -94,18 +98,30 @@ class ScheduledEventsSource {
         eventsURL = AppSettings.eventInfoURL.value;
         break;
     }
-    return ScheduledEventsSource(sourceID, eventsURL);
+    return eventsURL;
   }
 
-  ScheduledEventsSource(this.id, this.url);
+  get secret {
+    var sourceID = AppSettings.scheduleEventsSourceID.value;
+    String secret;
+    switch (sourceID) {
+      case ScheduleEventsSourceID.fromRegion:
+      case ScheduleEventsSourceID.fromInternationalRegion:
+        var rgn = Region.fromSettings();
+        secret = rgn.secret;
+        break;
+      case ScheduleEventsSourceID.fromURL:
+        secret = AppSettings.customRegionSecret.value;
+        break;
+    }
+    return secret;
+  }
 
   ScheduledEventsSource.fromJson(Map<String, dynamic> json)
-      : id = ScheduleEventsSourceID.fromJson(json['id']),
-        url = json['url'];
+      : id = ScheduleEventsSourceID.fromJson(json['id']);
 
   Map<String, dynamic> toJson() => {
         'id': id.toJson(),
-        'url': url,
       };
 }
 
@@ -184,9 +200,7 @@ class ScheduledEvents {
           eventInfoSource = ScheduledEventsSource.fromJson(
               eventMapFromFile[eventInfoSourceFieldName]);
         } else {
-          eventInfoSource = ScheduledEventsSource(
-              ScheduleEventsSourceID.fromRegion,
-              Region.fromSettings().scheduledEventsURL);
+          eventInfoSource = ScheduledEventsSource.fromSettingsSourceID();
         }
 
         // refreshCount.value++;
@@ -237,10 +251,12 @@ class ScheduledEvents {
       String sourceURL = "";
       bool authenticating = true;
       String txNonce = 'nononce';
+      String authSecret = '';
 
       if (AppSettings.authenticateEventsData.value) {
         txNonce = generateNonce();
         sourceURL = "${scheduleEventsSource.url}/$txNonce";
+        authSecret = scheduleEventsSource.secret;
       } else {
         sourceURL = scheduleEventsSource.url;
         authenticating = false;
@@ -251,20 +267,24 @@ class ScheduledEvents {
 
       // Verify signature
 
+      // If the region was selected from the internal list of regions,
+      // the associated region secret is in the Region object
+      // But if the Event Info Source was a custom URL, then
+      // the secret must be obtained from the settings
+      // Presumably the sc
+
       String rxSignature = eventMapFromServer['signature'] ?? '';
       String rxNonce = eventMapFromServer['nonce'] ?? '';
-      var rgn = Region.fromSettings();
-      var regionSecret = rgn.secret;
 
       if (authenticating && (rxNonce != txNonce)) {
         throw ServerException('Nonce mismatch: TX: "$txNonce"; RX: "$rxNonce"');
       }
 
       if (authenticating &&
-          (false == verifySignature(eventMapFromServer, regionSecret))) {
+          (false == verifySignature(eventMapFromServer, authSecret))) {
         MyLogger.entry(
             severity: Severity.hidden,
-            "Bad signature assuming secret = '${maskSecondHalf(regionSecret)}'");
+            "Bad signature assuming secret = '${maskSecondHalf(authSecret)}'");
         throw ServerException('Signature invalid RX: $rxSignature');
       }
 

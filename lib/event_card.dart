@@ -48,7 +48,7 @@ class EventCard extends StatefulWidget {
 class _EventCardState extends State<EventCard> {
   late TextEditingController controller;
   late Event event;
-  late ActivatedEvent? activatedEvent;
+  // late ActivatedEvent? activatedEvent;
 
   // String startCode = '';
   // final String invalidCodeText = "INVALID Start Code";
@@ -56,8 +56,8 @@ class _EventCardState extends State<EventCard> {
   @override
   void initState() {
     super.initState();
-    event = widget.event;
-    activatedEvent = MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
+    // event = widget.event;
+    // activatedEvent = MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
     controller = TextEditingController();
   }
 
@@ -73,8 +73,8 @@ class _EventCardState extends State<EventCard> {
     final event = widget.event;
 
     final regionName = Region(regionID: event.regionID).clubName;
-    // final activatedEvent =
-    //     MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
+    final activatedEvent =
+        MyActivatedEvents.lookupMyActivatedEvent(event.eventID);
     final OverallOutcome overallOutcomeInHistory =
         activatedEvent?.outcomes.overallOutcome ??
             OverallOutcome.dns; // DNS if never activated
@@ -189,8 +189,7 @@ class _EventCardState extends State<EventCard> {
                   tooltip: 'Abandon the event',
                 ),
               const Spacer(),
-              rideButton(
-                  context), // , event, activatedEvent: widget.activatedEvent),
+              rideButton(context, event, activatedEvent),
               const SizedBox(width: 8),
             ],
           ),
@@ -253,7 +252,8 @@ class _EventCardState extends State<EventCard> {
             );
           });
 
-  Widget rideButton(BuildContext context) {
+  Widget rideButton(
+      BuildContext context, Event event, ActivatedEvent? activatedEvent) {
     var controlState = context
         .read<ControlState>(); // So addActivate can dirty the control card
 
