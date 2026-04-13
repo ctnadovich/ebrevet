@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
 
+// import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
+
 import 'package:ebrevet_card/scheduled_events.dart';
 import 'package:ebrevet_card/mylogger.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +69,7 @@ class SettingsPageState extends State<SettingsPage> {
               children: [
                 RequiredAppSettings(
                   collapsed: true,
-                  onContinue: () => {},
+                  onContinue: () => setState(() {}),
                 ),
                 spacerBox,
                 const EventSearchSettings(),
@@ -213,11 +215,16 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
           //     onChanged: sourceSelection.updateFromSettings,
           //   ),
           if (AppSettings.scheduleEventsSourceID.value ==
-              ScheduleEventsSourceID.fromURL)
+              ScheduleEventsSourceID.fromURL) ...[
             DialogInputSettingsTile(
               AppSettings.eventInfoURL,
               onChanged: sourceSelection.updateFromSettings,
             ),
+            DialogInputSettingsTile(
+              AppSettings.customRegionSecret,
+              onChanged: sourceSelection.updateFromSettings,
+            ),
+          ],
           spacerBox
         ],
       ),
@@ -254,6 +261,8 @@ class _OptionalAppSettingsState extends State<OptionalAppSettings> {
                   SwitchSettingsTile(AppSettings.allowCheckinComment),
                   SwitchSettingsTile(AppSettings.enablePostCheckinDialog),
                   SwitchSettingsTile(AppSettings.notifyOtherRiderComments),
+                  SwitchSettingsTile(AppSettings.canDeletePastEvents),
+                  SwitchSettingsTile(AppSettings.finishConfetti),
                   DialogInputSettingsTile(AppSettings.gpsRefreshPeriod),
                 ])),
           ),
@@ -283,7 +292,10 @@ class _AdvancedSettingsState extends State<AdvancedSettings> {
       color: Colors.transparent,
       child: ExpansionTile(
         title: const Text('Developer Options'),
-        subtitle: const Text("Using these may disqualify your ride."),
+        subtitle: Text(
+          "Using these may disqualify your ride.",
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
+        ),
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 8, 8),
@@ -293,7 +305,6 @@ class _AdvancedSettingsState extends State<AdvancedSettings> {
                 child: Column(children: [
                   SwitchSettingsTile(AppSettings.openTimeOverride),
                   SwitchSettingsTile(AppSettings.prerideDateWindowOverride),
-                  SwitchSettingsTile(AppSettings.canDeletePastEvents),
                   SwitchSettingsTile(AppSettings.canCheckInLate),
                   SwitchSettingsTile(AppSettings.controlProximityOverride),
                   DialogInputSettingsTile(
@@ -336,9 +347,11 @@ class RequiredAppSettings extends StatelessWidget {
     this.onContinue,
     this.collapsed = true,
   });
+
   final spacerBox = const SizedBox(
     height: 10,
   );
+
   @override
   Widget build(BuildContext context) {
     if (collapsed) {
@@ -347,7 +360,24 @@ class RequiredAppSettings extends StatelessWidget {
         child: ExpansionTile(
           title: const Text('Rider Settings'),
           subtitle: const Text('Name and ID'),
-          children: requiredSettingsList(),
+          children: [
+            DialogInputSettingsTile(AppSettings.firstName),
+            DialogInputSettingsTile(AppSettings.lastName),
+            DialogInputSettingsTile(
+              AppSettings.rusaID,
+              onChanged: () {
+                if (AppSettings.rusaID.value != AppSettings.magicRUSAID) {
+                  MySetting.clearDeveloperOptions().then((_) {
+                    onContinue!.call();
+                  });
+                } else {
+                  MyLogger.entry("Developer Options Enabled",
+                      severity: Severity.warning);
+                  onContinue!.call();
+                }
+              },
+            ),
+          ],
         ),
       );
     } else {
@@ -366,19 +396,20 @@ class RequiredAppSettings extends StatelessWidget {
           //   style: Theme.of(context).textTheme.bodySmall,
           // ),
           spacerBox,
-          ...requiredSettingsList(),
+          DialogInputSettingsTile(AppSettings.firstName),
+          DialogInputSettingsTile(AppSettings.lastName),
+          DialogInputSettingsTile(
+            AppSettings.rusaID,
+            onChanged: () {
+              if (AppSettings.rusaID.value != AppSettings.magicRUSAID) {
+                MySetting.clearDeveloperOptions();
+              }
+            },
+          ),
           spacerBox,
           ElevatedButton(onPressed: onContinue, child: const Text('Continue')),
         ],
       );
     }
-  }
-
-  List<Widget> requiredSettingsList() {
-    return [
-      DialogInputSettingsTile(AppSettings.firstName),
-      DialogInputSettingsTile(AppSettings.lastName),
-      DialogInputSettingsTile(AppSettings.rusaID),
-    ];
   }
 }
