@@ -140,6 +140,14 @@ class AppSettings {
     icon: const Icon(Icons.web_asset),
   );
 
+  static MySetting<String> customRegionSecret = MySetting<String>(
+    key: 'key-custom-region-secret',
+    defaultValue: '',
+    title: 'Custom Secret',
+    validator: notEmptyValidator,
+    icon: const Icon(Icons.password),
+  );
+
   static MySetting<ScheduleEventsSourceID> scheduleEventsSourceID =
       MySetting<ScheduleEventsSourceID>(
           key: 'key-event-info-source-id',
@@ -189,6 +197,7 @@ class AppSettings {
     title: 'Control Proximity Radius',
     validator: doubleValidator,
     icon: const Icon(Icons.radar),
+    isDeveloper: true,
   );
 
   static MySetting<int> keepInFutureEventListAfterFinishHours = MySetting(
@@ -212,13 +221,24 @@ class AppSettings {
     defaultValue: false,
     title: 'Open Time Override',
     icon: const Icon(Icons.settings),
+    isDeveloper: true,
+  );
+
+  static MySetting<bool> finishConfetti = MySetting(
+    key: 'key-finish-confetti',
+    defaultValue: false,
+    title: 'Confetti Display for Finish',
+    icon: const Icon(Icons.celebration),
+    isDeveloper: true,
   );
 
   static MySetting<bool> controlProximityOverride = MySetting(
-      key: 'key-control-proximity-override',
-      defaultValue: false,
-      title: 'Control Proximity Override',
-      icon: const Icon(Icons.settings));
+    key: 'key-control-proximity-override',
+    defaultValue: false,
+    title: 'Control Proximity Override',
+    icon: const Icon(Icons.settings),
+    isDeveloper: true,
+  );
 
   static MySetting<bool> canDeletePastEvents = MySetting(
       key: 'key-delete-past-events',
@@ -233,10 +253,12 @@ class AppSettings {
       icon: const Icon(Icons.settings));
 
   static MySetting<bool> prerideDateWindowOverride = MySetting(
-      key: 'key-preride-date-window-override',
-      defaultValue: false,
-      title: 'Pre-ride Date Window Override',
-      icon: const Icon(Icons.settings));
+    key: 'key-preride-date-window-override',
+    defaultValue: false,
+    title: 'Pre-ride Date Window Override',
+    icon: const Icon(Icons.settings),
+    isDeveloper: true,
+  );
 
   // static MySetting<bool> loadPastEvents = MySetting(
   //     key: 'key-load-past-events',
@@ -245,10 +267,12 @@ class AppSettings {
   //     icon: const Icon(Icons.settings));
 
   static MySetting<bool> authenticateEventsData = MySetting(
-      key: 'key-authenticate-future-events',
-      defaultValue: true,
-      title: 'Authenticate events data',
-      icon: const Icon(Icons.verified));
+    key: 'key-authenticate-future-events',
+    defaultValue: true,
+    title: 'Authenticate events data',
+    icon: const Icon(Icons.verified),
+    isDeveloper: true,
+  );
 
   //static iinitializeMySettings() {
   // eventInfoSource = MySetting<EventInfoSource>(
