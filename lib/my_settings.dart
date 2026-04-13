@@ -27,8 +27,10 @@ class MySetting<T> {
   final String? Function(String? value)? validator;
   final Icon? icon;
   final void Function()? onChanged;
+  final bool isDeveloper;
 
-  static final Map<String, dynamic> _settingMap = <String, MySetting>{};
+  static final Map<String, MySetting<dynamic>> _settingMap =
+      <String, MySetting>{};
 
   static late SharedPreferences prefs;
 
@@ -45,12 +47,14 @@ class MySetting<T> {
     String? Function(String? value)? validator,
     void Function()? onChanged,
     Icon? icon,
+    bool isDeveloper = false,
   }) {
     if (_settingMap.containsKey(key)) {
-      return _settingMap[key]!;
+      return _settingMap[key]! as MySetting<T>;
     } else {
       var setting = MySetting._generate(
-          key, defaultValue, title, validator, onChanged, icon);
+          key, defaultValue, title, validator, onChanged, icon,
+          isDeveloper: isDeveloper);
       _settingMap[key] = setting;
       // MyLogger.entry(
       //     'Added setting $key; Map now contains ${_settingMap.length} entries.');
@@ -59,7 +63,8 @@ class MySetting<T> {
   }
 
   MySetting._generate(this.key, this.defaultValue, this.title, this.validator,
-      this.onChanged, this.icon);
+      this.onChanged, this.icon,
+      {this.isDeveloper = false});
 
   @override
   String toString() {
@@ -134,9 +139,22 @@ class MySetting<T> {
   }
 
   static Future<void> clear() async {
+    MyLogger.entry('Clearing All Options');
+
     for (String k in _settingMap.keys) {
       MyLogger.entry('Clearing $k');
       await prefs.remove(k);
+    }
+  }
+
+  static Future<void> clearDeveloperOptions() async {
+    MyLogger.entry('Clearing Developer Options');
+
+    for (String k in _settingMap.keys) {
+      if (_settingMap[k]?.isDeveloper == true) {
+        MyLogger.entry('Clearing $k');
+        await prefs.remove(k);
+      }
     }
   }
 }
