@@ -132,6 +132,7 @@ class _CertificatePageState extends State<CertificatePage> {
                     RepaintBoundary(
                       key: previewContainer,
                       child: Container(
+                        //padding: const EdgeInsets.all(12),
                         padding: const EdgeInsetsDirectional.all(12),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
