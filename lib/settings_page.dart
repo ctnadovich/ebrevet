@@ -78,6 +78,7 @@ class SettingsPageState extends State<SettingsPage> {
                   onClear: () => setState(() {}),
                 ),
                 spacerBox,
+                spacerBox,
                 if (AppSettings.isMagicRusaID)
                   AdvancedSettings(
                     onClear: () => setState(() {}),
@@ -183,24 +184,6 @@ class _EventSearchSettingsState extends State<EventSearchSettings> {
             else
               const Text("Somehow the region selected is not in the "
                   "list of regions this app knows about. Please try refreshing the region list."),
-          spacerBox,
-          if (viewAllRegions)
-            Column(
-              children: [
-                Text("There are ${Region.numberOfUsRegions} RUSA regions, "
-                    "and ${Region.numberOfNonUsRegions} International regions loaded. "
-                    "If your region is not in either the RUSA or Intl list, "
-                    "try getting the latest region list from the server."),
-                spacerBox,
-                ElevatedButton(
-                  onPressed: () async {
-                    await Region.fetchRegionsFromServer();
-                    setState(() {});
-                  },
-                  child: const Text('Get Latest Region List'),
-                ),
-              ],
-            ),
 
           // if (AppSettings.futureEventsSourceID.value ==
           //     FutureEventsSourceID.fromPerm)
@@ -247,6 +230,15 @@ class OptionalAppSettings extends StatefulWidget {
 class _OptionalAppSettingsState extends State<OptionalAppSettings> {
   @override
   Widget build(BuildContext context) {
+    var spacerBox = const SizedBox(
+      height: 16,
+    );
+    bool viewUSRegions = AppSettings.scheduleEventsSourceID.value ==
+        ScheduleEventsSourceID.fromRegion;
+    bool viewInternationalRegions = AppSettings.scheduleEventsSourceID.value ==
+        ScheduleEventsSourceID.fromInternationalRegion;
+    bool viewAllRegions = viewUSRegions || viewInternationalRegions;
+
     return Material(
       color: Colors.transparent,
       child: ExpansionTile(
@@ -262,8 +254,27 @@ class _OptionalAppSettingsState extends State<OptionalAppSettings> {
                   SwitchSettingsTile(AppSettings.enablePostCheckinDialog),
                   SwitchSettingsTile(AppSettings.notifyOtherRiderComments),
                   SwitchSettingsTile(AppSettings.canDeletePastEvents),
-                  SwitchSettingsTile(AppSettings.finishConfetti),
                   DialogInputSettingsTile(AppSettings.gpsRefreshPeriod),
+                  SwitchSettingsTile(AppSettings.finishConfetti),
+                  if (viewAllRegions)
+                    Column(
+                      children: [
+                        spacerBox,
+                        Text(
+                            "There are ${Region.numberOfUsRegions} RUSA regions, "
+                            "and ${Region.numberOfNonUsRegions} International regions loaded. "
+                            "If your region is not in either the RUSA or Intl list, "
+                            "try getting the latest region list from the server."),
+                        spacerBox,
+                        ElevatedButton(
+                          onPressed: () async {
+                            await Region.fetchRegionsFromServer();
+                            setState(() {});
+                          },
+                          child: const Text('Get Latest Region List'),
+                        ),
+                      ],
+                    ),
                 ])),
           ),
         ],

@@ -226,10 +226,9 @@ class AppSettings {
 
   static MySetting<bool> finishConfetti = MySetting(
     key: 'key-finish-confetti',
-    defaultValue: false,
+    defaultValue: true,
     title: 'Confetti Display for Finish',
     icon: const Icon(Icons.celebration),
-    isDeveloper: true,
   );
 
   static MySetting<bool> controlProximityOverride = MySetting(
