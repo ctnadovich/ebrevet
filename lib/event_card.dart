@@ -38,8 +38,10 @@ class EventCard extends StatefulWidget {
   final Event event;
   final bool? hasDelete;
   final Function? onDelete;
+  final VoidCallback? onEventsUpdated;
 
-  const EventCard(this.event, {super.key, this.hasDelete, this.onDelete});
+  const EventCard(this.event,
+      {super.key, this.hasDelete, this.onDelete, this.onEventsUpdated});
 
   @override
   State<EventCard> createState() => _EventCardState();
@@ -48,6 +50,7 @@ class EventCard extends StatefulWidget {
 class _EventCardState extends State<EventCard> {
   late TextEditingController controller;
   late Event event;
+
   // late ActivatedEvent? activatedEvent;
 
   // String startCode = '';
@@ -189,7 +192,8 @@ class _EventCardState extends State<EventCard> {
                   tooltip: 'Abandon the event',
                 ),
               const Spacer(),
-              rideButton(context, event, activatedEvent),
+              rideButton(
+                  context, event, activatedEvent, widget.onEventsUpdated),
               const SizedBox(width: 8),
             ],
           ),
@@ -252,8 +256,8 @@ class _EventCardState extends State<EventCard> {
             );
           });
 
-  Widget rideButton(
-      BuildContext context, Event event, ActivatedEvent? activatedEvent) {
+  Widget rideButton(BuildContext context, Event event,
+      ActivatedEvent? activatedEvent, VoidCallback? onEventsUpdated) {
     var controlState = context
         .read<ControlState>(); // So addActivate can dirty the control card
 
@@ -299,7 +303,11 @@ class _EventCardState extends State<EventCard> {
             final msg = validateStartCode(startCode, event);
             if (null != msg) {
               if (msg.contains("INVALID Start Code")) {
-                await invalidStartCodeDialog(event, msg);
+                final eventDataUpdated =
+                    await invalidStartCodeDialog(event, msg);
+                if (eventDataUpdated == true) {
+                  onEventsUpdated?.call();
+                }
               } else {
                 FlushbarGlobal.show(msg);
               }
@@ -452,47 +460,301 @@ class _EventCardState extends State<EventCard> {
         );
       });
 
-  Future<bool?> invalidStartCodeDialog(Event event, String msg) =>
-      showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
+  Future<bool?> invalidStartCodeDialog(Event event, String msg) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        final sourceSelection = dialogContext.watch<SourceSelection>();
+        bool updatingEvents = false;
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            Future<void> runUpdate() async {
+              setDialogState(() {
+                updatingEvents = true;
+              });
+
+              try {
+                FlushbarGlobal.show(
+                  'Updating events for ${sourceSelection.eventInfoSource.fullDescription}... '
+                  '(This may take a few seconds.)',
+                  style: FlushbarStyle.info,
+                );
+
+                await ScheduledEvents.refreshScheduledEventsFromServer(
+                  sourceSelection.eventInfoSource,
+                  this.context,
+                );
+
+                if (context.mounted) {
+                  Navigator.of(context).pop(true);
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  setDialogState(() {
+                    updatingEvents = false;
+                  });
+                }
+              }
+            }
+
             return AlertDialog(
               icon: const Icon(Icons.error, size: 62.0),
               title: Text(msg),
               content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                        'Are you sure you typed the start code correctly?'),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    const Text(
-                        'Maybe you need to UPDATE THE EVENT DATA in this app '
-                        'to match the cue version of your brevet card. '),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    const Text('To update event data, press '
-                        'the "Update Event Data" button at the top of the eBrevet Events page. '),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    Text('App Event Data: Cue Ver ${event.cueVersionString}'),
-                  ],
+                child: updatingEvents
+                    ? const SizedBox(
+                        height: 96,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(height: 16),
+                              Text('Updating event data...'),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Are you sure you typed the start code correctly? '
+                            'Is your Rider ID set correctly?',
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Maybe you need to UPDATE THE EVENT DATA in this app '
+                            'to at least equal the cue version printed your brevet card.',
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'eBrevet now using cue ver: ${event.cueVersionString}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'Rider ID# ${AppSettings.rusaID}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          ElevatedButton.icon(
+                            onPressed: updatingEvents ? null : runUpdate,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Update event data'),
+                          ),
+                        ],
+                      ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: updatingEvents
+                      ? null
+                      : () => Navigator.of(context).pop(false),
+                  child: const Text('Continue'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<bool?> xxinvalidStartCodeDialog(Event event, String msg) {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        final sourceSelection = dialogContext.watch<SourceSelection>();
+        bool updatingEvents = false;
+        bool changed = false;
+
+        return StatefulBuilder(
+          builder: (BuildContext context,
+              void Function(void Function()) setDialogState) {
+            Future<void> runUpdate() async {
+              setDialogState(() {
+                updatingEvents = true;
+              });
+
+              try {
+                FlushbarGlobal.show(
+                  'Updating events for ${sourceSelection.eventInfoSource.fullDescription}... '
+                  '(This may take a few seconds.)',
+                  style: FlushbarStyle.info,
+                );
+
+                await ScheduledEvents.refreshScheduledEventsFromServer(
+                  sourceSelection.eventInfoSource,
+                  context,
+                );
+
+                changed = true;
+              } finally {
+                if (context.mounted) {
+                  setDialogState(() {
+                    updatingEvents = false;
+                  });
+                }
+              }
+            }
+
+            return AlertDialog(
+              icon: const Icon(Icons.error, size: 62.0),
+              title: Text(msg),
+              content: SingleChildScrollView(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: updatingEvents
+                      ? const SizedBox(
+                          key: ValueKey('updating'),
+                          height: 96,
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(),
+                                SizedBox(height: 16),
+                                Text('Updating event data...'),
+                              ],
+                            ),
+                          ),
+                        )
+                      : Column(
+                          key: const ValueKey('ready'),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Are you sure you typed the start code correctly? '
+                              'Is your Rider ID set correctly?',
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Maybe you need to UPDATE THE EVENT DATA in this app '
+                              'to at least equal the cue version printed your brevet card.',
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'eBrevet now using cue ver: ${event.cueVersionString}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              'Rider ID# ${AppSettings.rusaID}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            ElevatedButton.icon(
+                              onPressed: updatingEvents ? null : runUpdate,
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Update event data'),
+                            ),
+                          ],
+                        ),
                 ),
               ),
               actions: [
-                // The "Yes" button
                 TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                    },
-                    child: const Text('Continue')),
+                  onPressed: updatingEvents
+                      ? null
+                      : () {
+                          Navigator.of(context).pop(changed);
+                        },
+                  child: Text(changed ? 'Continue' : 'Continue anyway'),
+                ),
               ],
             );
-          });
+          },
+        );
+      },
+    );
+  }
+
+  // Future<bool?> xinvalidStartCodeDialog(Event event, String msg) =>
+  //     showDialog<bool>(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           var sourceSelection = context.watch<SourceSelection>();
+  //           bool updatingEvents;
+
+  //           return AlertDialog(
+  //             icon: const Icon(Icons.error, size: 62.0),
+  //             title: Text(msg),
+  //             content: SingleChildScrollView(
+  //               child: Column(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   const Text(
+  //                       'Are you sure you typed the start code correctly? Is your Rider ID set correctly?'),
+  //                   const SizedBox(
+  //                     height: 8,
+  //                   ),
+  //                   const Text(
+  //                       'Maybe you need to UPDATE THE EVENT DATA in this app '
+  //                       'to at least equal the cue version printed your brevet card.'),
+  //                   const SizedBox(
+  //                     height: 8,
+  //                   ),
+  //                   Text(
+  //                     'eBrevet now using cue ver: ${event.cueVersionString}',
+  //                     style: Theme.of(context)
+  //                         .textTheme
+  //                         .bodyLarge
+  //                         ?.copyWith(fontWeight: FontWeight.bold),
+  //                   ),
+  //                   Text(
+  //                     'Rider ID# ${AppSettings.rusaID}',
+  //                     style: Theme.of(context)
+  //                         .textTheme
+  //                         .bodyLarge
+  //                         ?.copyWith(fontWeight: FontWeight.bold),
+  //                   ),
+  //                   const SizedBox(
+  //                     height: 8,
+  //                   ),
+  //                   ElevatedButton.icon(
+  //                     onPressed: () {
+  //                       FlushbarGlobal.show(
+  //                           'Updating events for ${sourceSelection.eventInfoSource.fullDescription}... (This may take a few seconds.)',
+  //                           style: FlushbarStyle.info);
+  //                       setState(() {
+  //                         updatingEvents = true;
+  //                       });
+
+  //                       ScheduledEvents.refreshScheduledEventsFromServer(
+  //                               sourceSelection.eventInfoSource, context)
+  //                           .then((value) =>
+  //                               setState(() => updatingEvents = false));
+  //                     },
+  //                     icon: const Icon(Icons.refresh),
+  //                     label: const Text('Update event data'),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //             actions: [
+  //               // The "Yes" button
+  //               TextButton(
+  //                   onPressed: () {
+  //                     Navigator.of(context).pop(true);
+  //                   },
+  //                   child: const Text('Continue')),
+  //             ],
+  //           );
+  //         });
 
   String? validateStartCode(String? s, Event event) {
     if (s == null || s.isEmpty) return "Missing start code";

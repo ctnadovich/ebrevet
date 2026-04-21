@@ -145,6 +145,11 @@ class _LatestEventListState extends State<LatestEventList> {
 
   Timer? _timer;
 
+  void refreshPage() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
@@ -176,7 +181,10 @@ class _LatestEventListState extends State<LatestEventList> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: eventListHeader(sourceSelection),
           ),
-          ...events.map((e) => EventCard(e)), // All the Event Cards
+          ...events.map((e) => EventCard(
+                e,
+                onEventsUpdated: refreshPage,
+              )), // All the Event Cards
         ],
       ),
       if (fetchingFromServerNow)
