@@ -76,7 +76,7 @@ class Checkin {
 class RiderResults {
   final String riderId;
   final String riderName;
-  final List<Checkin> checklist;
+  final List<Checkin?> checklist;
   final String result;
   final Duration? elapsedTime;
   final bool? isReallyPreride;
@@ -92,14 +92,19 @@ class RiderResults {
 
   factory RiderResults.fromJson(Map<String, dynamic> json) {
     final rawChecklist = json['checklist'] as List<dynamic>? ?? [];
-    final List<Checkin> checkins = [];
+    final List<Checkin?> checkins = [];
+
+    if (json['rider_id'] == '18763') {
+      json['rider_id'] = '18763';
+    }
 
     bool? anyPreride; // start as null
 
     for (int i = 0; i < rawChecklist.length; i++) {
-      final item = rawChecklist[i] as Map<String, dynamic>?;
-
-      if (item != null) {
+      if (rawChecklist[i] == null) {
+        checkins.add(null);
+      } else {
+        final item = rawChecklist[i] as Map<String, dynamic>;
         final checkin = Checkin.fromJson(item, i + 1);
         checkins.add(checkin);
 
@@ -165,7 +170,7 @@ class RiderResults {
     final comments = <RiderComment>[];
 
     for (final entry in checklist) {
-      final text = entry.comment?.trim();
+      final text = entry?.comment?.trim();
       if (text != null &&
           text.isNotEmpty &&
           !text.contains("Automatic Check In")) {
@@ -173,7 +178,7 @@ class RiderResults {
           RiderComment(
             riderId: riderId,
             riderName: riderName,
-            controlIndex: entry.index,
+            controlIndex: entry!.index,
             text: text,
             dateTime: entry.checkinDatetime,
           ),
@@ -376,13 +381,15 @@ extension RiderCheckinsTimeline on List<RiderResults> {
       for (int i = 0; i < rider.checklist.length; i++) {
         final checkin = rider.checklist[i];
 
-        allCheckins.add(RiderComment(
-          riderName: rider.riderName,
-          riderId: rider.riderId,
-          controlIndex: i + 1,
-          dateTime: checkin.checkinDatetime,
-          text: checkin.comment ?? '',
-        ));
+        if (checkin != null) {
+          allCheckins.add(RiderComment(
+            riderName: rider.riderName,
+            riderId: rider.riderId,
+            controlIndex: checkin.index,
+            dateTime: checkin.checkinDatetime,
+            text: checkin.comment ?? '',
+          ));
+        }
       }
     }
 

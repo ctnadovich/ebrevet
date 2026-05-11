@@ -17,13 +17,13 @@ class RiderCheckinDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Checkin> checklist = rider.checklist;
+    final List<Checkin?> checklist = rider.checklist;
 
     final bool isPreride =
         rider.isReallyPreride ?? false; // assume not preride if no checkins
 
     final DateTime? prerideStartDateTime =
-        (isPreride) ? checklist[0].checkinDatetime : null;
+        (isPreride) ? checklist[0]?.checkinDatetime : null;
 
     //final result = rider.result ?? '';
     final elapsedTime = rider.formatElapsedHHMM();
@@ -107,9 +107,10 @@ class RiderCheckinDetailsPage extends StatelessWidget {
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: numControls, // checklist.length,
-                    itemBuilder: (context, index) {
-                      final checkin =
-                          index < checklist.length ? checklist[index] : null;
+                    itemBuilder: (context, itemIndex) {
+                      final checkin = itemIndex < checklist.length
+                          ? checklist[itemIndex]
+                          : null;
 
                       // Extract comment, skipping "Automatic Check In"
                       String? comment;
@@ -120,13 +121,8 @@ class RiderCheckinDetailsPage extends StatelessWidget {
                       }
 
                       // Lookup the corresponding control
-                      Control? control;
-                      // if (checkin.index > 0 &&
-                      //     checkin.index <= controls.length) {
-                      //   control = controls[checkin.index - 1];
-                      // }
 
-                      control = controls[index];
+                      Control control = controls[itemIndex];
 
                       // if (control == null) throw Exception('Null control');
 

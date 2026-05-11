@@ -50,11 +50,17 @@ class RiderCheckinCard extends StatelessWidget {
 // TODO do we want isReallyPreride conditional?
 
     // if (rider.isReallyPreride == false && rider.checklist.isNotEmpty) {
-    if (rider.checklist.isNotEmpty) {
-      final i = rider.checklist.length;
-      final t = Utility.toBriefTimeString(rider.checklist.last.checkinDatetime);
-      final controlDist = event.controls[i - 1].distMi;
-      final controlName = event.controls[i - 1].name;
+    // if (rider.checklist.isNotEmpty) {
+
+    Checkin? lastNonNull = rider.checklist.reversed.firstWhere(
+      (item) => item != null,
+      orElse: () => null,
+    );
+
+    if (lastNonNull != null) {
+      final t = Utility.toBriefTimeString(lastNonNull.checkinDatetime);
+      final controlDist = event.controls[lastNonNull.index - 1].distMi;
+      final controlName = event.controls[lastNonNull.index - 1].name;
       lastCheckInText = "$controlName ($controlDist mi) @ $t";
     }
 
