@@ -94,10 +94,6 @@ class RiderResults {
     final rawChecklist = json['checklist'] as List<dynamic>? ?? [];
     final List<Checkin?> checkins = [];
 
-    if (json['rider_id'] == '18763') {
-      json['rider_id'] = '18763';
-    }
-
     bool? anyPreride; // start as null
 
     for (int i = 0; i < rawChecklist.length; i++) {
