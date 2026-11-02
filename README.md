@@ -22,6 +22,8 @@ Common questions are answered in the eBrevet [Frequently Asked Questions](https:
 
 eBrevet is supported by the [RBA Tools at Randonneuring.org](https://randonneuring.org) .
 
+Developer notes are available in the [development documentation](docs/README.md).
+
 
 
 ## Features include
@@ -663,4 +665,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with eBrevet.  If not, see <http://www.gnu.org/licenses/>.
-
