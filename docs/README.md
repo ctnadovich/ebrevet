@@ -1,7 +1,13 @@
 # eBrevet Development Notes
 
-This directory contains technical notes for developing and maintaining the
-eBrevet application.
+Technical notes for developing and maintaining the eBrevet application:
 
-Additional architecture, data format, testing, and design-decision notes can
-be added here as the project evolves.
+- [Architecture](architecture.md)
+- [Event signing](event-signing.md)
+- [Data formats and persistence](data-formats.md)
+- [Development setup](development.md)
+- [Testing](testing.md)
+- [Architecture decisions](decisions/README.md)
+
+These documents distinguish current behavior from proposed changes. They must
+not contain production secrets, credentials, rider data, or private event data.
