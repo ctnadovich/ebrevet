@@ -21,6 +21,7 @@ import 'package:ebrevet_card/snackbarglobal.dart';
 import 'region_data.dart';
 import 'mylogger.dart';
 import 'exception.dart';
+import 'scheduled_events.dart';
 import 'package:http/http.dart' as http;
 import 'files.dart';
 
@@ -81,8 +82,12 @@ class Region {
     websiteURL = regionMap[rid]?['website_url'] ?? "";
     iconURL = regionMap[rid]?['icon_url'] ?? "";
 
-    // region secrets are stored in RegionData
-    secret = RegionData.regionSecret[rid] ?? RegionData.defaultSecret;
+    final customSecret = AppSettings.customRegionSecret.value.trim();
+    secret = AppSettings.scheduleEventsSourceID.value ==
+                ScheduleEventsSourceID.fromURL &&
+            customSecret.isNotEmpty
+        ? customSecret
+        : RegionData.regionSecret[rid] ?? RegionData.defaultSecret;
 
     // If a region specifies a server URL, use it verbatim.
     // Otherwise create it from a default basename and region ID
