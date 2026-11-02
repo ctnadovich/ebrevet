@@ -412,9 +412,11 @@ class Event {
   bool isFinishControl(control) => control.index == finishControlKey;
 
   bool isUntimedControl(Control c) {
-    return c.style.isUntimedStyle ||
-        (isIntermediateControl(c) && gravelDistance > 0) ||
-        c.timed == false;
+    // Start and finish controls are always timed, regardless of their style
+    // or the control's explicit timed flag.
+    if (!isIntermediateControl(c)) return false;
+
+    return c.style.isUntimedStyle || gravelDistance > 0 || c.timed == false;
   }
 
   // Time window +/- from the official start time that

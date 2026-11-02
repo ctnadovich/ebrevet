@@ -3,6 +3,7 @@
 Technical notes for developing and maintaining the eBrevet application:
 
 - [Architecture](architecture.md)
+- [Control timing rules](control-timing.md)
 - [Event signing](event-signing.md)
 - [Data formats and persistence](data-formats.md)
 - [Development setup](development.md)
